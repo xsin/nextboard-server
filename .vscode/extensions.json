@@ -1,0 +1,14 @@
+{
+  "recommendations": [
+    "antfu.goto-alias",
+    "dbaeumer.vscode-eslint",
+    "lokalise.i18n-ally",
+    "streetsidesoftware.code-spell-checker",
+    "kisstkondoros.vscode-gutter-preview",
+    "maptz.regionfolder",
+    "mikestead.dotenv",
+    "usernamehw.errorlens",
+    "uniquevision.vscode-plpgsql-lsp",
+    "prisma.prisma"
+  ]
+}

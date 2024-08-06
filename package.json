@@ -1,0 +1,66 @@
+{
+  "name": "@nextboard/server-monorepo",
+  "type": "module",
+  "version": "1.0.0",
+  "packageManager": "pnpm@9.6.0",
+  "description": "Server for the NextBoard Framework",
+  "author": {
+    "name": "XSIN STUDIO"
+  },
+  "keywords": [
+    "NextBoard"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "taze": "taze minor -wIr",
+    "dev": "pnpm -F @nextboard/server run start:dev",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "postinstall": "npx simple-git-hooks"
+  },
+  "dependencies": {
+    "@auth/express": "^0.6.0",
+    "@auth/prisma-adapter": "^2.4.2",
+    "@auth/supabase-adapter": "^1.4.2",
+    "@nestjs/common": "^10.3.10",
+    "@nestjs/config": "^3.2.3",
+    "@nestjs/core": "^10.3.10",
+    "@nestjs/platform-express": "^10.3.10",
+    "@prisma/client": "^5.17.0",
+    "@supabase/supabase-js": "^2.45.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.1"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^2.24.1",
+    "@nestjs/cli": "^10.4.2",
+    "@nestjs/schematics": "^10.1.3",
+    "@nestjs/testing": "^10.3.10",
+    "@types/express": "^4.17.21",
+    "@types/jest": "^29.5.12",
+    "@types/node": "^22.1.0",
+    "@types/supertest": "^6.0.2",
+    "eslint": "^9.8.0",
+    "eslint-plugin-format": "^0.1.2",
+    "globals": "^15.9.0",
+    "jest": "^29.7.0",
+    "lint-staged": "^15.2.8",
+    "pnpm": "^9.6.0",
+    "prisma": "^5.17.0",
+    "simple-git-hooks": "^2.11.1",
+    "source-map-support": "^0.5.21",
+    "supertest": "^7.0.0",
+    "taze": "^0.16.3",
+    "ts-jest": "^29.2.4",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.5.4"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
+  },
+  "lint-staged": {
+    "*.{mjs, css, js, ts, tsx}": "pnpm lint:fix"
+  }
+}
