@@ -1,16 +1,18 @@
 import { ConflictException, Injectable } from '@nestjs/common'
 import { PrismaService } from 'src/common/prisma.service'
-import { Prisma } from '@prisma/client'
 import { saltAndHashPassword } from 'src/common/utils/password'
-import { ListQueryDto } from 'src/common/dto'
+import { IListQueryDto } from 'src/common/dto'
+import { buildFindManyParams } from 'src/common/utils'
 import { MailService } from '../mail/mail.service'
 import type {
   CreateUserDto,
+  IUser,
+  IUserListQueryDto,
+  IUserQueryDto,
   UpdateUserDto,
-  UserListQueryReturnType,
-  UserQueryReturnDto,
-  UserQueryReturnType,
 } from './dto'
+
+import { UserQueryColumns } from './dto'
 
 @Injectable()
 export class UserService {
@@ -19,7 +21,7 @@ export class UserService {
     private readonly mailService: MailService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): UserQueryReturnType {
+  async create(createUserDto: CreateUserDto): Promise<IUserQueryDto> {
     const user = await this.findByEmail(createUserDto.email)
     if (user) {
       throw new ConflictException('User already exists')
@@ -29,61 +31,40 @@ export class UserService {
         ...createUserDto,
         password: await saltAndHashPassword(createUserDto.password),
       },
+      select: UserQueryColumns,
     })
 
     // Send verification email
     await this.mailService.sendVerificationEmail(newUser.email)
 
-    return newUser as UserQueryReturnDto
+    return newUser
   }
 
-  async findAll(dto: ListQueryDto): Promise<UserListQueryReturnType> {
-    const { page = 1, limit = 10, orders, search, filters = {} } = dto
-    const skip = (page - 1) * limit
+  async findAll(dto: IListQueryDto): Promise<IUserListQueryDto> {
+    const findManyParams = buildFindManyParams<IUser>(dto)
 
-    const where: Prisma.UserWhereInput = {
-      AND: [
-        search
-          ? {
-              OR: [
-                { name: { contains: search } },
-                { displayName: { contains: search } },
-                { email: { contains: search } },
-              ],
-            }
-          : {},
-        filters,
-      ],
-    }
+    const items = await this.prismaService.user.findMany(findManyParams)
 
-    const orderBy = orders?.map(order => ({ [order.field]: order.direction })) || []
-
-    const users = await this.prismaService.user.findMany({
-      where,
-      take: limit,
-      skip,
-      orderBy,
-    })
-
-    const total = await this.prismaService.user.count({ where })
+    const total = await this.prismaService.user.count({ where: findManyParams.where })
 
     return {
-      items: users,
+      items,
       total,
-      page,
-      limit,
+      page: dto.page,
+      limit: dto.limit,
     }
   }
 
-  async findOne(id: string): UserQueryReturnType {
+  async findOne(id: string): Promise<IUserQueryDto> {
     return this.prismaService.user.findUnique({
       where: {
         id,
       },
-    }) as UserQueryReturnType
+      select: UserQueryColumns,
+    })
   }
 
-  private async findByEmail(email: string): Promise<Prisma.UserGetPayload<Prisma.UserDefaultArgs>> {
+  private async findByEmail(email: string): Promise<IUserQueryDto> {
     const item = this.prismaService.user.findUnique({
       where: {
         email,
@@ -92,24 +73,26 @@ export class UserService {
     return item
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): UserQueryReturnType {
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<IUserQueryDto> {
     return this.prismaService.user.update({
       where: {
         id,
       },
       data: updateUserDto,
-    }) as UserQueryReturnType
+      select: UserQueryColumns,
+    })
   }
 
-  async remove(id: string): UserQueryReturnType {
+  async remove(id: string): Promise<IUserQueryDto> {
     return this.prismaService.user.delete({
       where: {
         id,
       },
-    }) as UserQueryReturnType
+      select: UserQueryColumns,
+    })
   }
 
-  async verifyEmail(email: string): UserQueryReturnType {
+  async verifyEmail(email: string): Promise<IUserQueryDto> {
     const user = await this.findByEmail(email)
     if (!user) {
       throw new ConflictException('User not found')
@@ -117,7 +100,7 @@ export class UserService {
 
     // Whether is already verified
     if (user.emailVerified) {
-      return user as UserQueryReturnDto
+      return user
     }
 
     return this.prismaService.user.update({
@@ -127,6 +110,7 @@ export class UserService {
       data: {
         emailVerified: new Date(),
       },
-    }) as UserQueryReturnType
+      select: UserQueryColumns,
+    })
   }
 }

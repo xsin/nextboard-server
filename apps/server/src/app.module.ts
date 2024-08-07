@@ -14,6 +14,9 @@ import { MailModule } from './modules/mail/mail.module'
   imports: [
     ConfigModule.forRoot({
       load: [getConfig],
+      // Make the ConfigService available globally
+      // Ref: https://docs.nestjs.com/techniques/configuration
+      isGlobal: true,
     }),
     AuthModule,
     UserModule,

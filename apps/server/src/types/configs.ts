@@ -5,6 +5,10 @@ export interface IPublicConfig {
   resendFrom?: string
   resendVerifyMailSubject?: string
   apiPrefix?: string
+  name?: string
+  description?: string
+  keywords?: string[]
+  version?: string
 }
 
 export type IConfigs = Env & {

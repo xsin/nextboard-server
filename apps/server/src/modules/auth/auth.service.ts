@@ -40,6 +40,11 @@ export class AuthService {
    * @param {NextFunction} next - Express next function
    */
   auth(req: Request, res: Response, next: NextFunction): void {
+    // If req.baseUrl includes `auth/signup`, skip auth middleware
+    if (req.baseUrl.includes('auth/signup')) {
+      return next()
+    }
+
     const expressAuth = ExpressAuth({
       trustHost: true,
       providers: this.providers,
