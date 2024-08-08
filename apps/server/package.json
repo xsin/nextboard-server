@@ -7,6 +7,11 @@
     "name": "XSIN STUDIO"
   },
   "license": "UNLICENSED",
+  "keywords": [
+    "nestjs",
+    "prisma",
+    "nextboard"
+  ],
   "scripts": {
     "build": "nest build",
     "start": "nest start",

@@ -1,3 +1,4 @@
 export * from './env'
 export * from './configs'
-export * from './node'
+
+export type KeysOf<T> = keyof T

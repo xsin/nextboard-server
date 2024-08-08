@@ -1,11 +1,15 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Request, UseGuards } from '@nestjs/common'
 import { ListQueryDto } from 'src/common/dto'
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { Request as RequestX } from 'express'
+import { MenuListQueryDto, MenuListQueryResponse, MenuQueryDto } from '../menu/dto'
+import { AuthGuard } from '../auth/guards'
 import { UserService } from './user.service'
 import { CreateUserDto } from './dto/create-user.dto'
 import { UpdateUserDto } from './dto/update-user.dto'
 import { UserListQueryDto, UserListQueryResponse, UserQueryDto, UserQueryResponse } from './dto'
 
+@UseGuards(AuthGuard)
 @ApiBearerAuth()
 @ApiTags('user')
 @Controller('user')
@@ -50,5 +54,15 @@ export class UserController {
   })
   async remove(@Param('id') id: string): Promise<UserQueryDto> {
     return this.userService.remove(id)
+  }
+
+  @ApiResponse({
+    type: MenuListQueryResponse,
+  })
+  @Get('menus')
+  async getMenus(@Request() _req: RequestX): Promise<MenuListQueryDto> {
+    // Get current user's email from request
+    const email = 'req.user'
+    return this.userService.findUserMenus(email)
   }
 }

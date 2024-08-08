@@ -9,6 +9,7 @@ export interface IPublicConfig {
   description?: string
   keywords?: string[]
   version?: string
+  author?: string
 }
 
 export type IConfigs = Env & {

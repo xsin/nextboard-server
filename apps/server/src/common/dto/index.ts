@@ -97,8 +97,8 @@ export class ListQueryResult<T> implements IListQueryResult<T> {
 }
 
 /**
- * Unified API response class
- * Since @nest/swagger already has a decorator named ApiResponse, we use ApiResponseX instead
+ * Unified API response class.
+ * Since nestjs's swagger already has a decorator named ApiResponse, we use ApiResponseX instead
  */
 export class ApiResponseX<T> implements IApiResponse<T> {
   @ApiProperty({ description: 'Response status' })
