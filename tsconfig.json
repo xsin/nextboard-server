@@ -4,6 +4,9 @@
     "target": "ESNext",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "paths": {
+      "@nextboard/common": ["./packages/common/src/index.ts"]
+    },
     "strictBindCallApply": false,
     "strictNullChecks": false,
     "noFallthroughCasesInSwitch": false,

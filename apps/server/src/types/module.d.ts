@@ -1,5 +1,5 @@
 import { Request } from 'express'
-import { IUserTokenPayload } from 'src/modules/user/dto'
+import { IUser } from 'src/modules/user/dto'
 import { Env } from './env'
 
 declare namespace NodeJS {
@@ -8,6 +8,6 @@ declare namespace NodeJS {
 
 declare module 'express-serve-static-core' {
   interface Request {
-    user?: IUserTokenPayload
+    user?: IUser
   }
 }

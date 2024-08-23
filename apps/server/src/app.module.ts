@@ -10,7 +10,7 @@ import { MailService } from './modules/mail/mail.service'
 import { getConfig } from './common/configs'
 import { MailModule } from './modules/mail/mail.module'
 import { PrismaModule } from './modules/prisma/prisma.module'
-import { MenuModule } from './modules/menu/menu.module'
+import { ResourceModule } from './modules/resource/resource.module'
 import { RoleService } from './modules/role/role.service'
 import { RoleModule } from './modules/role/role.module'
 import { PermissionModule } from './modules/permission/permission.module'
@@ -29,7 +29,7 @@ import { PermissionModule } from './modules/permission/permission.module'
     // Non-global modules are available only in the module where they are imported
     UserModule,
     MailModule,
-    MenuModule,
+    ResourceModule,
     RoleModule,
     PermissionModule,
   ],

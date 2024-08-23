@@ -2,20 +2,21 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { saltAndHashPassword } from 'src/common/utils/password'
 import { IListQueryDto } from 'src/common/dto'
 import { buildFindManyParams } from 'src/common/utils'
-import { omit, pick } from 'radash'
+import { omit } from 'radash'
+import type { Prisma } from '@prisma/client'
 import { MailService } from '../mail/mail.service'
 import { PrismaService } from '../prisma/prisma.service'
-import { IMenu, IMenuListQueryDto } from '../menu/dto'
+import { IResource, IResourceList } from '../resource/dto'
 import type {
   CreateUserDto,
   IUser,
-  IUserListQueryDto,
-  IUserQueryDto,
-  IUserX,
+  IUserFull,
+  IUserList,
+  IUserProfile,
   UpdateUserDto,
 } from './dto'
 
-import { UserQueryColumns } from './dto'
+import { UserColumns } from './dto'
 
 @Injectable()
 export class UserService {
@@ -24,7 +25,7 @@ export class UserService {
     private readonly mailService: MailService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<IUserQueryDto> {
+  async create(createUserDto: CreateUserDto): Promise<IUser> {
     const user = await this.findByEmail(createUserDto.email)
     if (user) {
       throw new ConflictException('User already exists')
@@ -34,7 +35,7 @@ export class UserService {
         ...createUserDto,
         password: await saltAndHashPassword(createUserDto.password),
       },
-      select: UserQueryColumns,
+      select: UserColumns,
     })
 
     // Send verification email
@@ -43,7 +44,7 @@ export class UserService {
     return newUser
   }
 
-  async findAll(dto: IListQueryDto): Promise<IUserListQueryDto> {
+  async findAll(dto: IListQueryDto): Promise<IUserList> {
     const findManyParams = buildFindManyParams<IUser>(dto)
 
     const items = await this.prismaService.user.findMany(findManyParams)
@@ -58,35 +59,34 @@ export class UserService {
     }
   }
 
-  async findOne(id: string): Promise<IUserQueryDto> {
+  async findOne(id: string): Promise<IUser> {
     return this.prismaService.user.findUnique({
       where: {
         id,
       },
-      select: UserQueryColumns,
+      select: UserColumns,
     })
   }
 
-  async findByEmail(email: string): Promise<IUserQueryDto> {
+  async findByEmail(email: string): Promise<IUser> {
     const item = this.prismaService.user.findUnique({
       where: {
         email,
       },
-      select: UserQueryColumns,
+      select: UserColumns,
     })
     return item
   }
 
   /**
-   * Find the user by email and include the user's roles, the permissions and the visible menus associated with those roles.
-   * @param {string} email user's email
-   * @returns {Promise<IUserX>} user with roles, permissions and visible menus
+   * Find the user data, includes user's roles, the permissions and the authorized resources associated with those roles.
+   * @param {Prisma.UserWhereUniqueInput} whereArgs - User where unique input
+   * @param {boolean} includeResources - Whether to include the authorized resources
+   * @returns {Promise<IUserWithRolesPermissionsAndMenus>} user with roles, permissions and visible menus
    */
-  async findByEmailX(email: string): Promise<IUserX> {
+  async findUser(whereArgs: Prisma.UserWhereUniqueInput, includeResources: boolean = true): Promise<IUserFull> {
     const user = await this.prismaService.user.findUnique({
-      where: {
-        email,
-      },
+      where: whereArgs,
       include: {
         roles: {
           include: {
@@ -108,40 +108,62 @@ export class UserService {
     const roleNames = roles.map(role => role.name)
     const permissions = roles.flatMap(role => role.permissions.map(rolePermission => rolePermission.permission))
     const permissionNames = permissions.map(permission => permission.name)
-    const item: IUserX = {
+    const item: IUserFull = {
       ...userInfo,
-      roleNames,
-      permissionNames,
       roles,
+      roleNames,
       permissions,
-      menus: [],
+      permissionNames,
+      resources: [],
     }
 
-    item.menus = await this.getUerMenus(item)
+    if (includeResources) {
+      item.resources = await this.parseUserResources(item)
+    }
 
     return item
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<IUserQueryDto> {
+  /**
+   * Find full user data by email. Including the user's roles, password, permissions, and the authorized resources associated with those roles.
+   * @param {string} email user's email
+   * @param {boolean} includeResources - Whether to include the authorized resources
+   * @returns {Promise<IUserFull>} user with roles, password, permissions and the authorized resources
+   */
+  async findByEmailX(email: string, includeResources: boolean = true): Promise<IUserFull> {
+    return this.findUser({ email }, includeResources)
+  }
+
+  /**
+   * Find full user data by id. Including the user's roles, password, permissions, and the authorized resources associated with those roles.
+   * @param {string} id user's id
+   * @param {boolean} includeResources - Whether to include the authorized resources
+   * @returns {Promise<IUserFull>} user with roles, password, permissions and the authorized resources
+   */
+  async findByIdX(id: string, includeResources: boolean = true): Promise<IUserFull> {
+    return this.findUser({ id }, includeResources)
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<IUser> {
     return this.prismaService.user.update({
       where: {
         id,
       },
       data: updateUserDto,
-      select: UserQueryColumns,
+      select: UserColumns,
     })
   }
 
-  async remove(id: string): Promise<IUserQueryDto> {
+  async remove(id: string): Promise<IUser> {
     return this.prismaService.user.delete({
       where: {
         id,
       },
-      select: UserQueryColumns,
+      select: UserColumns,
     })
   }
 
-  async verifyEmail(email: string): Promise<IUserQueryDto> {
+  async verifyEmail(email: string): Promise<IUser> {
     const user = await this.findByEmail(email)
     if (!user) {
       throw new ConflictException('User not found')
@@ -159,15 +181,15 @@ export class UserService {
       data: {
         emailVerified: new Date(),
       },
-      select: UserQueryColumns,
+      select: UserColumns,
     })
   }
 
   /**
-   * Get User's menus according to the user's permission and menu's permission
+   * Get User's resources according to the user's permission and resource's permission
    * @param {string} email - User email
    */
-  async findUserMenus(email: string): Promise<IMenuListQueryDto> {
+  async findUserResources(email: string): Promise<IResourceList> {
     // Find the user and his/her roles and permissions
     const user = await this.findByEmailX(email)
 
@@ -176,68 +198,66 @@ export class UserService {
     }
 
     // Calculate user's total permission value on each menu
-    const menusWithPermissions = user.menus
+    const itemsWithPermissions = user.resources ?? []
 
     return {
-      items: menusWithPermissions,
-      total: menusWithPermissions.length,
+      items: itemsWithPermissions,
+      total: itemsWithPermissions.length,
       page: 1,
-      limit: menusWithPermissions.length,
+      limit: itemsWithPermissions.length,
     }
   }
 
   /**
-   * Get User's menus according to the user's permission and menu's permission
+   * Get User's resources according to the user's permission and resource's permission
    * 1. Find users and their roles and permissions: Search for users by their email and include the user's roles and the permissions associated with those roles.
-   * 2. Filter permissions: Select permissions that end with the suffix ".select".
-   * 3. Find menus: Look up corresponding menus based on the filtered permissions.
-   * 4. Calculate user's total permission value on each menu and assign it to userPermissionCode field.
-   * @param {IUserX} user - User object with roles and permissions
-   * @returns {Promise<IMenu[]>} List of menus with user's permission code
+   * 2. Find resources: Look up corresponding resources based on the permissions.
+   * @param {IUser} user - User object with roles and permissions
+   * @returns {Promise<IResource[]>} List of menus with user's permission code
    */
-  private async getUerMenus(user: IUserX): Promise<IMenu[]> {
-    // Filter readonly permissions, which end with ".select"
-    const readonlyPermissions = user.permissions.filter(item =>
-      item.name.endsWith('.select'),
-    )
+  private async parseUserResources(user: IUser): Promise<IResource[]> {
+    const permissionsOwned = user.permissions ?? []
 
     // Get the IDs and codes of the filtered permissions
-    const permissionIdsReadonly = readonlyPermissions.map(permission => permission.id)
-    const permissionIdsAll = user.permissions.map(permission => permission.id)
+    const permissionIdsOwned = permissionsOwned.map(permission => permission.id)
 
-    // Find the menus that correspond to the filtered permissions
-    const menusViewable = await this.prismaService.menu.findMany({
+    // Find the authorized resources
+    const itemsViewable = await this.prismaService.resource.findMany({
       where: {
         permissions: {
           some: {
-            permissionId: { in: permissionIdsReadonly },
-          },
-        },
-      },
-      include: {
-        permissions: {
-          include: {
-            permission: true,
+            permissionId: { in: permissionIdsOwned },
           },
         },
       },
     })
 
-    // Calculate user's total permission value on each menu
-    const menusWithPermissions = menusViewable.map((menu) => {
-      const menuPermissions = menu.permissions.map(item => item.permission)
-      const menuPermissionCodes = menuPermissions
-        .filter(item => permissionIdsAll.includes(item.id))
-        .map(item => item.code)
+    return itemsViewable as IResource[]
+  }
 
-      const userPermissionCode = menuPermissionCodes.reduce((acc, code) => acc | code, 0)
+  /**
+   * Get user's profile by email
+   * @param {string} email - User email
+   * @returns {Promise<IUserProfile>} User profile
+   */
+  async getUserProfileByEmail(email: string): Promise<IUserProfile> {
+    return this.getUserProfile({ email })
+  }
 
-      return {
-        ...omit(menu, ['permissions']),
-        userPermissionCode,
-      }
-    })
+  async getUserProfileById(id: string): Promise<IUserProfile> {
+    return this.getUserProfile({ id })
+  }
 
-    return menusWithPermissions
+  private async getUserProfile(where: Prisma.UserWhereUniqueInput): Promise<IUserProfile> {
+    const userInfo = await this.findUser(where)
+    const {
+      password,
+      online,
+      disabled,
+      roles,
+      permissions,
+      ...profile
+    } = userInfo
+    return profile
   }
 }

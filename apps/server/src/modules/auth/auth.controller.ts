@@ -1,8 +1,18 @@
 import { Body, Controller, Post } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
-import { CreateUserDto, UserQueryDto, UserQueryResponse, UserTokenDto } from '../user/dto'
+import {
+  CreateUserDto,
+  UserApiResponse,
+  UserDto,
+  UserTokenDto,
+} from '../user/dto'
 import { AuthService } from './auth.service'
-import { RefreshTokenDto, RefreshTokenResponse } from './dto'
+import {
+  LoginApiResponse,
+  LoginRequestDto,
+  RefreshTokenApiResponse,
+  RefreshTokenRequestDto,
+} from './dto'
 
 @ApiTags('auth')
 @Controller('auth')
@@ -11,17 +21,25 @@ export class AuthController {
 
   @Post('signup')
   @ApiResponse({
-    type: UserQueryResponse,
+    type: UserApiResponse,
   })
-  async signUp(@Body() dto: CreateUserDto): Promise<UserQueryDto> {
+  async signUp(@Body() dto: CreateUserDto): Promise<UserDto> {
     return this.authService.signUp(dto)
   }
 
   @ApiResponse({
-    type: RefreshTokenResponse,
+    type: RefreshTokenApiResponse,
   })
   @Post('refresh')
-  async refreshToken(@Body() dto: RefreshTokenDto): Promise<UserTokenDto> {
+  async refreshToken(@Body() dto: RefreshTokenRequestDto): Promise<UserTokenDto> {
     return this.authService.refreshToken(dto)
+  }
+
+  @ApiResponse({
+    type: LoginApiResponse,
+  })
+  @Post('login')
+  async login(dto: LoginRequestDto): Promise<UserDto> {
+    return this.authService.login(dto)
   }
 }
