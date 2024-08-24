@@ -6,6 +6,7 @@ import {
   UserDto,
   UserTokenDto,
 } from '../user/dto'
+import { JWTokenService } from '../token/jwtoken.service'
 import { AuthService } from './auth.service'
 import {
   LoginApiResponse,
@@ -13,11 +14,15 @@ import {
   RefreshTokenApiResponse,
   RefreshTokenRequestDto,
 } from './dto'
+import { OTPLoginDto, SendOTPApiResponse, SendOTPDto, SendOTPRequestDto } from './dto/otp.dto'
 
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly jwtokenService: JWTokenService,
+  ) {}
 
   @Post('signup')
   @ApiResponse({
@@ -32,14 +37,27 @@ export class AuthController {
   })
   @Post('refresh')
   async refreshToken(@Body() dto: RefreshTokenRequestDto): Promise<UserTokenDto> {
-    return this.authService.refreshToken(dto)
+    return this.jwtokenService.refreshToken(dto)
   }
 
   @ApiResponse({
     type: LoginApiResponse,
   })
   @Post('login')
-  async login(dto: LoginRequestDto): Promise<UserDto> {
+  async login(@Body() dto: LoginRequestDto): Promise<UserDto> {
     return this.authService.login(dto)
+  }
+
+  @ApiResponse({
+    type: SendOTPApiResponse,
+  })
+  @Post('otp')
+  async sendOTP(@Body() dto: SendOTPRequestDto): Promise<SendOTPDto> {
+    return this.authService.sendOTP(dto.email)
+  }
+
+  @Post('login/otp')
+  async loginWithOTP(@Body() dto: OTPLoginDto): Promise<UserDto> {
+    return this.authService.loginWithOTP(dto.email, dto.code)
   }
 }

@@ -1,65 +1,27 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import type { Request, Response } from 'express'
 import { comparePasswords } from 'src/common/utils'
-import { JwtService } from '@nestjs/jwt'
-import { ConfigService } from '@nestjs/config'
-import { C_AUTH_SECRET, C_JWT_EXPIRY, C_JWT_REFRESH_EXPIRY, C_JWT_REFRESH_SECRET, C_JWT_SECRET } from 'src/types'
-import { isEmpty, omit, pick } from 'radash'
-import { getConfig } from 'src/common/configs'
+import { pick } from 'radash'
 import {
   CreateUserDto,
   IUser,
-  IUserToken,
-  IUserTokenPayload,
   UserPublicKeys,
 } from '../user/dto'
 import { UserService } from '../user/user.service'
-import { LoginRequestDto, RefreshTokenRequestDto } from './dto'
+import { MailService } from '../mail/mail.service'
+import { JWTokenService } from '../token/jwtoken.service'
+import { TokenService } from '../token/token.service'
+import { LoginRequestDto } from './dto'
+import { ISendOTPResult } from './dto/otp.dto'
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly jwtokenService: JWTokenService,
+    private readonly mailService: MailService,
+    private readonly tokenService: TokenService,
   ) {}
-
-  /**
-   * Validate JWT token
-   * @param {Request} req - Request object
-   * @param {boolean} isRefreshToken - Whether is refreshing token
-   * @returns {Promise<IUser>} User object
-   */
-  private async validateJwt(req: Request, isRefreshToken?: boolean): Promise<IUser> {
-    const authHeader = req.headers.authorization
-    if (!authHeader) {
-      throw new UnauthorizedException('Unauthorized')
-    }
-    const [type, token] = authHeader.split(' ') ?? []
-    if (isEmpty(token) || type !== 'Bearer') {
-      throw new UnauthorizedException('Unauthorized')
-    }
-
-    const secret = isRefreshToken ? this.getJwtRefreshSecret() : this.getJwtSecret()
-
-    try {
-      const payload: IUserTokenPayload = await this.jwtService.verifyAsync(token, {
-        secret,
-      })
-      // Retrieve the user object from the database
-      const userFromDb = await this.userService.findByIdX(payload.sub, false)
-      if (!userFromDb) {
-        throw new NotFoundException('User not found')
-      }
-      // Save the user object to the request object
-      req.user = omit(userFromDb, ['password'])
-    }
-    catch {
-      throw new UnauthorizedException('Unauthorized')
-    }
-
-    return req.user
-  }
 
   /**
    * Get current authenticated user
@@ -68,72 +30,13 @@ export class AuthService {
    * @returns {Promise<IUserTokenPayload>} User object
    */
   async getCurrentUser(req: Request, _res: Response): Promise<IUser | null> {
-    return this.validateJwt(req)
+    return this.jwtokenService.validateJwt(req)
   }
 
   async login(dto: LoginRequestDto): Promise<IUser> {
     const user = await this.validateUser(dto)
     // Return user with tokens
-    const tokens = await this.generateTokens(user)
-
-    const res: IUser = {
-      ...pick(user, UserPublicKeys),
-      ...tokens,
-      resources: user.resources,
-    }
-    return res
-  }
-
-  async refreshToken(dto: RefreshTokenRequestDto): Promise<IUserToken> {
-    try {
-      const secret = this.getJwtRefreshSecret()
-      const payload: IUserTokenPayload = await this.jwtService.verifyAsync(dto.refreshToken, {
-        secret,
-      })
-
-      const user = await this.userService.findByEmailX(payload.username)
-      if (!user) {
-        throw new UnauthorizedException('User not found')
-      }
-
-      return this.generateTokens(user)
-    }
-    catch (error) {
-      throw new UnauthorizedException(`Invalid refresh token: ${error.message}`)
-    }
-  }
-
-  private async generateTokens(user: IUser): Promise<IUserToken> {
-    const payload: IUserTokenPayload = {
-      iss: 'NextBoard',
-      username: user.email,
-      sub: user.id,
-    }
-    const jwtSecret = this.getJwtSecret()
-    const jwtRefreshSecret = this.getJwtRefreshSecret()
-
-    return {
-      accessToken: await this.jwtService.signAsync(payload, {
-        expiresIn: this.configService.get(C_JWT_EXPIRY),
-        secret: jwtSecret,
-      }),
-      refreshToken: await this.jwtService.signAsync(payload, {
-        expiresIn: this.configService.get(C_JWT_REFRESH_EXPIRY),
-        secret: jwtRefreshSecret,
-      }),
-    }
-  }
-
-  private getJwtSecret(): string {
-    let jwtSecret = this.configService.get(C_JWT_SECRET)
-    jwtSecret = !isEmpty(jwtSecret) ? jwtSecret : this.configService.get(C_AUTH_SECRET)
-    return jwtSecret
-  }
-
-  private getJwtRefreshSecret(): string {
-    let jwtRefreshSecret = this.configService.get(C_JWT_REFRESH_SECRET)
-    jwtRefreshSecret = !isEmpty(jwtRefreshSecret) ? jwtRefreshSecret : this.getJwtSecret()
-    return jwtRefreshSecret
+    return this.getLoginResponseData(user)
   }
 
   private async validateUser(dto: LoginRequestDto): Promise<IUser> {
@@ -159,24 +62,34 @@ export class AuthService {
     return this.userService.create(dto)
   }
 
-  private getAuthRoute(actionName?: string): string {
-    const apiPrefix = getConfig().public.apiPrefix
-    const baseUrl = apiPrefix ? `/${apiPrefix}/auth` : '/auth'
-    if (isEmpty(actionName)) {
-      return baseUrl
-    }
-    return `${baseUrl}/${actionName}`
+  async sendOTP(email: string): Promise<ISendOTPResult> {
+    return this.mailService.sendOTP(email)
   }
 
-  private isPublicRoute(baseUrl: string): boolean {
-    const apiPrefix = getConfig().public.apiPrefix
-    const rootUrl = apiPrefix ? `/${apiPrefix}` : '/'
-    const swaggerDocUrl = apiPrefix ? `/${apiPrefix}/api-json` : '/api-json'
-    const whitelist: string[] = [
-      this.getAuthRoute(),
-      swaggerDocUrl,
-    ]
-    const yes = whitelist.some(url => baseUrl.startsWith(url)) || baseUrl === rootUrl
-    return yes
+  async loginWithOTP(email: string, code: string): Promise<IUser> {
+    const isCodeValid = this.tokenService.verify({
+      owner: email,
+      code,
+    })
+    if (!isCodeValid) {
+      throw new UnauthorizedException('Invalid verification code')
+    }
+
+    const user = await this.userService.findByEmailX(email)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    return this.getLoginResponseData(user)
+  }
+
+  private async getLoginResponseData(user: IUser): Promise<IUser> {
+    const tokens = await this.jwtokenService.generateTokens(user)
+
+    return {
+      ...pick(user, UserPublicKeys),
+      ...tokens,
+      resources: user.resources,
+    }
   }
 }
