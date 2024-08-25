@@ -22,6 +22,8 @@ type TUserFull = Prisma.UserGetPayload<Prisma.UserDefaultArgs> & IUserExtra
 export interface IUserToken {
   accessToken?: string
   refreshToken?: string
+  accessTokenExpiredAt?: Date
+  refreshTokenExpiredAt?: Date
 }
 
 export interface IUserExtra extends IUserToken {
@@ -62,7 +64,7 @@ export const UserColumns: IUserSelectScalar = {
   displayName: true,
   createdAt: true,
   updatedAt: true,
-  emailVerified: true,
+  emailVerifiedAt: true,
   gender: true,
   birthday: true,
   disabled: true,
@@ -75,7 +77,7 @@ export const UserSchemaKeys: Array<KeysOf<TUserFull>> = [
   'email',
   'name',
   'displayName',
-  'emailVerified',
+  'emailVerifiedAt',
   'birthday',
   'disabled',
   'gender',
@@ -116,7 +118,7 @@ export class UserDto extends UserTokenDto implements IUser {
   updatedAt: Date
 
   @ApiPropertyOptional({ description: 'User email verified date' })
-  emailVerified: Date
+  emailVerifiedAt: Date
 
   @ApiProperty({ description: 'User Avatar' })
   avatar: string

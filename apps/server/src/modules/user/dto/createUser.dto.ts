@@ -1,4 +1,4 @@
-import { IsEmail, IsString, Length, Matches } from 'class-validator'
+import { IsDate, IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Match } from 'src/common/decorators/match.decorator'
 
@@ -28,4 +28,9 @@ export class CreateUserDto {
   @IsString()
   @Length(4, 20)
   readonly displayName?: string
+
+  @ApiPropertyOptional({ description: 'User email verified date' })
+  @IsDate()
+  @IsOptional()
+  readonly emailVerifiedAt?: Date
 }

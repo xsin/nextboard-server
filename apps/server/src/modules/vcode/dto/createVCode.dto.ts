@@ -1,6 +1,6 @@
 import { IsDate, IsString } from 'class-validator'
 
-export class CreateTokenDto {
+export class CreateVCodeDto {
   @IsString()
   owner: string
 

@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common'
-import type { Token } from '@prisma/client'
+import type { VCode } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
-import { CreateTokenDto } from './dto/createToken.dto'
-import { QueryTokenDto } from './dto/queryToken.dto'
+import { CreateVCodeDto } from './dto/createVCode.dto'
+import { QueryVCodeDto } from './dto/queryVCode.dto'
 
 @Injectable()
-export class TokenService {
+export class VCodeService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: CreateTokenDto): Promise<Token> {
-    return this.prisma.token.create({
+  async create(dto: CreateVCodeDto): Promise<VCode> {
+    return this.prisma.vCode.create({
       data: {
         ...dto,
       },
     })
   }
 
-  async find(dto: QueryTokenDto): Promise<Token | null> {
-    return this.prisma.token.findUnique({
+  async find(dto: QueryVCodeDto): Promise<VCode | null> {
+    return this.prisma.vCode.findUnique({
       where: {
         owner_code: {
           owner: dto.owner,
@@ -27,8 +27,8 @@ export class TokenService {
     })
   }
 
-  async delete(dto: QueryTokenDto): Promise<Token> {
-    return this.prisma.token.delete({
+  async delete(dto: QueryVCodeDto): Promise<VCode> {
+    return this.prisma.vCode.delete({
       where: {
         owner_code: {
           owner: dto.owner,
@@ -39,10 +39,10 @@ export class TokenService {
   }
 
   /**
-   * Verify token's validity
+   * Verify code's validity
    * @param dto
    */
-  async verify(dto: QueryTokenDto): Promise<boolean> {
+  async verify(dto: QueryVCodeDto): Promise<boolean> {
     const token = await this.find(dto)
     if (!token) {
       return false

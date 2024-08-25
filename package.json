@@ -14,6 +14,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "taze": "taze minor -wIr",
     "dev": "pnpm -F @nextboard/server run start:dev",
+    "seed": "pnpm -F @nextboard/server run seed",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "postinstall": "npx simple-git-hooks"

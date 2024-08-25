@@ -1,19 +1,17 @@
 import { Global, Module } from '@nestjs/common'
-import { JWTokenService } from '../token/jwtoken.service'
 import { PrismaModule } from '../prisma/prisma.module'
-import { TokenService } from './token.service'
+import { VCodeService } from './vcode.service'
 
 @Global()
 @Module({
   providers: [
-    JWTokenService,
+    VCodeService,
   ],
   exports: [
-    JWTokenService,
-    TokenService,
+    VCodeService,
   ],
   imports: [
     PrismaModule,
   ],
 })
-export class TokenModule {}
+export class VCodeModule {}

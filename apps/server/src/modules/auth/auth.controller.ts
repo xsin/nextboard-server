@@ -6,7 +6,7 @@ import {
   UserDto,
   UserTokenDto,
 } from '../user/dto'
-import { JWTokenService } from '../token/jwtoken.service'
+import { TokenService } from './token.service'
 import { AuthService } from './auth.service'
 import {
   LoginApiResponse,
@@ -21,7 +21,7 @@ import { OTPLoginDto, SendOTPApiResponse, SendOTPDto, SendOTPRequestDto } from '
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly jwtokenService: JWTokenService,
+    private readonly tokenService: TokenService,
   ) {}
 
   @Post('signup')
@@ -37,7 +37,7 @@ export class AuthController {
   })
   @Post('refresh')
   async refreshToken(@Body() dto: RefreshTokenRequestDto): Promise<UserTokenDto> {
-    return this.jwtokenService.refreshToken(dto)
+    return this.tokenService.refreshToken(dto)
   }
 
   @ApiResponse({

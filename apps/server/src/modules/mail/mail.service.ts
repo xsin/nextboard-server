@@ -4,7 +4,7 @@ import { template } from 'radash'
 import { randomCode } from 'src/common/utils'
 import { UserService } from '../user/user.service'
 import { AppConfigService } from '../config/config.service'
-import { TokenService } from '../token/token.service'
+import { VCodeService } from '../vcode/vcode.service'
 import { ISendOTPResult } from '../auth/dto/otp.dto'
 
 @Injectable()
@@ -14,7 +14,7 @@ export class MailService {
   constructor(
     private readonly configService: AppConfigService,
     private readonly userService: UserService,
-    private readonly tokenService: TokenService,
+    private readonly vcodeService: VCodeService,
   ) {
     this.mailer = new Resend(this.configService.config.RESEND_API_KEY)
   }
@@ -40,18 +40,13 @@ export class MailService {
    * @returns {Promise<ISendOTPResult>} OTP sending result
    */
   async sendOTP(email: string): Promise<ISendOTPResult> {
-    const user = await this.userService.findByEmail(email)
-    if (!user) {
-      throw new NotFoundException('User not found')
-    }
-
     const code = randomCode(6) // Generate a simple code
-    const expiresInMs = this.configService.config.OTP_EXPIRY
+    const expiresInMs = this.configService.config.OTP_EXPIRY * 1000
     const expiredAt = new Date(Date.now() + expiresInMs)
 
     // Create token record in the database
-    await this.tokenService.create({
-      owner: user.email,
+    await this.vcodeService.create({
+      owner: email,
       code,
       expiredAt,
     })

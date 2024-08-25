@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import type { Request, Response } from 'express'
 import { comparePasswords } from 'src/common/utils'
 import { pick } from 'radash'
+import { TAccountProvider, TAccountType } from '@prisma/client'
 import {
   CreateUserDto,
   IUser,
@@ -9,8 +10,10 @@ import {
 } from '../user/dto'
 import { UserService } from '../user/user.service'
 import { MailService } from '../mail/mail.service'
-import { JWTokenService } from '../token/jwtoken.service'
-import { TokenService } from '../token/token.service'
+import { VCodeService } from '../vcode/vcode.service'
+import { UpdateAccountDto } from '../account/dto/update-account.dto'
+import { CreateAccountDto } from '../account/dto/create-account.dto'
+import { TokenService } from './token.service'
 import { LoginRequestDto } from './dto'
 import { ISendOTPResult } from './dto/otp.dto'
 
@@ -18,9 +21,9 @@ import { ISendOTPResult } from './dto/otp.dto'
 export class AuthService {
   constructor(
     private readonly userService: UserService,
-    private readonly jwtokenService: JWTokenService,
-    private readonly mailService: MailService,
     private readonly tokenService: TokenService,
+    private readonly mailService: MailService,
+    private readonly vcodeService: VCodeService,
   ) {}
 
   /**
@@ -30,13 +33,22 @@ export class AuthService {
    * @returns {Promise<IUserTokenPayload>} User object
    */
   async getCurrentUser(req: Request, _res: Response): Promise<IUser | null> {
-    return this.jwtokenService.validateJwt(req)
+    return this.tokenService.validateJwt(req)
   }
 
+  /**
+   * Login with username and password
+   * @param {LoginRequestDto} dto - Login request data
+   * @returns {Promise<IUser>} User object
+   */
   async login(dto: LoginRequestDto): Promise<IUser> {
     const user = await this.validateUser(dto)
     // Return user with tokens
-    return this.getLoginResponseData(user)
+    const user1 = await this.getLoginResponseData(user)
+    // Update the Account record with the latest tokens
+    await this.updateAccountTokens(user1, TAccountProvider.localPwd)
+
+    return user1
   }
 
   private async validateUser(dto: LoginRequestDto): Promise<IUser> {
@@ -46,7 +58,7 @@ export class AuthService {
     }
 
     // Check email's verification status
-    if (!user.emailVerified) {
+    if (!user.emailVerifiedAt) {
       throw new UnauthorizedException('Email is not verified')
     }
 
@@ -59,7 +71,16 @@ export class AuthService {
   }
 
   async signUp(dto: CreateUserDto): Promise<IUser> {
-    return this.userService.create(dto)
+    const createAccountDto: CreateAccountDto = {
+      type: TAccountType.local,
+      provider: TAccountProvider.localPwd,
+      providerAccountId: dto.email,
+    }
+
+    const user = await this.userService.create(dto, createAccountDto)
+    // Send verification email
+    await this.mailService.sendVerificationEmail(user.email)
+    return user
   }
 
   async sendOTP(email: string): Promise<ISendOTPResult> {
@@ -67,7 +88,7 @@ export class AuthService {
   }
 
   async loginWithOTP(email: string, code: string): Promise<IUser> {
-    const isCodeValid = this.tokenService.verify({
+    const isCodeValid = this.vcodeService.verify({
       owner: email,
       code,
     })
@@ -75,21 +96,48 @@ export class AuthService {
       throw new UnauthorizedException('Invalid verification code')
     }
 
-    const user = await this.userService.findByEmailX(email)
+    let user = await this.userService.findByEmailX(email)
     if (!user) {
-      throw new NotFoundException('User not found')
+      // create a new user with a otp account
+      const createAccountDto: CreateAccountDto = {
+        type: TAccountType.local,
+        provider: TAccountProvider.localOtp,
+        providerAccountId: email,
+      }
+      await this.userService.create({
+        email,
+        emailVerifiedAt: new Date(),
+        password: '',
+        password1: '',
+      }, createAccountDto)
+      user = await this.userService.findByEmailX(email)
     }
 
-    return this.getLoginResponseData(user)
+    const user1 = await this.getLoginResponseData(user)
+
+    // Update the Account record with the latest tokens
+    await this.updateAccountTokens(user1, TAccountProvider.localOtp)
+
+    return user1
   }
 
   private async getLoginResponseData(user: IUser): Promise<IUser> {
-    const tokens = await this.jwtokenService.generateTokens(user)
+    const tokens = await this.tokenService.generateTokens(user)
 
     return {
       ...pick(user, UserPublicKeys),
       ...tokens,
       resources: user.resources,
     }
+  }
+
+  private async updateAccountTokens(user: IUser, provider: TAccountProvider): Promise<void> {
+    const accountUpdateDto: UpdateAccountDto = {
+      accessToken: user.accessToken,
+      refreshToken: user.refreshToken,
+      expiredAt: user.accessTokenExpiredAt,
+      refreshExpiredAt: user.refreshTokenExpiredAt,
+    }
+    await this.userService.updateAccount(provider, user.email, accountUpdateDto)
   }
 }

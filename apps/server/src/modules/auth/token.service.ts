@@ -1,19 +1,18 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { C_JWT_EXPIRY, C_JWT_REFRESH_EXPIRY, C_JWT_REFRESH_SECRET, C_JWT_SECRET } from 'src/types'
 import { isEmpty, omit } from 'radash'
-import { ConfigService } from '@nestjs/config'
 import type { Request } from 'express'
 import { UserService } from '../user/user.service'
 import { IUser, IUserToken, IUserTokenPayload } from '../user/dto'
 import { RefreshTokenRequestDto } from '../auth/dto'
+import { AppConfigService } from '../config/config.service'
 
 @Injectable()
-export class JWTokenService {
+export class TokenService {
   constructor(
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService,
+    private readonly configService: AppConfigService,
   ) {}
 
   /**
@@ -81,26 +80,36 @@ export class JWTokenService {
     const jwtSecret = this.getJwtSecret()
     const jwtRefreshSecret = this.getJwtRefreshSecret()
 
+    // Token expiry time in seconds
+    const expiresIn1 = this.configService.config.JWT_TOKEN_EXPIRY
+    const expiresIn2 = this.configService.config.JWT_TOKEN_REFRESH_EXPIRY
+
+    // Calculate absolute expiry time
+    const expiredAt1 = new Date(Date.now() + expiresIn1 * 1000)
+    const expiredAt2 = new Date(Date.now() + expiresIn2 * 1000)
+
     return {
       accessToken: await this.jwtService.signAsync(payload, {
-        expiresIn: this.configService.get(C_JWT_EXPIRY),
+        expiresIn: expiresIn1,
         secret: jwtSecret,
       }),
       refreshToken: await this.jwtService.signAsync(payload, {
-        expiresIn: this.configService.get(C_JWT_REFRESH_EXPIRY),
+        expiresIn: expiresIn2,
         secret: jwtRefreshSecret,
       }),
+      accessTokenExpiredAt: expiredAt1,
+      refreshTokenExpiredAt: expiredAt2,
     }
   }
 
   private getJwtSecret(): string {
-    let jwtSecret = this.configService.get(C_JWT_SECRET)
+    let jwtSecret = this.configService.config.JWT_TOKEN_SECRET
     jwtSecret = !isEmpty(jwtSecret) ? jwtSecret : 'NextBoard'
     return jwtSecret
   }
 
   private getJwtRefreshSecret(): string {
-    let jwtRefreshSecret = this.configService.get(C_JWT_REFRESH_SECRET)
+    let jwtRefreshSecret = this.configService.config.JWT_TOKEN_REFRESH_SECRET
     jwtRefreshSecret = !isEmpty(jwtRefreshSecret) ? jwtRefreshSecret : this.getJwtSecret()
     return jwtRefreshSecret
   }

@@ -3,14 +3,15 @@ import type { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import { ValidationPipe } from '@nestjs/common'
 import { AppModule } from './app.module'
-import { AuthService } from './modules/auth/auth.service'
-import { getConfig } from './common/configs'
+import { AppConfigService } from './modules/config/config.service'
 import { ResponseFormatInterceptor } from './interceptors/response.interceptor'
 import { HttpExceptionFilter } from './filters/exception.filter'
+import { LogService } from './modules/log/log.service'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
-  const pubConfigs = getConfig().public
+  const configService = app.get(AppConfigService)
+  const configs = configService.config
 
   // Set Global Validation Pipe
   app.useGlobalPipes(new ValidationPipe({
@@ -24,33 +25,23 @@ async function bootstrap(): Promise<void> {
 
   // Unified Response and Exceptions
   app.useGlobalInterceptors(new ResponseFormatInterceptor())
-  app.useGlobalFilters(new HttpExceptionFilter())
+  app.useGlobalFilters(new HttpExceptionFilter(app.get(LogService)))
 
   // Set Global Prefix
-  const apiPrefix = pubConfigs.apiPrefix
-  app.setGlobalPrefix(apiPrefix ?? '')
+  app.setGlobalPrefix(configs.API_PREFIX ?? '')
 
   // Get the instance of AuthService
-  const authProvider = app.get(AuthService)
   app.set('trust proxy', 1)
-
-  // Notice: Setting up the global auth middleware
-  // Don't move this logic to a separated NestMiddleware, or the `req.baseUrl` will always be empty.
-  // Auth.js depends on `req.baseUrl` to determine the base path of the request.
-  // https://github.com/nestjs/nest/issues/630
-  const routeAuth = apiPrefix ? `/${apiPrefix}/auth/*` : '/auth/*'
-  app.use(routeAuth, authProvider.auth.bind(authProvider))
-  app.use(authProvider.authSession.bind(authProvider))
 
   // Swagger Configuration
   const swaggerCfg = new DocumentBuilder()
-    .setTitle(pubConfigs.name ?? 'NextBoard API')
-    .setDescription(pubConfigs.description ?? 'NextBoard API')
-    .setVersion(pubConfigs.version ?? '1.0')
+    .setTitle(configs.name ?? 'NextBoard API')
+    .setDescription(configs.description ?? 'NextBoard API')
+    .setVersion(configs.version ?? '1.0')
     .addBearerAuth()
 
   const document = SwaggerModule.createDocument(app, swaggerCfg.build())
-  SwaggerModule.setup(apiPrefix ?? '', app, document)
+  SwaggerModule.setup(configs.API_PREFIX ?? '', app, document)
 
   await app.listen(3003)
 }

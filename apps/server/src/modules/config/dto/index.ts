@@ -26,18 +26,30 @@ export class ConfigDto {
   DIRECT_URL: string
 
   // JWT
-  @IsString()
-  JWT_TOKEN_EXPIRY: string
+  /**
+   * JWT Token expiry in seconds
+   */
+  @IsInt()
+  JWT_TOKEN_EXPIRY: number
 
   @IsString()
   JWT_TOKEN_SECRET: string
 
-  @IsString()
-  JWT_TOKEN_REFRESH_EXPIRY: string
+  /**
+   * JWT Token refresh expiry in seconds
+   */
+  @IsInt()
+  JWT_TOKEN_REFRESH_EXPIRY: number
 
   @IsString()
   JWT_TOKEN_REFRESH_SECRET: string
 
+  @IsString()
+  DEFAULT_ROLE_ID: string
+
+  /**
+   * OTP expiry in seconds
+   */
   @IsInt()
   OTP_EXPIRY: number
 

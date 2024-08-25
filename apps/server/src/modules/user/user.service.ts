@@ -3,10 +3,13 @@ import { saltAndHashPassword } from 'src/common/utils/password'
 import { IListQueryDto } from 'src/common/dto'
 import { buildFindManyParams } from 'src/common/utils'
 import { omit } from 'radash'
-import type { Prisma } from '@prisma/client'
-import { MailService } from '../mail/mail.service'
+import type { Account, Prisma, TAccountProvider } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { IResource, IResourceList } from '../resource/dto'
+import { AccountService } from '../account/account.service'
+import { UpdateAccountDto } from '../account/dto/update-account.dto'
+import { CreateAccountDto } from '../account/dto/create-account.dto'
+import { AppConfigService } from '../config/config.service'
 import type {
   CreateUserDto,
   IUser,
@@ -22,24 +25,37 @@ import { UserColumns } from './dto'
 export class UserService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly mailService: MailService,
+    private readonly accountService: AccountService,
+    private readonly configService: AppConfigService,
   ) {}
 
-  async create(createUserDto: CreateUserDto): Promise<IUser> {
+  async create(createUserDto: CreateUserDto, accountDto: CreateAccountDto): Promise<IUser> {
     const user = await this.findByEmail(createUserDto.email)
     if (user) {
       throw new ConflictException('User already exists')
     }
+    const defaultRoleId = this.configService.config.DEFAULT_ROLE_ID
     const newUser = await this.prismaService.user.create({
       data: {
         ...createUserDto,
         password: await saltAndHashPassword(createUserDto.password),
+        accounts: {
+          create: {
+            ...accountDto,
+          },
+        },
+        roles: {
+          create: {
+            role: {
+              connect: {
+                id: defaultRoleId,
+              },
+            },
+          },
+        },
       },
       select: UserColumns,
     })
-
-    // Send verification email
-    await this.mailService.sendVerificationEmail(newUser.email)
 
     return newUser
   }
@@ -170,7 +186,7 @@ export class UserService {
     }
 
     // Whether is already verified
-    if (user.emailVerified) {
+    if (user.emailVerifiedAt) {
       return user
     }
 
@@ -179,7 +195,7 @@ export class UserService {
         id: user.id,
       },
       data: {
-        emailVerified: new Date(),
+        emailVerifiedAt: new Date(),
       },
       select: UserColumns,
     })
@@ -259,5 +275,10 @@ export class UserService {
       ...profile
     } = userInfo
     return profile
+  }
+
+  // Account related methods
+  async updateAccount(provider: TAccountProvider, providerAccountId: string, dto: UpdateAccountDto): Promise<Account> {
+    return this.accountService.update(provider, providerAccountId, dto)
   }
 }

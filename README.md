@@ -7,9 +7,9 @@ https://docs.qq.com/desktop/mydoc/folder/BhdvnNAanMKd
 ## 1，用户认证（Authentication）
 
 - 本地帐号及密码登录，jwt 签发、验证、刷新。
-- Email 验证码登录
+- Email 验证码登录。
 - 第三方 OAuth 登录（如 Google 登录、Github 登录）等。
-- 支持一个用户多个登录方式。
+- 支持一个用户关联多个登录方式。
 
 ## 2，用户授权（Authorization）
 

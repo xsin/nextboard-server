@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { IsDate, IsEmail, IsNumber, IsOptional, IsString } from 'class-validator'
+import { IsDate, IsEmail, IsNumber, IsString } from 'class-validator'
 import { ApiResponseX } from 'src/common/dto'
 import { UserDto } from 'src/modules/user/dto'
 

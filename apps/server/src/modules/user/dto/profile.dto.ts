@@ -27,7 +27,7 @@ export class UserProfileDto implements IUserProfile {
   updatedAt: Date
 
   @ApiPropertyOptional({ description: 'User email verified date' })
-  emailVerified: Date
+  emailVerifiedAt: Date
 
   @ApiProperty({ description: 'User Avatar' })
   avatar: string

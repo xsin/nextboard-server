@@ -34,23 +34,40 @@ enum TResourceOpenTarget {
   @@schema("nextboard")
 }
 
+enum TAccountType {
+  local
+  oauth
+
+  @@schema("nextboard")
+}
+
+enum TAccountProvider {
+  localPwd
+  localOtp
+  github
+  google
+  wechat
+  qq
+  @@schema("nextboard")
+}
+
+// Tables
+
 model User {
-  id            String      @id @default(cuid())
-  name          String?
-  displayName   String?     @map("display_name")
-  email         String      @unique
-  emailVerified DateTime?   @map("email_verified")
-  avatar        String?
-  gender        TUserGender @default(unknown)
-  birthday      DateTime?
-  online        Boolean     @default(false)
-  disabled      Boolean     @default(false)
-  password      String
+  id              String      @id @default(cuid())
+  name            String?
+  displayName     String?     @map("display_name")
+  email           String      @unique
+  emailVerifiedAt DateTime?   @map("email_verified_at")
+  avatar          String?
+  gender          TUserGender @default(unknown)
+  birthday        DateTime?
+  online          Boolean     @default(false)
+  disabled        Boolean     @default(false)
+  password        String
 
   accounts      Account[]
-  sessions      Session[]
   roles         UserRole[]
-  logs          Log[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -81,18 +98,19 @@ model User {
 }
 
 model Account {
-  id                String  @id @default(cuid())
-  userId            String  @map("user_id")
-  type              String
-  provider          String
-  providerAccountId String  @map("provider_account_id")
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
+  id                String        @id @default(cuid())
+  userId            String        @map("user_id")
+  type              TAccountType
+  provider          TAccountProvider
+  providerAccountId String        @map("provider_account_id")
+  refreshToken      String?       @map("refresh_token")
+  accessToken       String?       @map("access_token")
+  expiredAt         DateTime?     @map("expired_at")
+  refreshExpiredAt  DateTime?     @map("refresh_expired_at")
+  tokenType         String?       @map("token_type")
   scope             String?
-  id_token          String?
-  session_state     String?
+  idToken           String?       @map("id_token")
+  sessionState      String?       @map("session_state")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -104,23 +122,8 @@ model Account {
   @@schema("nextboard")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique @map("session_token")
-  userId       String   @map("user_id")
-  expiredAt    DateTime
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
-
-  user User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  logs Log[]
-
-  @@map("sessions")
-  @@schema("nextboard")
-}
-
-// Verification tokens
-model Token {
+// Verification code
+model VCode {
   id            Int    @id @default(autoincrement())
   owner         String
   code          String
@@ -128,7 +131,7 @@ model Token {
   createdAt     DateTime @default(now()) @map("created_at")
 
   @@unique([owner, code])
-  @@map("tokens")
+  @@map("vcodes")
   @@schema("nextboard")
 }
 
@@ -137,6 +140,7 @@ model Role {
   name        String   @unique
   displayName String?  @map("display_name")
   remark      String?
+  isSystem    Boolean? @default(false) @map("is_system")
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
   createdBy   String?  @map("created_by")
@@ -154,11 +158,11 @@ model Role {
 }
 
 model UserRole {
-  id     Int    @id @default(autoincrement())
-  userId String @map("user_id")
-  roleId String @map("role_id")
-  createdBy   String?  @map("created_by")
-  createdAt DateTime @default(now()) @map("created_at")
+  id          Int       @id @default(autoincrement())
+  userId      String    @map("user_id")
+  roleId      String    @map("role_id")
+  createdBy   String?   @map("created_by")
+  createdAt   DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
@@ -249,18 +253,16 @@ model ResourcePermission {
 }
 
 model Log {
-  id        String   @id @default(cuid())
-  userId    String   @map("user_id")
+  id        Int       @id @default(autoincrement())
+  userId    String?   @map("user_id")
+  userEmail String?   @map("user_email")
   ip        String?
-  userAgent String?  @map("user_agent")
+  userAgent String?   @map("user_agent")
   operation String
   level     String?
-  sessionId String?  @map("session_id")
   meta      Json?
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  session Session? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  isSystem  Boolean?  @default(false) @map("is_system")
+  createdAt DateTime  @default(now()) @map("created_at")
 
   @@map("logs")
   @@schema("nextboard")

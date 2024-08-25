@@ -12,8 +12,10 @@ import { ResourceModule } from './modules/resource/resource.module'
 import { RoleService } from './modules/role/role.service'
 import { RoleModule } from './modules/role/role.module'
 import { PermissionModule } from './modules/permission/permission.module'
-import { TokenModule } from './modules/token/token.module'
+import { VCodeModule } from './modules/vcode/vcode.module'
 import { AppConfigModule } from './modules/config/config.module'
+import { AccountModule } from './modules/account/account.module'
+import { LogModule } from './modules/log/log.module'
 
 @Module({
   imports: [
@@ -27,8 +29,9 @@ import { AppConfigModule } from './modules/config/config.module'
     ResourceModule,
     RoleModule,
     PermissionModule,
-    TokenModule,
-
+    VCodeModule,
+    AccountModule,
+    LogModule,
   ],
   controllers: [
     AppController,
