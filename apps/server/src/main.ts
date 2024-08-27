@@ -7,9 +7,11 @@ import { AppConfigService } from './modules/config/config.service'
 import { ResponseFormatInterceptor } from './interceptors/response.interceptor'
 import { HttpExceptionFilter } from './filters/exception.filter'
 import { LogService } from './modules/log/log.service'
+import { AuthGuard, PermissionGuard, RoleGuard } from './modules/auth/guards'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
+
   const configService = app.get(AppConfigService)
   const configs = configService.config
 
@@ -29,6 +31,13 @@ async function bootstrap(): Promise<void> {
 
   // Set Global Prefix
   app.setGlobalPrefix(configs.API_PREFIX ?? '')
+
+  // Set Global AuthGuard
+  app.useGlobalGuards(
+    app.get(AuthGuard),
+    app.get(RoleGuard),
+    app.get(PermissionGuard),
+  )
 
   // Get the instance of AuthService
   app.set('trust proxy', 1)

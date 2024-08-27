@@ -3,11 +3,10 @@ import { ListQueryDto } from 'src/common/dto'
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Request } from 'express'
 import { TPermission } from '@nextboard/common'
+import { TAccountProvider, TAccountType } from '@prisma/client'
 import { ResourceListApiResponse, ResourceListDto } from '../resource/dto'
-import { AuthGuard } from '../auth/guards'
-import { RoleGuard } from '../auth/guards/role.guard'
-import { PermissionGuard } from '../auth/guards/permission.guard'
 import { Permissions } from '../auth/decorators/permissions.decorator'
+import { CreateAccountDto } from '../account/dto'
 import { UserService } from './user.service'
 import {
   CreateUserDto,
@@ -20,7 +19,6 @@ import {
   UserProfileDto,
 } from './dto'
 
-@UseGuards(AuthGuard, RoleGuard, PermissionGuard)
 @ApiBearerAuth()
 @ApiTags('user')
 @Controller('user')
@@ -31,8 +29,21 @@ export class UserController {
   @ApiResponse({
     type: UserApiResponse,
   })
-  async create(@Body() createUserDto: CreateUserDto): Promise<UserDto> {
-    return this.userService.create(createUserDto)
+  async create(@Body() dto: CreateUserDto): Promise<UserDto> {
+    const createAccountDto: CreateAccountDto = {
+      type: TAccountType.local,
+      provider: TAccountProvider.localPwd,
+      providerAccountId: dto.email,
+      accessToken: null,
+      refreshToken: null,
+      expiredAt: null,
+      refreshExpiredAt: null,
+      tokenType: null,
+      scope: null,
+      idToken: null,
+      sessionState: null,
+    }
+    return this.userService.create(dto, createAccountDto)
   }
 
   @Get()

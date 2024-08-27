@@ -1,6 +1,6 @@
 import { IsEmail, IsString, Matches } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { ApiResponseX } from 'src/common/dto'
+import { ApiResponse } from 'src/common/dto'
 import { UserDto, UserTokenDto } from 'src/modules/user/dto'
 
 export class LoginRequestDto {
@@ -22,12 +22,12 @@ export class RefreshTokenRequestDto {
   readonly refreshToken: string
 }
 
-export class RefreshTokenApiResponse extends ApiResponseX<UserTokenDto> {
+export class RefreshTokenApiResponse extends ApiResponse<UserTokenDto> {
   @ApiProperty({ type: UserTokenDto, description: 'Response data' })
   data: UserTokenDto
 }
 
-export class LoginApiResponse extends ApiResponseX<UserDto> {
+export class LoginApiResponse extends ApiResponse<UserDto> {
   @ApiProperty({ type: UserDto, description: 'Response data' })
   data: UserDto
 }

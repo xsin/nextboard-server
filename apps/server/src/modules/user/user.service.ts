@@ -1,25 +1,27 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { saltAndHashPassword } from 'src/common/utils/password'
-import { IListQueryDto } from 'src/common/dto'
 import { buildFindManyParams } from 'src/common/utils'
 import { omit } from 'radash'
 import type { Account, Prisma, TAccountProvider } from '@prisma/client'
-import { PrismaService } from '../prisma/prisma.service'
-import { IResource, IResourceList } from '../resource/dto'
-import { AccountService } from '../account/account.service'
-import { UpdateAccountDto } from '../account/dto/update-account.dto'
-import { CreateAccountDto } from '../account/dto/create-account.dto'
-import { AppConfigService } from '../config/config.service'
 import type {
-  CreateUserDto,
+  IListQueryDto,
+  IResource,
+  IResourceList,
   IUser,
   IUserFull,
   IUserList,
   IUserProfile,
+} from '@nextboard/common'
+import { PrismaService } from '../prisma/prisma.service'
+import { AccountService } from '../account/account.service'
+import { UpdateAccountDto } from '../account/dto/update.dto'
+import { CreateAccountDto } from '../account/dto/create.dto'
+import { AppConfigService } from '../config/config.service'
+import {
+  CreateUserDto,
   UpdateUserDto,
+  UserColumns,
 } from './dto'
-
-import { UserColumns } from './dto'
 
 @Injectable()
 export class UserService {
@@ -61,7 +63,7 @@ export class UserService {
   }
 
   async findAll(dto: IListQueryDto): Promise<IUserList> {
-    const findManyParams = buildFindManyParams<IUser>(dto)
+    const findManyParams = buildFindManyParams<Prisma.UserFindManyArgs>(dto)
 
     const items = await this.prismaService.user.findMany(findManyParams)
 

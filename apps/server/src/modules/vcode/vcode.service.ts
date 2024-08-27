@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common'
 import type { VCode } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
-import { CreateVCodeDto } from './dto/createVCode.dto'
-import { QueryVCodeDto } from './dto/queryVCode.dto'
+import { CreateVCodeDto } from './dto/create.dto'
+import { QueryVCodeDto } from './dto/query.dto'
 
 @Injectable()
 export class VCodeService {

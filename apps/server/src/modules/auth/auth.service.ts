@@ -2,20 +2,23 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import type { Request, Response } from 'express'
 import { comparePasswords } from 'src/common/utils'
 import { pick } from 'radash'
-import { TAccountProvider, TAccountType } from '@prisma/client'
+import {
+  type ISendOTPResult,
+  type IUser,
+  TAccountProvider,
+  TAccountType,
+} from '@nextboard/common'
 import {
   CreateUserDto,
-  IUser,
   UserPublicKeys,
 } from '../user/dto'
 import { UserService } from '../user/user.service'
 import { MailService } from '../mail/mail.service'
 import { VCodeService } from '../vcode/vcode.service'
-import { UpdateAccountDto } from '../account/dto/update-account.dto'
-import { CreateAccountDto } from '../account/dto/create-account.dto'
+import { UpdateAccountDto } from '../account/dto/update.dto'
+import { CreateAccountDto } from '../account/dto/create.dto'
 import { TokenService } from './token.service'
 import { LoginRequestDto } from './dto'
-import { ISendOTPResult } from './dto/otp.dto'
 
 @Injectable()
 export class AuthService {
@@ -75,6 +78,14 @@ export class AuthService {
       type: TAccountType.local,
       provider: TAccountProvider.localPwd,
       providerAccountId: dto.email,
+      accessToken: null,
+      refreshToken: null,
+      expiredAt: null,
+      refreshExpiredAt: null,
+      tokenType: null,
+      scope: null,
+      idToken: null,
+      sessionState: null,
     }
 
     const user = await this.userService.create(dto, createAccountDto)
@@ -103,6 +114,14 @@ export class AuthService {
         type: TAccountType.local,
         provider: TAccountProvider.localOtp,
         providerAccountId: email,
+        accessToken: null,
+        refreshToken: null,
+        expiredAt: null,
+        refreshExpiredAt: null,
+        tokenType: null,
+        scope: null,
+        idToken: null,
+        sessionState: null,
       }
       await this.userService.create({
         email,

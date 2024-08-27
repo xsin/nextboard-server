@@ -1,48 +1,8 @@
 import { IsInt, IsOptional, IsString, Min } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-
-export interface IListQueryResult<T> {
-  items: T[]
-  total: number
-  page: number
-  limit: number
-}
-
-export interface IListQueryDto {
-  page?: number
-  limit?: number
-  /**
-   * Search term
-   * In a conventional specification of `{term}^{field1,field2}`
-   */
-  search?: string
-  /**
-   * Fields to filter
-   * Each filter item should be in a conventional specification of `{key}^{operator}^{value}`
-   */
-  filters?: string[]
-  /**
-   * Fields to be ordered by
-   * Each filter item should be in a conventional specification of `{key}^{asc|desc}`
-   */
-  orders?: string[]
-}
-
-export interface IApiResponseBase {
-  success: boolean
-  code: number
-  message: string
-  data?: unknown
-}
-
-export interface IApiResponse<T> extends IApiResponseBase {
-  data?: T | null
-}
-
-export type FilterOperator = 'equals' | 'not' | 'lt' | 'gt' | 'lte' | 'gte' | 'contains' | 'startsWith' | 'endsWith' | 'in' | 'notIn'
+import { IApiResponse, IListQueryDto, IListQueryResult } from '@nextboard/common'
 
 // Swagger uses concrete classes to generate the API documentation
-
 export class ListQueryDto implements IListQueryDto {
   @ApiPropertyOptional({ description: 'Page number', minimum: 1, default: 1 })
   @IsOptional()
@@ -98,9 +58,8 @@ export class ListQueryResult<T> implements IListQueryResult<T> {
 
 /**
  * Unified API response class.
- * Since nestjs's swagger already has a decorator named ApiResponse, we use ApiResponseX instead
  */
-export class ApiResponseX<T> implements IApiResponse<T> {
+export class ApiResponse<T> implements IApiResponse<T> {
   @ApiProperty({ description: 'Response status' })
   success: boolean
 

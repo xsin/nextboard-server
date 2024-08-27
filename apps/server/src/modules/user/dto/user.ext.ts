@@ -1,61 +1,12 @@
-import { $Enums, Prisma } from '@prisma/client'
+import { Prisma, TUserGender, User } from '@prisma/client'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { ApiResponseX, IListQueryResult, ListQueryResult } from 'src/common/dto'
-import { IRole } from 'src/modules/role/dto'
-import { IPermission } from 'src/modules/permission/dto'
-import { IResource, ResourceDto } from 'src/modules/resource/dto'
-import { KeysOf } from 'src/types'
+import { ApiResponse, ListQueryResult } from 'src/common/dto'
+import { ResourceDto } from 'src/modules/resource/dto'
+import { IUser, IUserList, IUserToken, KeysOf } from '@nextboard/common'
 
-type TUserSelectScalar = Omit<Prisma.UserSelectScalar, 'password' | 'createdBy' | 'updatedBy'>
-/**
- * Public (Non-confidential) user data
- */
-type TUser = Prisma.UserGetPayload<{
-  select: IUserSelectScalar
-}> & IUserExtra
-
-/**
- * User data with confidential information like `password`
- */
-type TUserFull = Prisma.UserGetPayload<Prisma.UserDefaultArgs> & IUserExtra
-
-export interface IUserToken {
-  accessToken?: string
-  refreshToken?: string
-  accessTokenExpiredAt?: Date
-  refreshTokenExpiredAt?: Date
-}
-
-export interface IUserExtra extends IUserToken {
-  roles?: IRole[]
-  roleNames?: string[]
-  permissions?: IPermission[]
-  permissionNames?: string[]
-  resources?: IResource[]
-}
+type TUserSelectScalar = Omit<Prisma.UserSelectScalar, 'password'>
 
 export interface IUserSelectScalar extends TUserSelectScalar {}
-
-/**
- * Public user data
- */
-export interface IUser extends TUser {}
-
-/**
- * User data with confidential information like `password`
- */
-export interface IUserFull extends TUserFull {}
-
-/**
- * JWT Payload
- */
-export interface IUserTokenPayload {
-  iss: string
-  username: string
-  sub: string
-}
-
-export type IUserList = IListQueryResult<IUser>
 
 export const UserColumns: IUserSelectScalar = {
   id: true,
@@ -70,24 +21,10 @@ export const UserColumns: IUserSelectScalar = {
   disabled: true,
   avatar: true,
   online: true,
+  createdBy: true,
+  updatedBy: true,
 }
-export const UserPublicKeys: Array<KeysOf<TUser>> = Object.keys(UserColumns) as Array<KeysOf<TUser>>
-export const UserSchemaKeys: Array<KeysOf<TUserFull>> = [
-  'id',
-  'email',
-  'name',
-  'displayName',
-  'emailVerifiedAt',
-  'birthday',
-  'disabled',
-  'gender',
-  'avatar',
-  'online',
-  'createdAt',
-  'updatedAt',
-  'updatedBy',
-  'createdBy',
-]
+export const UserPublicKeys: Array<KeysOf<IUser>> = Object.keys(UserColumns) as Array<KeysOf<IUser>>
 
 // Concrete classes used to generate openapi schema
 export class UserTokenDto implements IUserToken {
@@ -124,7 +61,7 @@ export class UserDto extends UserTokenDto implements IUser {
   avatar: string
 
   @ApiProperty({ description: 'User Gender' })
-  gender: $Enums.TUserGender
+  gender: TUserGender
 
   @ApiProperty({ description: 'User status' })
   disabled: boolean
@@ -137,6 +74,12 @@ export class UserDto extends UserTokenDto implements IUser {
 
   @ApiProperty({ type: [ResourceDto], description: 'List of authorized resources' })
   resources?: ResourceDto[]
+
+  @ApiProperty({ description: 'Created by' })
+  createdBy: string
+
+  @ApiProperty({ description: 'Updated by' })
+  updatedBy: string
 }
 
 export class UserListDto extends ListQueryResult<UserDto> implements IUserList {
@@ -144,12 +87,12 @@ export class UserListDto extends ListQueryResult<UserDto> implements IUserList {
   items: UserDto[]
 }
 
-export class UserApiResponse extends ApiResponseX<UserDto> {
+export class UserApiResponse extends ApiResponse<UserDto> {
   @ApiProperty({ type: UserDto })
   data: UserDto
 }
 
-export class UserListApiResponse extends ApiResponseX<UserListDto> {
+export class UserListApiResponse extends ApiResponse<UserListDto> {
   @ApiProperty({ type: UserListDto })
   data: UserListDto
 }

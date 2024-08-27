@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common'
+import { Body, Controller, Post, UseGuards } from '@nestjs/common'
 import { ApiResponse, ApiTags } from '@nestjs/swagger'
 import {
   CreateUserDto,
@@ -15,7 +15,11 @@ import {
   RefreshTokenRequestDto,
 } from './dto'
 import { OTPLoginDto, SendOTPApiResponse, SendOTPDto, SendOTPRequestDto } from './dto/otp.dto'
+import { PublicGuard } from './guards'
 
+@UseGuards(
+  PublicGuard,
+)
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {

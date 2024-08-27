@@ -1,12 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common'
 import { ApiTags } from '@nestjs/swagger'
-import { AuthGuard } from '../auth/guards'
 import { ResourceService } from './resource.service'
-import { CreateResourceDto } from './dto/createResource.dto'
-import { UpdateResourceDto } from './dto/updateResource.dto'
+import { CreateResourceDto } from './dto/create.dto'
+import { UpdateResourceDto } from './dto/update.dto'
 
 @ApiTags('resource')
-@UseGuards(AuthGuard)
 @Controller('resource')
 export class ResourceController {
   constructor(private readonly resourceService: ResourceService) {}

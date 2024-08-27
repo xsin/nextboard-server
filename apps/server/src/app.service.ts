@@ -1,11 +1,15 @@
 import { Injectable } from '@nestjs/common'
 import { AppDto } from './app.dto'
-import { getConfig } from './common/configs'
+import { AppConfigService } from './modules/config/config.service'
 
 @Injectable()
 export class AppService {
+  constructor(
+    private readonly configService: AppConfigService,
+  ) {}
+
   info(): AppDto {
-    const cfg = getConfig().public
+    const cfg = this.configService.config
     return {
       name: cfg.name,
       description: cfg.description,

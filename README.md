@@ -144,3 +144,53 @@ https://docs.qq.com/desktop/mydoc/folder/BhdvnNAanMKd
 - 复杂的数据处理和转换逻辑
 
 ## 数据缓存篇 - 分布式 Redis 缓存
+
+## 在客户端和服务端共享 Prisma 生成的 DTO 类型
+
+确保客户端不会引入浏览器不兼容的类型，可以采取以下措施：
+
+1. 仅导出需要的类型：在共享的类型文件中，只导出需要在客户端使用的类型，避免导出包含 Node.js 特定类型的内容。
+2. 使用 TypeScript 的条件类型：根据环境条件导出不同的类型。
+3. 避免在客户端代码中直接使用 Prisma Client：只在服务器端使用 Prisma Client，客户端只使用 DTO（数据传输对象）类型。
+
+### 具体步骤
+
+1. 创建共享包（`@nextboard/common`）
+
+在项目中创建一个共享的包，用于存放客户端和服务端共享的类型文件。
+在共享包中创建一个类型文件，只导出需要在客户端使用的类型。例如：
+
+```ts
+// packages/shared/prisma/types/index.ts
+export type { User, Post } from '@prisma/client'
+```
+
+2. 配置 Typescript 路径
+
+在 `tsconfig.json` 中配置路径映射：
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@nextboard/common": ["../../packages/common/src/index.ts"]
+    }
+  }
+}
+```
+
+3. 在客户端和服务器端使用共享类型
+
+在服务器端和客户端代码中分别导入共享类型。
+
+```ts
+import type { Post, User } from '@nextboard/common'
+```
+
+NestJS 项目中的 DTO（数据传输对象）通常是类，并且可能包含装饰器和验证逻辑，这些类不适合直接共享给客户端。客户端通常只需要类型定义，而不需要这些类的具体实现和装饰器。
+
+解决方案
+
+- 在服务器端定义 DTO 类：在服务器端继续使用 DTO 类来处理请求和响应。
+- 在共享包中定义接口或类型：在共享包中定义与 DTO 类对应的接口或类型，这些接口或类型可以在客户端和服务器端共享。

@@ -6,14 +6,14 @@ import {
 } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { ApiResponseX } from 'src/common/dto'
+import { ApiResponse } from 'src/common/dto'
 
 @Injectable()
 export class ResponseFormatInterceptor<T> implements NestInterceptor<T, any> {
   intercept(_context: ExecutionContext, next: CallHandler<T>): Observable<any> {
     return next.handle().pipe(
       map((data) => {
-        const res = new ApiResponseX()
+        const res = new ApiResponse()
         res.code = 200
         res.data = data
         res.success = true

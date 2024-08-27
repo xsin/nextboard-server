@@ -1,8 +1,9 @@
 import { IsDate, IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Match } from 'src/common/decorators/match.decorator'
+import { ICreateUserDto } from '@nextboard/common'
 
-export class CreateUserDto {
+export class CreateUserDto implements ICreateUserDto {
   @ApiProperty({ description: 'Email address' })
   @IsEmail()
   readonly email: string

@@ -1,15 +1,15 @@
-import { Prisma } from '@prisma/client'
 import { isEmpty } from 'radash'
-import type { IListQueryDto } from 'src/common/dto'
+import type { IListQueryDto } from '@nextboard/common'
 
 /**
  * Builds the parameters for the Prisma `findMany` method based on the provided DTO.
  *
- * @template T - The type of the entity.
+ * @template T - The return type of buildFindManyParams. E.G. `Prisma.UserFindManyArgs`
  * @param {IListQueryDto} dto - The data transfer object containing query parameters.
- * @returns {Prisma.UserFindManyArgs} The parameters for the Prisma `findMany` method.
+ * @param {string[]} defaultSearchFields - The default fields to search.
+ * @returns {T} The parameters for the Prisma `findMany` method.
  */
-export function buildFindManyParams<T>(dto: IListQueryDto): Prisma.UserFindManyArgs {
+export function buildFindManyParams<T>(dto: IListQueryDto, defaultSearchFields: string[] = ['name', 'displayName', 'remark']): T {
   const {
     page = 1,
     limit = 20,
@@ -19,13 +19,13 @@ export function buildFindManyParams<T>(dto: IListQueryDto): Prisma.UserFindManyA
   } = dto
   const skip = (page - 1) * limit
 
-  const where: Prisma.UserWhereInput = {}
+  const where: Record<string, unknown> = {}
   const splitter = '^'
 
   // Handle search functionality
   if (!isEmpty(search)) {
     const [term, fields] = search.split(splitter)
-    const searchFields = fields ? fields.split(',') : ['name', 'displayName', 'remark']
+    const searchFields = fields ? fields.split(',') : defaultSearchFields
     where.OR = searchFields.map(field => ({
       [field]: { contains: term },
     }))
@@ -78,10 +78,11 @@ export function buildFindManyParams<T>(dto: IListQueryDto): Prisma.UserFindManyA
     return { [field]: direction }
   }) || []
 
-  return {
+  const res = {
     where,
     take: limit,
     skip,
     orderBy,
   }
+  return res as T
 }

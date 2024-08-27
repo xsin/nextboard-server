@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types'
-import { CreateVCodeDto } from './createVCode.dto'
+import { CreateVCodeDto } from './create.dto'
 
 export class QueryVCodeDto extends PartialType(CreateVCodeDto) {}

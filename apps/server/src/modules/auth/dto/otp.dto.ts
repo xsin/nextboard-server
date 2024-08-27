@@ -1,18 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
+import type { ISendOTPResult } from '@nextboard/common'
 import { IsDate, IsEmail, IsNumber, IsString } from 'class-validator'
-import { ApiResponseX } from 'src/common/dto'
+import { ApiResponse } from 'src/common/dto'
 import { UserDto } from 'src/modules/user/dto'
-
-export interface ISendOTPResult {
-  /**
-   * Server time when the OTP is sent
-   */
-  time: Date
-  /**
-   * Validity duration of the OTP in milliseconds
-   */
-  duration: number
-}
 
 export class SendOTPRequestDto {
   @ApiProperty({
@@ -36,7 +26,7 @@ export class SendOTPDto implements ISendOTPResult {
   readonly duration: number
 }
 
-export class SendOTPApiResponse extends ApiResponseX<SendOTPDto> {
+export class SendOTPApiResponse extends ApiResponse<SendOTPDto> {
   @ApiProperty({ type: SendOTPDto, description: 'Response data' })
   data: SendOTPDto
 }
@@ -55,7 +45,7 @@ export class OTPLoginDto {
   email: string
 }
 
-export class OTPLoginApiResponse extends ApiResponseX<UserDto> {
+export class OTPLoginApiResponse extends ApiResponse<UserDto> {
   @ApiProperty({ type: UserDto, description: 'Response data' })
   data: UserDto
 }

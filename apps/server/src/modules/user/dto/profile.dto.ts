@@ -1,11 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { ApiResponseX } from 'src/common/dto'
-import { $Enums } from '@prisma/client'
-import { IUser } from './user.ext'
-
-export type TUserProfileExcludeFields = 'roles' | 'permissions' | 'menus' | 'online' | 'disabled'
-
-export interface IUserProfile extends Omit<IUser, TUserProfileExcludeFields> {}
+import { ApiResponse } from 'src/common/dto'
+import { TUserGender } from '@prisma/client'
+import { IUserProfile } from '@nextboard/common'
 
 export class UserProfileDto implements IUserProfile {
   @ApiProperty({ description: 'User ID' })
@@ -33,13 +29,13 @@ export class UserProfileDto implements IUserProfile {
   avatar: string
 
   @ApiProperty({ description: 'User Gender' })
-  gender: $Enums.TUserGender
+  gender: TUserGender
 
   @ApiProperty({ description: 'User Birthday' })
   birthday: Date
 }
 
-export class UserProfileApiResponse extends ApiResponseX<UserProfileDto> {
+export class UserProfileApiResponse extends ApiResponse<UserProfileDto> {
   @ApiProperty({ type: UserProfileDto, description: 'Response data' })
   data: UserProfileDto
 }

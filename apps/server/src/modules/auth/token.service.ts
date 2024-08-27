@@ -2,8 +2,8 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import { JwtService } from '@nestjs/jwt'
 import { isEmpty, omit } from 'radash'
 import type { Request } from 'express'
+import type { IUser, IUserToken, IUserTokenPayload } from '@nextboard/common'
 import { UserService } from '../user/user.service'
-import { IUser, IUserToken, IUserTokenPayload } from '../user/dto'
 import { RefreshTokenRequestDto } from '../auth/dto'
 import { AppConfigService } from '../config/config.service'
 

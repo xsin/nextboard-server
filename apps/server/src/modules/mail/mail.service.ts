@@ -1,11 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { Resend } from 'resend'
 import { template } from 'radash'
 import { randomCode } from 'src/common/utils'
-import { UserService } from '../user/user.service'
+import type { ISendOTPResult } from '@nextboard/common'
 import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'
-import { ISendOTPResult } from '../auth/dto/otp.dto'
 
 @Injectable()
 export class MailService {
@@ -13,7 +12,6 @@ export class MailService {
 
   constructor(
     private readonly configService: AppConfigService,
-    private readonly userService: UserService,
     private readonly vcodeService: VCodeService,
   ) {
     this.mailer = new Resend(this.configService.config.RESEND_API_KEY)

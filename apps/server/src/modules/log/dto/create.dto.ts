@@ -1,7 +1,8 @@
 import { IsBoolean, IsEmail, IsObject, IsOptional, IsString } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
+import { ICreateLogDto } from '@nextboard/common'
 
-export class CreateLogDto {
+export class CreateLogDto implements ICreateLogDto {
   @ApiPropertyOptional({ description: 'User ID associated with the log entry' })
   @IsString()
   @IsOptional()

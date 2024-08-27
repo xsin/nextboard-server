@@ -1,5 +1,5 @@
 import process from 'node:process'
-import { Module } from '@nestjs/common'
+import { Global, Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 import { validateSync } from 'class-validator'
 import { plainToClass } from 'class-transformer'
@@ -16,6 +16,7 @@ function validate(config: Record<string, unknown>): ConfigDto {
   return validatedConfig
 }
 
+@Global()
 @Module({
   imports: [
     ConfigModule.forRoot({

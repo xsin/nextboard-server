@@ -1,17 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { $Enums, Prisma } from '@prisma/client'
-import { ApiResponseX, IListQueryResult, ListQueryResult } from 'src/common/dto'
+import type { IResource, IResourceList, TResourceOpenTarget } from '@nextboard/common'
+import { ApiResponse, ListQueryResult } from 'src/common/dto'
 
-export * from './createResource.dto'
-export * from './updateResource.dto'
-
-type TResource = Prisma.ResourceGetPayload<Prisma.ResourceDefaultArgs>
-
-type TResourceOpenTarget = $Enums.TResourceOpenTarget
-
-export interface IResource extends TResource {}
-
-export type IResourceList = IListQueryResult<IResource>
+export * from './create.dto'
+export * from './update.dto'
 
 export class ResourceDto implements IResource {
   @ApiProperty({ description: 'Resource ID' })
@@ -62,7 +54,7 @@ export class ResourceListDto extends ListQueryResult<ResourceDto> implements IRe
   items: ResourceDto[]
 }
 
-export class ResourceListApiResponse extends ApiResponseX<ResourceListDto> {
+export class ResourceListApiResponse extends ApiResponse<ResourceListDto> {
   @ApiProperty({ type: ResourceListDto })
   data: ResourceListDto
 }

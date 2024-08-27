@@ -8,7 +8,7 @@ import {
   Logger,
 } from '@nestjs/common'
 import type { Request, Response } from 'express'
-import { ApiResponseX } from 'src/common/dto'
+import { ApiResponse } from 'src/common/dto'
 import { LogService } from 'src/modules/log/log.service'
 
 @Injectable()
@@ -32,7 +32,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.getResponse()
         : 'Internal server error'
 
-    const errorResponse = new ApiResponseX()
+    const errorResponse = new ApiResponse()
     errorResponse.code = status
     errorResponse.data = null
     errorResponse.success = false
