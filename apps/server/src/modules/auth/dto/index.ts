@@ -1,7 +1,7 @@
 import { IsEmail, IsString, Matches } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { ApiResponse } from 'src/common/dto'
-import { UserDto, UserTokenDto } from 'src/modules/user/dto'
+import { ApiResponse } from '@/common/dto'
+import { UserDto, UserTokenDto } from '@/modules/user/dto'
 
 export class LoginRequestDto {
   @ApiProperty({ description: 'Username. In NextBoard, we use email for the username parameter.' })

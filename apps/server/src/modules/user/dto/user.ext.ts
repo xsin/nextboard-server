@@ -1,4 +1,4 @@
-import { Prisma, TUserGender, User } from '@prisma/client'
+import { Prisma, TUserGender } from '@prisma/client'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { ApiResponse, ListQueryResult } from 'src/common/dto'
 import { ResourceDto } from 'src/modules/resource/dto'

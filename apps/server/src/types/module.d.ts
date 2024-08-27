@@ -1,6 +1,6 @@
-import { Request } from 'express'
-import { IUser } from 'src/modules/user/dto'
-import { Env } from './env'
+import type { Request } from 'express'
+import { IUser } from '@nextboard/common'
+import type { Env } from './env'
 
 declare namespace NodeJS {
   export interface ProcessEnv extends Env {}

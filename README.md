@@ -194,3 +194,10 @@ NestJS 项目中的 DTO（数据传输对象）通常是类，并且可能包含
 
 - 在服务器端定义 DTO 类：在服务器端继续使用 DTO 类来处理请求和响应。
 - 在共享包中定义接口或类型：在共享包中定义与 DTO 类对应的接口或类型，这些接口或类型可以在客户端和服务器端共享。
+
+## NestJS monorepo
+
+参考文档：
+
+- https://docs.nestjs.com/cli/monorepo
+- https://github.com/mikemajesty/nestjs-monorepo
