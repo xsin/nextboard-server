@@ -9,7 +9,7 @@ import type { Request } from 'express'
 export class RoleGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredRoles = this.reflector.get<string[]>('roles', context.getHandler())
     if (!requiredRoles) {
       return true

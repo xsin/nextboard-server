@@ -6,9 +6,7 @@ import { VCodeModule } from '../vcode/vcode.module'
 import { TokenService } from './token.service'
 import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
-import { AuthGuard, PublicGuard } from './guards'
-import { RoleGuard } from './guards/role.guard'
-import { PermissionGuard } from './guards/permission.guard'
+import { AuthGuard, GlobalGuard, PermissionGuard, RoleGuard } from './guards'
 
 // Use @Global() to make the module available globally
 // So that we can use `PublicGuard` without importing the `AuthModule` in other modules
@@ -24,8 +22,8 @@ import { PermissionGuard } from './guards/permission.guard'
     JwtModule.registerAsync({
       imports: [AppConfigService],
       useFactory: async (configService: AppConfigService) => ({
-        secret: configService.config.JWT_TOKEN_SECRET,
-        signOptions: { expiresIn: configService.config.JWT_TOKEN_EXPIRY },
+        secret: configService.JWT_SECRET,
+        signOptions: { expiresIn: configService.JWT_EXPIRY },
       }),
       inject: [AppConfigService],
     }),
@@ -35,7 +33,7 @@ import { PermissionGuard } from './guards/permission.guard'
     AuthService,
     TokenService,
     JwtService,
-    PublicGuard,
+    GlobalGuard,
     AuthGuard,
     RoleGuard,
     PermissionGuard,
@@ -43,10 +41,10 @@ import { PermissionGuard } from './guards/permission.guard'
   exports: [
     AuthService,
     TokenService,
-    PublicGuard,
     AuthGuard,
     RoleGuard,
     PermissionGuard,
+    GlobalGuard,
   ],
   controllers: [AuthController],
 })

@@ -9,13 +9,13 @@ export class AppService {
   ) {}
 
   info(): AppDto {
-    const cfg = this.configService.config
+    const cfg = this.configService
     return {
       name: cfg.name,
       description: cfg.description,
       keywords: cfg.keywords,
       version: cfg.version,
-      author: cfg.author,
+      author: cfg.author.name,
     }
   }
 }

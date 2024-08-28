@@ -18,6 +18,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
   private readonly logger = new Logger(HttpExceptionFilter.name)
 
+  getIp(request: Request): string {
+    const xForwardedFor = request.headers['x-forwarded-for']
+    if (xForwardedFor) {
+      const ips = (xForwardedFor as string).split(',')
+      return ips[0].trim()
+    }
+    return request.socket.remoteAddress || request.ip || ''
+  }
+
   async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
     const ctx = host.switchToHttp()
     const response = ctx.getResponse<Response>()
@@ -42,7 +51,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     this.logger.error(`HTTP Status: ${status}\r\nError Message: ${JSON.stringify(message)}`)
 
     // Log the error
-    const ip = request.headers['x-forwarded-for'][0] ?? request.ip
+    const ip = this.getIp(request)
     try {
       await this.logService.create({
         userId: request.user?.id,

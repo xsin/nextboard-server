@@ -1,0 +1,16 @@
+name: 'nextboard-server'
+services:
+  postgres:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: nextboard
+      POSTGRES_PASSWORD: nextboard
+      POSTGRES_DB: nextboard
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+
+volumes:
+  postgres:

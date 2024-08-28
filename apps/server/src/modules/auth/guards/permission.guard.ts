@@ -9,7 +9,7 @@ import type { Request } from 'express'
 export class PermissionGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
-  canActivate(context: ExecutionContext): boolean {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredPermissions = this.reflector.get<string[]>('permissions', context.getHandler())
     if (!requiredPermissions) {
       return true

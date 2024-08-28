@@ -15,11 +15,9 @@ import {
   RefreshTokenRequestDto,
 } from './dto'
 import { OTPLoginDto, SendOTPApiResponse, SendOTPDto, SendOTPRequestDto } from './dto/otp.dto'
-import { PublicGuard } from './guards'
+import { Public } from './decorators/public.decorator'
 
-@UseGuards(
-  PublicGuard,
-)
+@Public()
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {

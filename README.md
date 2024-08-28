@@ -201,3 +201,13 @@ NestJS 项目中的 DTO（数据传输对象）通常是类，并且可能包含
 
 - https://docs.nestjs.com/cli/monorepo
 - https://github.com/mikemajesty/nestjs-monorepo
+
+## @nestjs/swagger
+
+### 范型类型的支持
+
+https://aalonso.dev/blog/2021/how-to-generate-generics-dtos-with-nestjsswagger-422g
+
+### 一些 Tips
+
+https://trilon.io/blog/nestjs-swagger-tips-tricks

@@ -14,20 +14,20 @@ export class MailService {
     private readonly configService: AppConfigService,
     private readonly vcodeService: VCodeService,
   ) {
-    this.mailer = new Resend(this.configService.config.RESEND_API_KEY)
+    this.mailer = new Resend(this.configService.RESEND_API_KEY)
   }
 
   async sendVerificationEmail(email: string, htmlContent?: string): Promise<void> {
-    const apiPrefix = this.configService.config.API_PREFIX ? `${this.configService.config.API_PREFIX}/` : ''
-    const verificationLink = `${this.configService.config.BASE_URL}/${apiPrefix}user/verify?email=${email}`
+    const apiPrefix = this.configService.API_PREFIX ? `${this.configService.API_PREFIX}/` : ''
+    const verificationLink = `${this.configService.BASE_URL}/${apiPrefix}user/verify?email=${email}`
 
     htmlContent = htmlContent ?? `<h1>Please verify your email address by clicking on the link below:</h1>
                                   <a href="{{verificationLink}}">Verify Email</a>`
 
     await this.mailer.emails.send({
-      from: this.configService.config.RESEND_FROM,
+      from: this.configService.RESEND_FROM,
       to: email,
-      subject: this.configService.config.RESEND_VERIFY_MAIL_SUBJECT ?? 'Welcome to NextBoard, Pls verify your email address',
+      subject: this.configService.RESEND_VERIFY_MAIL_SUBJECT ?? 'Welcome to NextBoard, Pls verify your email address',
       html: template(htmlContent, { verificationLink }),
     })
   }
@@ -39,7 +39,7 @@ export class MailService {
    */
   async sendOTP(email: string): Promise<ISendOTPResult> {
     const code = randomCode(6) // Generate a simple code
-    const expiresInMs = this.configService.config.OTP_EXPIRY * 1000
+    const expiresInMs = this.configService.OTP_EXPIRY * 1000
     const expiredAt = new Date(Date.now() + expiresInMs)
 
     // Create token record in the database
@@ -50,7 +50,7 @@ export class MailService {
     })
 
     const mailOptions = {
-      from: this.configService.config.RESEND_FROM,
+      from: this.configService.RESEND_FROM,
       to: email,
       subject: 'NextBoard login code',
       html: `Your login verification code is ${code}`,

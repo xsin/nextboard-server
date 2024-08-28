@@ -1,8 +1,28 @@
-import { IsArray, IsEmail, IsIn, IsInt, IsOptional, IsString, IsUrl } from 'class-validator'
+import { IsArray, IsEmail, IsIn, IsInt, IsObject, IsOptional, IsString, IsUrl } from 'class-validator'
 
-export interface IConfigDto {
+export interface IPackageAuthor {
+  name: string
+  email?: string
+  url?: string
+}
 
-  NODE_ENV: 'development' | 'production' | 'test'
+export interface IPackageInfo {
+  name?: string
+
+  description?: string
+
+  keywords?: string[]
+
+  version?: string
+
+  author?: IPackageAuthor
+}
+
+export type TNodeEnv = 'development' | 'production' | 'test'
+
+export interface IConfigDto extends IPackageInfo {
+
+  NODE_ENV: TNodeEnv
 
   BASE_URL: string
 
@@ -22,16 +42,16 @@ export interface IConfigDto {
   /**
    * JWT Token expiry in seconds
    */
-  JWT_TOKEN_EXPIRY: number
+  JWT_EXPIRY: number
 
-  JWT_TOKEN_SECRET: string
+  JWT_SECRET: string
 
   /**
    * JWT Token refresh expiry in seconds
    */
-  JWT_TOKEN_REFRESH_EXPIRY: number
+  JWT_REFRESH_EXPIRY: number
 
-  JWT_TOKEN_REFRESH_SECRET: string
+  JWT_REFRESH_SECRET: string
 
   DEFAULT_ROLE_ID: string
 
@@ -40,21 +60,11 @@ export interface IConfigDto {
    */
   OTP_EXPIRY: number
 
-  // package.json
-  name?: string
-
-  description?: string
-
-  keywords?: string[]
-
-  version?: string
-
-  author?: string
 }
 
 export class ConfigDto implements IConfigDto {
   @IsIn(['development', 'production', 'test'])
-  NODE_ENV: 'development' | 'production' | 'test'
+  NODE_ENV: TNodeEnv
 
   @IsUrl({
     // require top level domain
@@ -85,19 +95,19 @@ export class ConfigDto implements IConfigDto {
    * JWT Token expiry in seconds
    */
   @IsInt()
-  JWT_TOKEN_EXPIRY: number
+  JWT_EXPIRY: number
 
   @IsString()
-  JWT_TOKEN_SECRET: string
+  JWT_SECRET: string
 
   /**
    * JWT Token refresh expiry in seconds
    */
   @IsInt()
-  JWT_TOKEN_REFRESH_EXPIRY: number
+  JWT_REFRESH_EXPIRY: number
 
   @IsString()
-  JWT_TOKEN_REFRESH_SECRET: string
+  JWT_REFRESH_SECRET: string
 
   @IsString()
   DEFAULT_ROLE_ID: string
@@ -126,6 +136,6 @@ export class ConfigDto implements IConfigDto {
   version?: string
 
   @IsOptional()
-  @IsString()
-  author?: string
+  @IsObject()
+  author?: IPackageAuthor
 }

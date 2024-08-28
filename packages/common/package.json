@@ -25,6 +25,8 @@
     "dist"
   ],
   "scripts": {
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
     "build": "unbuild",
     "stub": "unbuild --stub",
     "watch": "npm-watch"
@@ -38,9 +40,11 @@
     }
   },
   "dependencies": {
-    "@prisma/client": "^5.18.0"
+    "@prisma/client": "^5.19.0"
   },
   "devDependencies": {
-    "unbuild": "^2.0.0"
+    "@vitest/coverage-v8": "^2.0.5",
+    "unbuild": "^2.0.0",
+    "vitest": "^2.0.5"
   }
 }

@@ -81,8 +81,8 @@ export class TokenService {
     const jwtRefreshSecret = this.getJwtRefreshSecret()
 
     // Token expiry time in seconds
-    const expiresIn1 = this.configService.config.JWT_TOKEN_EXPIRY
-    const expiresIn2 = this.configService.config.JWT_TOKEN_REFRESH_EXPIRY
+    const expiresIn1 = this.configService.JWT_EXPIRY
+    const expiresIn2 = this.configService.JWT_REFRESH_EXPIRY
 
     // Calculate absolute expiry time
     const expiredAt1 = new Date(Date.now() + expiresIn1 * 1000)
@@ -103,13 +103,13 @@ export class TokenService {
   }
 
   private getJwtSecret(): string {
-    let jwtSecret = this.configService.config.JWT_TOKEN_SECRET
+    let jwtSecret = this.configService.JWT_SECRET
     jwtSecret = !isEmpty(jwtSecret) ? jwtSecret : 'NextBoard'
     return jwtSecret
   }
 
   private getJwtRefreshSecret(): string {
-    let jwtRefreshSecret = this.configService.config.JWT_TOKEN_REFRESH_SECRET
+    let jwtRefreshSecret = this.configService.JWT_REFRESH_SECRET
     jwtRefreshSecret = !isEmpty(jwtRefreshSecret) ? jwtRefreshSecret : this.getJwtSecret()
     return jwtRefreshSecret
   }

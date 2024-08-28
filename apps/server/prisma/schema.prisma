@@ -5,15 +5,15 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema", "typedSql"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-  directUrl= env("DIRECT_URL")
-  schemas  = ["nextboard"]
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["nextboard"]
 }
 
 // Custom types
@@ -48,6 +48,7 @@ enum TAccountProvider {
   google
   wechat
   qq
+
   @@schema("nextboard")
 }
 
@@ -66,8 +67,8 @@ model User {
   disabled        Boolean     @default(false)
   password        String
 
-  accounts      Account[]
-  roles         UserRole[]
+  accounts Account[]
+  roles    UserRole[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -89,28 +90,31 @@ model User {
   createdResources Resource[] @relation("UserCreatedResources")
   updatedResources Resource[] @relation("UserUpdatedResources")
 
-  createdUserRoles UserRole[] @relation("UserCreatedUserRole")
+  createdDicts Dict[] @relation("UserCreatedDicts")
+  updatedDicts Dict[] @relation("UserUpdatedDicts")
+
+  createdUserRoles           UserRole[]           @relation("UserCreatedUserRole")
   createdResourceuPermissons ResourcePermission[] @relation("UserCreatedResourcePermission")
-  createdRolePermissions RolePermission[] @relation("UserCreatedRolePermission")
+  createdRolePermissions     RolePermission[]     @relation("UserCreatedRolePermission")
 
   @@map("users")
   @@schema("nextboard")
 }
 
 model Account {
-  id                String        @id @default(cuid())
-  userId            String        @map("user_id")
+  id                String           @id @default(cuid())
+  userId            String           @map("user_id")
   type              TAccountType
   provider          TAccountProvider
-  providerAccountId String        @map("provider_account_id")
-  refreshToken      String?       @map("refresh_token")
-  accessToken       String?       @map("access_token")
-  expiredAt         DateTime?     @map("expired_at")
-  refreshExpiredAt  DateTime?     @map("refresh_expired_at")
-  tokenType         String?       @map("token_type")
+  providerAccountId String           @map("provider_account_id")
+  refreshToken      String?          @map("refresh_token")
+  accessToken       String?          @map("access_token")
+  expiredAt         DateTime?        @map("expired_at")
+  refreshExpiredAt  DateTime?        @map("refresh_expired_at")
+  tokenType         String?          @map("token_type")
   scope             String?
-  idToken           String?       @map("id_token")
-  sessionState      String?       @map("session_state")
+  idToken           String?          @map("id_token")
+  sessionState      String?          @map("session_state")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -124,11 +128,11 @@ model Account {
 
 // Verification code
 model VCode {
-  id            Int    @id @default(autoincrement())
-  owner         String
-  code          String
-  expiredAt     DateTime
-  createdAt     DateTime @default(now()) @map("created_at")
+  id        Int      @id @default(autoincrement())
+  owner     String
+  code      String
+  expiredAt DateTime
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@unique([owner, code])
   @@map("vcodes")
@@ -158,14 +162,14 @@ model Role {
 }
 
 model UserRole {
-  id          Int       @id @default(autoincrement())
-  userId      String    @map("user_id")
-  roleId      String    @map("role_id")
-  createdBy   String?   @map("created_by")
-  createdAt   DateTime  @default(now()) @map("created_at")
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  roleId    String   @map("role_id")
+  createdBy String?  @map("created_by")
+  createdAt DateTime @default(now()) @map("created_at")
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  user    User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role    Role  @relation(fields: [roleId], references: [id], onDelete: Cascade)
   creator User? @relation("UserCreatedUserRole", fields: [createdBy], references: [id])
 
   @@unique([userId, roleId])
@@ -194,15 +198,15 @@ model Permission {
 }
 
 model RolePermission {
-  id            Int       @id @default(autoincrement())
-  roleId        String    @map("role_id")
-  permissionId  String    @map("permission_id")
-  createdBy     String?   @map("created_by")
-  createdAt     DateTime  @default(now()) @map("created_at")
+  id           Int      @id @default(autoincrement())
+  roleId       String   @map("role_id")
+  permissionId String   @map("permission_id")
+  createdBy    String?  @map("created_by")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   role       Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
   permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  creator User? @relation("UserCreatedRolePermission", fields: [createdBy], references: [id])
+  creator    User?      @relation("UserCreatedRolePermission", fields: [createdBy], references: [id])
 
   @@unique([roleId, permissionId])
   @@map("role_permissions")
@@ -225,8 +229,8 @@ model Resource {
   createdBy   String?             @map("created_by")
   updatedBy   String?             @map("updated_by")
 
-  creator  User?  @relation("UserCreatedResources", fields: [createdBy], references: [id])
-  updater  User?  @relation("UserUpdatedResources", fields: [updatedBy], references: [id])
+  creator  User?      @relation("UserCreatedResources", fields: [createdBy], references: [id])
+  updater  User?      @relation("UserUpdatedResources", fields: [updatedBy], references: [id])
   parent   Resource?  @relation("ResourceParentResources", fields: [parentId], references: [id])
   children Resource[] @relation("ResourceParentResources")
 
@@ -237,15 +241,15 @@ model Resource {
 }
 
 model ResourcePermission {
-  id              Int       @id @default(autoincrement())
-  resourceId      String    @map("resource_id")
-  permissionId    String    @map("permission_id")
-  createdBy       String?   @map("created_by")
-  createdAt       DateTime  @default(now()) @map("created_at")
+  id           Int      @id @default(autoincrement())
+  resourceId   String   @map("resource_id")
+  permissionId String   @map("permission_id")
+  createdBy    String?  @map("created_by")
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  resource    Resource    @relation(fields: [resourceId], references: [id], onDelete: Cascade)
-  permission  Permission  @relation(fields: [permissionId], references: [id], onDelete: Cascade)
-  creator     User?       @relation("UserCreatedResourcePermission", fields: [createdBy], references: [id])
+  resource   Resource   @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  permission Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+  creator    User?      @relation("UserCreatedResourcePermission", fields: [createdBy], references: [id])
 
   @@unique([resourceId, permissionId])
   @@map("resource_permissions")
@@ -253,17 +257,37 @@ model ResourcePermission {
 }
 
 model Log {
-  id        Int       @id @default(autoincrement())
-  userId    String?   @map("user_id")
-  userEmail String?   @map("user_email")
+  id        Int      @id @default(autoincrement())
+  userId    String?  @map("user_id")
+  userEmail String?  @map("user_email")
   ip        String?
-  userAgent String?   @map("user_agent")
+  userAgent String?  @map("user_agent")
   operation String
   level     String?
   meta      Json?
-  isSystem  Boolean?  @default(false) @map("is_system")
-  createdAt DateTime  @default(now()) @map("created_at")
+  isSystem  Boolean? @default(false) @map("is_system")
+  createdAt DateTime @default(now()) @map("created_at")
 
   @@map("logs")
+  @@schema("nextboard")
+}
+
+model Dict {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  displayName String?  @map("display_name")
+  content     String
+  meta        Json?
+  remark      String?
+  type        String
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdBy   String?  @map("created_by")
+  updatedBy   String?  @map("updated_by")
+
+  creator User? @relation("UserCreatedDicts", fields: [createdBy], references: [id])
+  updater User? @relation("UserUpdatedDicts", fields: [updatedBy], references: [id])
+
+  @@map("dicts")
   @@schema("nextboard")
 }

@@ -36,7 +36,7 @@ export class UserService {
     if (user) {
       throw new ConflictException('User already exists')
     }
-    const defaultRoleId = this.configService.config.DEFAULT_ROLE_ID
+    const defaultRoleId = this.configService.DEFAULT_ROLE_ID
     const newUser = await this.prismaService.user.create({
       data: {
         ...createUserDto,

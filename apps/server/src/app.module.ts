@@ -13,6 +13,7 @@ import { VCodeModule } from './modules/vcode/vcode.module'
 import { AppConfigModule } from './modules/config/config.module'
 import { AccountModule } from './modules/account/account.module'
 import { LogModule } from './modules/log/log.module'
+import { DictModule } from './modules/dict/dict.module'
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { LogModule } from './modules/log/log.module'
     VCodeModule,
     AccountModule,
     LogModule,
+    DictModule,
   ],
   controllers: [
     AppController,
