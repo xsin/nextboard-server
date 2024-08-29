@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Request as Req, UseGuards } from '@nestjs/common'
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Request as Req } from '@nestjs/common'
 import { ListQueryDto } from 'src/common/dto'
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger'
 import { Request } from 'express'

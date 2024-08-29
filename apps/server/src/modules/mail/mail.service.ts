@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common'
 import { Resend } from 'resend'
 import { template } from 'radash'
-import { randomCode } from 'src/common/utils'
 import type { ISendOTPResult } from '@nextboard/common'
 import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'
+import { randomCode } from '@/common/utils'
 
 @Injectable()
 export class MailService {
@@ -18,8 +18,8 @@ export class MailService {
   }
 
   async sendVerificationEmail(email: string, htmlContent?: string): Promise<void> {
-    const apiPrefix = this.configService.API_PREFIX ? `${this.configService.API_PREFIX}/` : ''
-    const verificationLink = `${this.configService.BASE_URL}/${apiPrefix}user/verify?email=${email}`
+    const apiPrefix = this.configService.NB_API_PREFIX ? `${this.configService.NB_API_PREFIX}/` : ''
+    const verificationLink = `${this.configService.NB_BASE_URL}/${apiPrefix}user/verify?email=${email}`
 
     htmlContent = htmlContent ?? `<h1>Please verify your email address by clicking on the link below:</h1>
                                   <a href="{{verificationLink}}">Verify Email</a>`
@@ -39,7 +39,7 @@ export class MailService {
    */
   async sendOTP(email: string): Promise<ISendOTPResult> {
     const code = randomCode(6) // Generate a simple code
-    const expiresInMs = this.configService.OTP_EXPIRY * 1000
+    const expiresInMs = this.configService.NB_OTP_EXPIRY * 1000
     const expiredAt = new Date(Date.now() + expiresInMs)
 
     // Create token record in the database

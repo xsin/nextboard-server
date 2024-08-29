@@ -30,7 +30,7 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new HttpExceptionFilter(app.get(LogService)))
 
   // Set Global Prefix
-  app.setGlobalPrefix(configService.API_PREFIX)
+  app.setGlobalPrefix(configService.NB_API_PREFIX)
 
   // Set Global AuthGuard
   app.useGlobalGuards(
@@ -42,8 +42,8 @@ async function bootstrap(): Promise<void> {
 
   // Add middleware to redirect root to api root
   app.use('/', (req: Request, res: Response, next: NextFunction) => {
-    if (req.path === '/' && configService.API_PREFIX !== '') {
-      res.redirect(`/${configService.API_PREFIX}`)
+    if (req.path === '/' && configService.NB_API_PREFIX !== '') {
+      res.redirect(`/${configService.NB_API_PREFIX}`)
     }
     else {
       next()
@@ -58,8 +58,8 @@ async function bootstrap(): Promise<void> {
     .addBearerAuth()
 
   const document = SwaggerModule.createDocument(app, swaggerCfg.build())
-  SwaggerModule.setup(configService.API_PREFIX ?? '', app, document)
+  SwaggerModule.setup(configService.NB_API_PREFIX ?? '', app, document)
 
-  await app.listen(3003)
+  await app.listen(configService.NB_APP_PORT ?? 3003)
 }
 bootstrap()

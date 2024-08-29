@@ -1,3 +1,4 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Dict, IListQueryDto, IListQueryResult } from '@nextboard/common'
 import { PrismaService } from '../prisma/prisma.service'
@@ -31,12 +32,12 @@ describe('dictService', () => {
           provide: PrismaService,
           useValue: {
             dict: {
-              create: jest.fn(),
-              findMany: jest.fn(),
-              count: jest.fn(),
-              findUnique: jest.fn(),
-              update: jest.fn(),
-              delete: jest.fn(),
+              create: vi.fn(),
+              findMany: vi.fn(),
+              count: vi.fn(),
+              findUnique: vi.fn(),
+              update: vi.fn(),
+              delete: vi.fn(),
             },
           },
         },
@@ -72,7 +73,7 @@ describe('dictService', () => {
         updatedBy: '1',
       }
 
-      jest.spyOn(prismaService.dict, 'create').mockResolvedValue(result)
+      vi.spyOn(prismaService.dict, 'create').mockResolvedValue(result)
 
       expect(await service.create(dto)).toEqual(result)
     })
@@ -88,8 +89,8 @@ describe('dictService', () => {
         limit: 10,
       }
 
-      jest.spyOn(prismaService.dict, 'findMany').mockResolvedValue(result.items)
-      jest.spyOn(prismaService.dict, 'count').mockResolvedValue(result.total)
+      vi.spyOn(prismaService.dict, 'findMany').mockResolvedValue(result.items)
+      vi.spyOn(prismaService.dict, 'count').mockResolvedValue(result.total)
 
       expect(await service.findAll(dto)).toEqual(result)
     })
@@ -97,7 +98,7 @@ describe('dictService', () => {
 
   describe('findOne', () => {
     it('should return a single dict entry', async () => {
-      jest.spyOn(prismaService.dict, 'findUnique').mockResolvedValue(dictDemo)
+      vi.spyOn(prismaService.dict, 'findUnique').mockResolvedValue(dictDemo)
 
       expect(await service.findOne('1')).toEqual(dictDemo)
     })
@@ -111,7 +112,7 @@ describe('dictService', () => {
         content: dto.content ?? '',
       }
 
-      jest.spyOn(prismaService.dict, 'update').mockResolvedValue(result)
+      vi.spyOn(prismaService.dict, 'update').mockResolvedValue(result)
 
       expect(await service.update('1', dto)).toEqual(result)
     })
@@ -119,7 +120,7 @@ describe('dictService', () => {
 
   describe('remove', () => {
     it('should remove a dict entry', async () => {
-      jest.spyOn(prismaService.dict, 'delete').mockResolvedValue(dictDemo)
+      vi.spyOn(prismaService.dict, 'delete').mockResolvedValue(dictDemo)
 
       expect(await service.remove('1')).toEqual(dictDemo)
     })

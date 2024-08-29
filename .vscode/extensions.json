@@ -10,6 +10,7 @@
     "usernamehw.errorlens",
     "uniquevision.vscode-plpgsql-lsp",
     "prisma.prisma",
-    "ms-azuretools.vscode-docker"
+    "ms-azuretools.vscode-docker",
+    "ms-vscode-remote.remote-containers"
   ]
 }

@@ -1,13 +1,13 @@
 import { copyFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import process from 'node:process'
 
-// relative to scripts directory
+// relative to project root directory
 const destinations = [
-  ['../package.json', '../dist/package.json'],
+  ['package.json', 'dist/package.json'],
 ]
 
-const _filename = fileURLToPath(import.meta.url)
+const currentDir = process.cwd()
 destinations.forEach(([src, dest]) => {
-  copyFileSync(resolve(_filename, '..', src), resolve(_filename, '..', dest))
+  copyFileSync(resolve(currentDir, src), resolve(currentDir, dest))
 })

@@ -15,4 +15,5 @@ export interface Env {
   [C.C_NODE_ENV]: string
   [C.C_BASE_URL]: string
   [C.C_DEFAULT_ROLE_ID]: string
+  [C.C_APP_PORT]: string
 }

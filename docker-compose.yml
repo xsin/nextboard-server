@@ -1,4 +1,4 @@
-name: 'nextboard-server'
+name: nextboard-server
 services:
   postgres:
     image: postgres

@@ -8,7 +8,6 @@ export default antfu(
       sourceType: 'module',
       globals: {
         ...globals.node,
-        ...globals.jest,
       },
     },
     formatters: true,
@@ -17,6 +16,7 @@ export default antfu(
     ignores: [
       '**/out/',
       '**/__tests__/',
+      '**/prisma/migrations/',
     ],
   },
   {

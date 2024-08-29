@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common'
 import { Account, Prisma, TAccountProvider } from '@prisma/client'
 import { omit } from 'radash'
-import { buildFindManyParams } from 'src/common/utils'
 import type {
   IAccountList,
   IListQueryDto,
 } from '@nextboard/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { UpdateAccountDto } from './dto/update.dto'
+import { buildFindManyParams } from '@/common/utils'
 
 @Injectable()
 export class AccountService {

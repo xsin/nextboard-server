@@ -1,6 +1,4 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
-import { saltAndHashPassword } from 'src/common/utils/password'
-import { buildFindManyParams } from 'src/common/utils'
 import { omit } from 'radash'
 import type { Account, Prisma, TAccountProvider } from '@prisma/client'
 import type {
@@ -22,6 +20,8 @@ import {
   UpdateUserDto,
   UserColumns,
 } from './dto'
+import { buildFindManyParams } from '@/common/utils'
+import { saltAndHashPassword } from '@/common/utils/password'
 
 @Injectable()
 export class UserService {
@@ -36,7 +36,7 @@ export class UserService {
     if (user) {
       throw new ConflictException('User already exists')
     }
-    const defaultRoleId = this.configService.DEFAULT_ROLE_ID
+    const defaultRoleId = this.configService.NB_DEFAULT_ROLE_ID
     const newUser = await this.prismaService.user.create({
       data: {
         ...createUserDto,

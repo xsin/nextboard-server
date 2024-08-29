@@ -24,9 +24,9 @@ export interface IConfigDto extends IPackageInfo {
 
   NODE_ENV: TNodeEnv
 
-  BASE_URL: string
+  NB_BASE_URL: string
 
-  API_PREFIX: string
+  NB_API_PREFIX: string
 
   RESEND_API_KEY: string
 
@@ -53,12 +53,14 @@ export interface IConfigDto extends IPackageInfo {
 
   JWT_REFRESH_SECRET: string
 
-  DEFAULT_ROLE_ID: string
+  NB_DEFAULT_ROLE_ID: string
 
   /**
    * OTP expiry in seconds
    */
-  OTP_EXPIRY: number
+  NB_OTP_EXPIRY: number
+
+  NB_APP_PORT: number
 
 }
 
@@ -70,10 +72,10 @@ export class ConfigDto implements IConfigDto {
     // require top level domain
     require_tld: false,
   })
-  BASE_URL: string
+  NB_BASE_URL: string
 
   @IsString()
-  API_PREFIX: string
+  NB_API_PREFIX: string
 
   @IsString()
   RESEND_API_KEY: string
@@ -110,13 +112,16 @@ export class ConfigDto implements IConfigDto {
   JWT_REFRESH_SECRET: string
 
   @IsString()
-  DEFAULT_ROLE_ID: string
+  NB_DEFAULT_ROLE_ID: string
 
   /**
    * OTP expiry in seconds
    */
   @IsInt()
-  OTP_EXPIRY: number
+  NB_OTP_EXPIRY: number
+
+  @IsInt()
+  NB_APP_PORT: number
 
   // package.json
   @IsString()

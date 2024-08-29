@@ -1,4 +1,3 @@
-import type { Request } from 'express'
 import { IUser } from '@nextboard/common'
 import type { Env } from './env'
 

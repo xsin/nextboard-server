@@ -14,8 +14,8 @@ export class AppConfigService implements IConfigDto {
   version: string
   author: IPackageAuthor
   NODE_ENV: TNodeEnv
-  BASE_URL: string
-  API_PREFIX: string
+  NB_BASE_URL: string
+  NB_API_PREFIX: string
   RESEND_API_KEY: string
   RESEND_FROM: string
   RESEND_VERIFY_MAIL_SUBJECT: string
@@ -25,15 +25,16 @@ export class AppConfigService implements IConfigDto {
   JWT_SECRET: string
   JWT_REFRESH_EXPIRY: number
   JWT_REFRESH_SECRET: string
-  DEFAULT_ROLE_ID: string
-  OTP_EXPIRY: number
+  NB_DEFAULT_ROLE_ID: string
+  NB_OTP_EXPIRY: number
+  NB_APP_PORT: number
 
   private pkgInfo: IPackageInfo
 
   constructor(private configService: ConfigService) {
     this.NODE_ENV = this.configService.get<TNodeEnv>(C.C_NODE_ENV)
-    this.BASE_URL = this.configService.get<string>(C.C_BASE_URL)
-    this.API_PREFIX = this.configService.get<string>(C.C_API_PREFIX)
+    this.NB_BASE_URL = this.configService.get<string>(C.C_BASE_URL)
+    this.NB_API_PREFIX = this.configService.get<string>(C.C_API_PREFIX)
     this.RESEND_API_KEY = this.configService.get<string>(C.C_RESEND_API_KEY)
     this.RESEND_FROM = this.configService.get<string>(C.C_RESEND_FROM)
     this.RESEND_VERIFY_MAIL_SUBJECT = this.configService.get<string>(C.C_RESEND_VERIFY_MAIL_SUBJECT)
@@ -43,8 +44,9 @@ export class AppConfigService implements IConfigDto {
     this.JWT_SECRET = this.configService.get<string>(C.C_JWT_SECRET)
     this.JWT_REFRESH_EXPIRY = this.configService.get<number>(C.C_JWT_REFRESH_EXPIRY)
     this.JWT_REFRESH_SECRET = this.configService.get<string>(C.C_JWT_REFRESH_SECRET)
-    this.DEFAULT_ROLE_ID = this.configService.get<string>(C.C_DEFAULT_ROLE_ID)
-    this.OTP_EXPIRY = this.configService.get<number>(C.C_OTP_EXPIRY)
+    this.NB_DEFAULT_ROLE_ID = this.configService.get<string>(C.C_DEFAULT_ROLE_ID)
+    this.NB_OTP_EXPIRY = this.configService.get<number>(C.C_OTP_EXPIRY)
+    this.NB_APP_PORT = this.configService.get<number>(C.C_APP_PORT)
 
     this.getPkgInfo()
   }
