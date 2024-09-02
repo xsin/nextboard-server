@@ -1,26 +1,64 @@
 import { Injectable } from '@nestjs/common'
+import type { IListQueryDto, IListQueryResult, Resource } from '@nextboard/common'
+import { Prisma } from '@prisma/client'
+import { PrismaService } from '../prisma/prisma.service'
 import { CreateResourceDto } from './dto/create.dto'
 import { UpdateResourceDto } from './dto/update.dto'
+import { buildFindManyParams } from '@/common/utils'
 
 @Injectable()
 export class ResourceService {
-  create(_createMenuDto: CreateResourceDto) {
-    return 'This action adds a new Resource'
+  constructor(
+    private readonly prismaService: PrismaService,
+  ) {}
+
+  async create(dto: CreateResourceDto): Promise<Resource> {
+    return this.prismaService.resource.create({
+      data: {
+        ...dto,
+      },
+    })
   }
 
-  findAll() {
-    return `This action returns all Resource`
+  async findAll(dto: IListQueryDto): Promise<IListQueryResult<Resource>> {
+    const findManyParams = buildFindManyParams<Prisma.ResourceFindManyArgs>(dto)
+
+    const items = await this.prismaService.resource.findMany(findManyParams)
+
+    const total = await this.prismaService.resource.count({ where: findManyParams.where })
+
+    return {
+      items,
+      total,
+      page: dto.page,
+      limit: dto.limit,
+    }
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} Resource`
+  async findOne(id: string): Promise<Resource> {
+    return this.prismaService.resource.findUnique({
+      where: {
+        id,
+      },
+    })
   }
 
-  update(id: string, _updateResourceDto: UpdateResourceDto) {
-    return `This action updates a #${id} Resource`
+  update(id: string, dto: UpdateResourceDto): Promise<Resource> {
+    return this.prismaService.resource.update({
+      where: {
+        id,
+      },
+      data: {
+        ...dto,
+      },
+    })
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} Resource`
+  remove(id: string): Promise<Resource> {
+    return this.prismaService.resource.delete({
+      where: {
+        id,
+      },
+    })
   }
 }

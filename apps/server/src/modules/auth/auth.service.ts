@@ -3,7 +3,7 @@ import type { Request, Response } from 'express'
 import { comparePasswords } from 'src/common/utils'
 import { pick } from 'radash'
 import {
-  type ISendOTPResult,
+  type ISendEmailResult,
   type IUser,
   TAccountProvider,
   TAccountType,
@@ -94,7 +94,7 @@ export class AuthService {
     return user
   }
 
-  async sendOTP(email: string): Promise<ISendOTPResult> {
+  async sendOTP(email: string): Promise<ISendEmailResult> {
     return this.mailService.sendOTP(email)
   }
 

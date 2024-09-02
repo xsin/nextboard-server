@@ -7,8 +7,8 @@
     "paths": {
       // Don't add path alias for `@nextboard/common` here, or it will cause unexpected building issues
       // Ref: https://stackoverflow.com/questions/78566522/nest-js-in-a-monorepo-cant-find-main-module
-      "@/*": ["./src/*"],
-      "~/*": ["./*"]
+      "@/*": ["src/*"],
+      "~/*": ["*"]
     },
     "declaration": false,
     "outDir": "./dist"

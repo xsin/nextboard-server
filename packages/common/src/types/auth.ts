@@ -1,10 +1,19 @@
-export interface ISendOTPResult {
+export enum EmailType {
+  VERIFY = 'verify',
+  OTP = 'otp',
+}
+
+export interface ISendEmailResult {
   /**
-   * Server time when the OTP is sent
+   * Email type
+   */
+  type: EmailType
+  /**
+   * Server time when the mail is sent
    */
   time: Date
   /**
-   * Validity duration of the OTP in milliseconds
+   * Re-send duration in milliseconds
    */
-  duration: number
+  duration?: number
 }
