@@ -1,36 +1,59 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/common'
-import { ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
+import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { RoleService } from './role.service'
 import { CreateRoleDto } from './dto/create.dto'
 import { UpdateRoleDto } from './dto/update.dto'
+import { RoleDto } from './dto/role.dto'
+import { ListQueryDto, ListQueryResult } from '@/common/dto'
+import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
 
 @ApiTags('role')
 @Controller('role')
 export class RoleController {
   constructor(private readonly roleService: RoleService) {}
 
+  @NBApiResponse(RoleDto, {
+    description: 'The created new role',
+  })
+  @ApiOperation({ summary: 'Create a new role' })
   @Post()
-  create(@Body() createRoleDto: CreateRoleDto) {
+  async create(@Body() createRoleDto: CreateRoleDto): Promise<RoleDto> {
     return this.roleService.create(createRoleDto)
   }
 
+  @ApiOperation({ summary: 'Get all roles' })
+  @NBApiResponsePaginated(RoleDto, {
+    description: 'Get all roles',
+  })
   @Get()
-  findAll() {
-    return this.roleService.findAll()
+  async findAll(@Query() dto: ListQueryDto): Promise<ListQueryResult<RoleDto>> {
+    return this.roleService.findAll(dto)
   }
 
+  @ApiOperation({ summary: 'Get a role by ID' })
+  @NBApiResponse(RoleDto, {
+    description: 'Get a role by ID',
+  })
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<RoleDto> {
     return this.roleService.findOne(id)
   }
 
+  @ApiOperation({ summary: 'Update a role by ID' })
+  @NBApiResponse(RoleDto, {
+    description: 'Update a role by ID',
+  })
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto) {
-    return this.roleService.update(id, updateRoleDto)
+  async update(@Param('id') id: string, @Body() dto: UpdateRoleDto): Promise<RoleDto> {
+    return this.roleService.update(id, dto)
   }
 
+  @ApiOperation({ summary: 'Delete a role by ID' })
+  @NBApiResponse(RoleDto, {
+    description: 'Delete a role by ID',
+  })
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<RoleDto> {
     return this.roleService.remove(id)
   }
 }
