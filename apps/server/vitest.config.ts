@@ -19,10 +19,16 @@ export default defineConfig({
         '**/*.module.ts',
         'src/main.ts',
         'src/types/',
+        '**/*/consts.ts',
       ],
       reporter: [
         'text',
         'json',
+      ],
+    },
+    deps: {
+      inline: [
+        'reflect-metadata',
       ],
     },
   },

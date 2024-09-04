@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ICreateVCodeDto } from '@nextboard/common'
+import { Prisma } from '@nextboard/common'
 import { IsDate, IsString } from 'class-validator'
 
-export class CreateVCodeDto implements ICreateVCodeDto {
+export class CreateVCodeDto implements Prisma.VCodeCreateInput {
   @ApiProperty({
     description: 'Owner of the verification code',
   })
@@ -19,5 +19,5 @@ export class CreateVCodeDto implements ICreateVCodeDto {
     description: 'Verification code expiration date',
   })
   @IsDate()
-  expiredAt: Date
+  expiredAt: Date | string
 }
