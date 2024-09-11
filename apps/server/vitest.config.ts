@@ -20,16 +20,19 @@ export default defineConfig({
         'src/main.ts',
         'src/types/',
         '**/*/consts.ts',
+        'src/modules/prisma/prisma.service.ts',
       ],
       reporter: [
         'text',
         'json',
       ],
     },
-    deps: {
-      inline: [
-        'reflect-metadata',
-      ],
+    server: {
+      deps: {
+        inline: [
+          'reflect-metadata',
+        ],
+      },
     },
   },
   resolve: {

@@ -1,84 +1,82 @@
-import { IsDate, IsEnum, IsOptional, IsString } from 'class-validator'
-import { Type } from 'class-transformer'
 import { TAccountProvider, TAccountType } from '@nextboard/common'
 import type {
-  IAccount,
-  IAccountList,
-  NullOptional,
+  Account,
 } from '@nextboard/common'
-import { ApiResponse, ListQueryResult } from 'src/common/dto'
 import { ApiProperty } from '@nestjs/swagger'
 
-export class AccountDto implements IAccount {
-  @IsString()
+export class AccountDto implements Account {
+  @ApiProperty({
+    description: 'ID',
+  })
   id: string
 
-  @IsString()
+  @ApiProperty({
+    description: 'User ID',
+  })
   userId: string
 
-  @IsEnum(TAccountType)
+  @ApiProperty({
+    description: 'Type',
+  })
   type: TAccountType
 
-  @IsEnum(TAccountProvider)
+  @ApiProperty({
+    description: 'Provider',
+  })
   provider: TAccountProvider
 
-  @IsString()
+  @ApiProperty({
+    description: 'Provider Account ID',
+  })
   providerAccountId: string
 
-  @IsOptional()
-  @IsString()
-  refreshToken: NullOptional<string>
+  @ApiProperty({
+    description: 'Refresh Token',
+  })
+  refreshToken: string | null
 
-  @IsOptional()
-  @IsString()
-  accessToken: NullOptional<string>
+  @ApiProperty({
+    description: 'Access Token',
+  })
+  accessToken: string | null
 
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  expiredAt: NullOptional<Date>
+  @ApiProperty({
+    description: 'Expired At',
+  })
+  expiredAt: Date | null
 
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  refreshExpiredAt: NullOptional<Date>
+  @ApiProperty({
+    description: 'Refresh Expired At',
+  })
+  refreshExpiredAt: Date | null
 
-  @IsOptional()
-  @IsString()
-  tokenType: NullOptional<string>
+  @ApiProperty({
+    description: 'Token Type',
+  })
+  tokenType: string | null
 
-  @IsOptional()
-  @IsString()
-  scope: NullOptional<string>
+  @ApiProperty({
+    description: 'Scope',
+  })
+  scope: string | null
 
-  @IsOptional()
-  @IsString()
-  idToken: NullOptional<string>
+  @ApiProperty({
+    description: 'ID Token',
+  })
+  idToken: string | null
 
-  @IsDate()
-  @Type(() => Date)
+  @ApiProperty({
+    description: 'Creation Date',
+  })
   createdAt: Date = new Date()
 
-  @IsDate()
-  @Type(() => Date)
+  @ApiProperty({
+    description: 'Last Update Date',
+  })
   updatedAt: Date = new Date()
 
-  @IsOptional()
-  @IsString()
-  sessionState: NullOptional<string>
-}
-
-export class AccountListDto extends ListQueryResult<AccountDto> implements IAccountList {
-  @ApiProperty({ type: [AccountDto], description: 'List of items' })
-  items: AccountDto[]
-}
-
-export class AccountApiResponse extends ApiResponse<AccountDto> {
-  @ApiProperty({ type: AccountDto })
-  data: AccountDto
-}
-
-export class AccountListApiResponse extends ApiResponse<AccountListDto> {
-  @ApiProperty({ type: AccountListDto })
-  data: AccountListDto
+  @ApiProperty({
+    description: 'Session State',
+  })
+  sessionState: string | null
 }

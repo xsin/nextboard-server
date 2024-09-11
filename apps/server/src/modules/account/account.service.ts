@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common'
-import { Account, Prisma, TAccountProvider } from '@prisma/client'
 import { omit } from 'radash'
 import type {
-  IAccountList,
+  Account,
   IListQueryDto,
+  IListQueryResult,
+  TAccountProvider,
 } from '@nextboard/common'
+import { Prisma } from '@nextboard/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { UpdateAccountDto } from './dto/update.dto'
 import { buildFindManyParams } from '@/common/utils'
@@ -29,7 +31,7 @@ export class AccountService {
     })
   }
 
-  async findAll(dto: IListQueryDto): Promise<IAccountList> {
+  async findAll(dto: IListQueryDto): Promise<IListQueryResult<Account>> {
     const findManyParams = buildFindManyParams<Prisma.AccountFindManyArgs>(dto)
 
     const items = await this.prismaService.account.findMany(findManyParams)

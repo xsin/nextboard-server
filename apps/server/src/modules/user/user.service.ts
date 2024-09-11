@@ -3,12 +3,11 @@ import { omit } from 'radash'
 import type { Account, Prisma, TAccountProvider } from '@prisma/client'
 import type {
   IListQueryDto,
-  IResource,
-  IResourceList,
+  IListQueryResult,
   IUser,
   IUserFull,
-  IUserList,
   IUserProfile,
+  Resource,
 } from '@nextboard/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { AccountService } from '../account/account.service'
@@ -16,10 +15,10 @@ import { UpdateAccountDto } from '../account/dto/update.dto'
 import { CreateAccountDto } from '../account/dto/create.dto'
 import { AppConfigService } from '../config/config.service'
 import {
-  CreateUserDto,
-  UpdateUserDto,
   UserColumns,
-} from './dto'
+} from './dto/user.ext'
+import type { CreateUserDto } from './dto/create.dto'
+import type { UpdateUserDto } from './dto/update.dto'
 import { buildFindManyParams } from '@/common/utils'
 import { saltAndHashPassword } from '@/common/utils/password'
 
@@ -62,7 +61,7 @@ export class UserService {
     return newUser
   }
 
-  async findAll(dto: IListQueryDto): Promise<IUserList> {
+  async findAll(dto: IListQueryDto): Promise<IListQueryResult<IUser>> {
     const findManyParams = buildFindManyParams<Prisma.UserFindManyArgs>(dto)
 
     const items = await this.prismaService.user.findMany(findManyParams)
@@ -207,7 +206,7 @@ export class UserService {
    * Get User's resources according to the user's permission and resource's permission
    * @param {string} email - User email
    */
-  async findUserResources(email: string): Promise<IResourceList> {
+  async findUserResources(email: string): Promise<IListQueryResult<Resource>> {
     // Find the user and his/her roles and permissions
     const user = await this.findByEmailX(email)
 
@@ -231,9 +230,9 @@ export class UserService {
    * 1. Find users and their roles and permissions: Search for users by their email and include the user's roles and the permissions associated with those roles.
    * 2. Find resources: Look up corresponding resources based on the permissions.
    * @param {IUser} user - User object with roles and permissions
-   * @returns {Promise<IResource[]>} List of menus with user's permission code
+   * @returns {Promise<Resource[]>} List of menus with user's permission code
    */
-  private async parseUserResources(user: IUser): Promise<IResource[]> {
+  private async parseUserResources(user: IUser): Promise<Resource[]> {
     const permissionsOwned = user.permissions ?? []
 
     // Get the IDs and codes of the filtered permissions
@@ -250,7 +249,7 @@ export class UserService {
       },
     })
 
-    return itemsViewable as IResource[]
+    return itemsViewable as Resource[]
   }
 
   /**
@@ -268,14 +267,20 @@ export class UserService {
 
   private async getUserProfile(where: Prisma.UserWhereUniqueInput): Promise<IUserProfile> {
     const userInfo = await this.findUser(where)
-    const {
-      password,
-      online,
-      disabled,
-      roles,
-      permissions,
-      ...profile
-    } = userInfo
+    const profile: IUserProfile = {
+      id: userInfo.id,
+      name: userInfo.name,
+      displayName: userInfo.displayName,
+      createdAt: userInfo.createdAt,
+      updatedAt: userInfo.updatedAt,
+      roleNames: userInfo.roleNames,
+      permissionNames: userInfo.permissionNames,
+      email: userInfo.email,
+      emailVerifiedAt: userInfo.emailVerifiedAt,
+      avatar: userInfo.avatar,
+      gender: userInfo.gender,
+      birthday: userInfo.birthday,
+    }
     return profile
   }
 

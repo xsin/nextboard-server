@@ -1,9 +1,10 @@
 import { IsDate, IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Match } from 'src/common/decorators/match.decorator'
-import { ICreateUserDto } from '@nextboard/common'
+import { Prisma } from '@nextboard/common'
+import { Type } from 'class-transformer'
 
-export class CreateUserDto implements ICreateUserDto {
+export class CreateUserDto implements Prisma.UserCreateInput {
   @ApiProperty({ description: 'Email address' })
   @IsEmail()
   readonly email: string
@@ -23,15 +24,16 @@ export class CreateUserDto implements ICreateUserDto {
   @ApiPropertyOptional({ description: 'User name' })
   @IsString()
   @Length(4, 20)
-  readonly name?: string
+  readonly name?: string | null
 
   @ApiPropertyOptional({ description: 'User display name' })
   @IsString()
   @Length(4, 20)
-  readonly displayName?: string
+  readonly displayName?: string | null
 
   @ApiPropertyOptional({ description: 'User email verified date' })
   @IsDate()
   @IsOptional()
-  readonly emailVerifiedAt?: Date
+  @Type(() => Date)
+  readonly emailVerifiedAt?: Date | string | null
 }

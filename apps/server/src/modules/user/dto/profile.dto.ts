@@ -1,7 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { ApiResponse } from 'src/common/dto'
-import { TUserGender } from '@prisma/client'
-import { IUserProfile } from '@nextboard/common'
+import { IUserProfile, TUserGender } from '@nextboard/common'
 
 export class UserProfileDto implements IUserProfile {
   @ApiProperty({ description: 'User ID' })
@@ -33,9 +31,4 @@ export class UserProfileDto implements IUserProfile {
 
   @ApiProperty({ description: 'User Birthday' })
   birthday: Date
-}
-
-export class UserProfileApiResponse extends ApiResponse<UserProfileDto> {
-  @ApiProperty({ type: UserProfileDto, description: 'Response data' })
-  data: UserProfileDto
 }

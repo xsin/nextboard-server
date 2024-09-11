@@ -1,8 +1,7 @@
 import { Prisma, TUserGender } from '@prisma/client'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { ApiResponse, ListQueryResult } from 'src/common/dto'
-import { ResourceDto } from 'src/modules/resource/dto'
-import { IUser, IUserList, IUserToken, KeysOf } from '@nextboard/common'
+import { IUser, IUserToken, KeysOf } from '@nextboard/common'
+import { ResourceDto } from '@/modules/resource/dto/resource.dto'
 
 type TUserSelectScalar = Omit<Prisma.UserSelectScalar, 'password'>
 
@@ -80,19 +79,4 @@ export class UserDto extends UserTokenDto implements IUser {
 
   @ApiProperty({ description: 'Updated by' })
   updatedBy: string
-}
-
-export class UserListDto extends ListQueryResult<UserDto> implements IUserList {
-  @ApiProperty({ type: [UserDto], description: 'List of items' })
-  items: UserDto[]
-}
-
-export class UserApiResponse extends ApiResponse<UserDto> {
-  @ApiProperty({ type: UserDto })
-  data: UserDto
-}
-
-export class UserListApiResponse extends ApiResponse<UserListDto> {
-  @ApiProperty({ type: UserListDto })
-  data: UserListDto
 }

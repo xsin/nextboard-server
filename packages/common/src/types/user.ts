@@ -1,22 +1,10 @@
-import { IListQueryResult, KeysOf } from './common'
-import {
+import { KeysOf } from './common'
+import type {
   Permission,
   Resource,
   Role,
   User,
 } from './prisma'
-
-export interface ICreateUserDto {
-  email: string
-  password: string
-  password1: string
-  name?: string
-  displayName?: string
-  emailVerifiedAt?: Date
-  avatar?: string
-}
-
-export interface IUpdateUserDto extends Partial<ICreateUserDto> {}
 
 export interface IUserToken {
   accessToken?: string
@@ -51,8 +39,6 @@ export interface IUserTokenPayload {
   username: string
   sub: string
 }
-
-export interface IUserList extends IListQueryResult<IUser> {}
 
 export type TUserProfileFields = KeysOf<IUser, 'roles' | 'permissions' | 'resources' | 'online' | 'disabled' | 'createdBy' | 'updatedBy'>
 

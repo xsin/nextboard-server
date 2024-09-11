@@ -33,42 +33,32 @@ export class TokenService {
 
     const secret = isRefreshToken ? this.getJwtRefreshSecret() : this.getJwtSecret()
 
-    try {
-      const payload: IUserTokenPayload = await this.jwtService.verifyAsync(token, {
-        secret,
-      })
-      // Retrieve the user object from the database
-      const userFromDb = await this.userService.findByIdX(payload.sub, false)
-      if (!userFromDb) {
-        throw new NotFoundException('User not found')
-      }
-      // Save the user object to the request object
-      req.user = omit(userFromDb, ['password'])
+    const payload: IUserTokenPayload = await this.jwtService.verifyAsync(token, {
+      secret,
+    })
+    // Retrieve the user object from the database
+    const userFromDb = await this.userService.findByIdX(payload.sub, false)
+    if (!userFromDb) {
+      throw new NotFoundException('User not found')
     }
-    catch {
-      throw new UnauthorizedException('Unauthorized')
-    }
+    // Save the user object to the request object
+    req.user = omit(userFromDb, ['password'])
 
     return req.user
   }
 
   async refreshToken(dto: RefreshTokenRequestDto): Promise<IUserToken> {
-    try {
-      const secret = this.getJwtRefreshSecret()
-      const payload: IUserTokenPayload = await this.jwtService.verifyAsync(dto.refreshToken, {
-        secret,
-      })
+    const secret = this.getJwtRefreshSecret()
+    const payload: IUserTokenPayload = await this.jwtService.verifyAsync(dto.refreshToken, {
+      secret,
+    })
 
-      const user = await this.userService.findByEmail(payload.username)
-      if (!user) {
-        throw new UnauthorizedException('User not found')
-      }
+    const user = await this.userService.findByEmail(payload.username)
+    if (!user) {
+      throw new NotFoundException('User not found')
+    }
 
-      return this.generateTokens(user)
-    }
-    catch (error) {
-      throw new UnauthorizedException(`Invalid refresh token: ${error.message}`)
-    }
+    return this.generateTokens(user)
   }
 
   async generateTokens(user: IUser): Promise<IUserToken> {
