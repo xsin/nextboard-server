@@ -1,24 +1,24 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
-import type { Request, Response } from 'express'
-import { comparePasswords } from 'src/common/utils'
-import { pick } from 'radash'
 import {
   type ISendEmailResult,
   type IUser,
   TAccountProvider,
   TAccountType,
 } from '@nextboard/common'
+import { pick } from 'radash'
+import { comparePasswords } from 'src/common/utils'
+import type { Request, Response } from 'express'
+import { CreateAccountDto } from '../account/dto/create.dto'
+import { UpdateAccountDto } from '../account/dto/update.dto'
+import { MailService } from '../mail/mail.service'
 import {
   CreateUserDto,
-  UserPublicKeys,
-} from '../user/dto'
+} from '../user/dto/create.dto'
+import { UserPublicKeys } from '../user/dto/user.dto'
 import { UserService } from '../user/user.service'
-import { MailService } from '../mail/mail.service'
 import { VCodeService } from '../vcode/vcode.service'
-import { UpdateAccountDto } from '../account/dto/update.dto'
-import { CreateAccountDto } from '../account/dto/create.dto'
+import { LoginRequestDto } from './dto/login.dto'
 import { TokenService } from './token.service'
-import { LoginRequestDto } from './dto'
 
 @Injectable()
 export class AuthService {
@@ -86,6 +86,7 @@ export class AuthService {
       scope: null,
       idToken: null,
       sessionState: null,
+      userId: null,
     }
 
     const user = await this.userService.create(dto, createAccountDto)
@@ -99,7 +100,7 @@ export class AuthService {
   }
 
   async loginWithOTP(email: string, code: string): Promise<IUser> {
-    const isCodeValid = this.vcodeService.verify({
+    const isCodeValid = await this.vcodeService.verify({
       owner: email,
       code,
     })
@@ -122,6 +123,7 @@ export class AuthService {
         scope: null,
         idToken: null,
         sessionState: null,
+        userId: null,
       }
       await this.userService.create({
         email,

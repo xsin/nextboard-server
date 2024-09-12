@@ -27,11 +27,17 @@ export const UserPublicKeys: Array<KeysOf<IUser>> = Object.keys(UserColumns) as 
 
 // Concrete classes used to generate openapi schema
 export class UserTokenDto implements IUserToken {
-  @ApiProperty({ description: 'Access token' })
+  @ApiPropertyOptional({ description: 'Access token' })
   accessToken?: string
 
-  @ApiProperty({ description: 'Refresh token' })
+  @ApiPropertyOptional({ description: 'Refresh token' })
   refreshToken?: string
+
+  @ApiPropertyOptional({ description: 'Access token expired at' })
+  accessTokenExpiredAt?: Date
+
+  @ApiPropertyOptional({ description: 'Refresh token expired at' })
+  refreshTokenExpiredAt?: Date
 }
 
 export class UserDto extends UserTokenDto implements IUser {

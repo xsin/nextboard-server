@@ -1,7 +1,5 @@
 import { IsEmail, IsString, Matches } from 'class-validator'
 import { ApiProperty } from '@nestjs/swagger'
-import { ApiResponse } from '@/common/dto'
-import { UserDto, UserTokenDto } from '@/modules/user/dto'
 
 export class LoginRequestDto {
   @ApiProperty({ description: 'Username. In NextBoard, we use email for the username parameter.' })
@@ -20,14 +18,4 @@ export class RefreshTokenRequestDto {
   @ApiProperty({ description: 'Refresh token' })
   @IsString()
   readonly refreshToken: string
-}
-
-export class RefreshTokenApiResponse extends ApiResponse<UserTokenDto> {
-  @ApiProperty({ type: UserTokenDto, description: 'Response data' })
-  data: UserTokenDto
-}
-
-export class LoginApiResponse extends ApiResponse<UserDto> {
-  @ApiProperty({ type: UserDto, description: 'Response data' })
-  data: UserDto
 }

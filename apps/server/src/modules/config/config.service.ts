@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import process from 'node:process'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import type { IConfigDto, IPackageAuthor, IPackageInfo, TNodeEnv } from './dto'
+import type { IConfigDto, IPackageAuthor, IPackageInfo, TNodeEnv } from './dto/config.dto'
 import * as C from './utils/consts'
 
 @Injectable()

@@ -2,14 +2,37 @@ import { isEmpty } from 'radash'
 import type { IListQueryDto } from '@nextboard/common'
 
 /**
- * Builds the parameters for the Prisma `findMany` method based on the provided DTO.
+ * Builds the parameters for a Prisma findMany query based on the provided DTO.
  *
- * @template T - The return type of buildFindManyParams. E.G. `Prisma.UserFindManyArgs`
- * @param {IListQueryDto} dto - The data transfer object containing query parameters.
- * @param {string[]} defaultSearchFields - The default fields to search.
- * @returns {T} The parameters for the Prisma `findMany` method.
+ * @template T - The type of the Prisma FindManyArgs being queried.
+ * @param {IListQueryDto} dto - The Data Transfer Object containing query parameters.
+ * @param {string[]} [defaultSearchFields] - Default fields to search if not specified in the DTO.
+ * @returns {T} An object containing the constructed query parameters.
+ *
+ * @description
+ * This function processes the following query parameters:
+ * - Pagination: 'page' and 'limit'
+ * - Searching: 'search' (with optional field specification)
+ * - Filtering: 'filters' (using various operators)
+ * - Ordering: 'orders'
+ *
+ * It constructs a query object compatible with Prisma's findMany method,
+ * including 'where', 'take', 'skip', and 'orderBy' clauses.
+ *
+ * @example
+ * const queryParams = buildFindManyParams<Prisma.UserFindManyArgs>({
+ *   page: 2,
+ *   limit: 10,
+ *   search: 'John^name,email',
+ *   filters: ['age^gte^18', 'status^equals^active'],
+ *   orders: ['createdAt^desc']
+ * });
+ * const users = await prisma.user.findMany(queryParams);
  */
-export function buildFindManyParams<T>(dto: IListQueryDto, defaultSearchFields: string[] = ['name', 'displayName', 'remark']): T {
+export function buildFindManyParams<T>(
+  dto: IListQueryDto,
+  defaultSearchFields: string[] = ['name', 'displayName', 'remark'],
+): T {
   const {
     page = 1,
     limit = 20,
@@ -36,47 +59,39 @@ export function buildFindManyParams<T>(dto: IListQueryDto, defaultSearchFields: 
     filters.forEach((filter) => {
       const [field, operator, value] = filter.split(splitter)
       if (field && operator && value) {
-        const fieldType = field as keyof T
         switch (operator) {
           case 'equals':
-            where[field] = { equals: value }
-            break
           case 'lt':
           case 'gt':
           case 'lte':
           case 'gte':
-            if (typeof fieldType === 'number' || fieldType instanceof Date) {
-              where[field] = { [operator]: value }
-            }
-            break
           case 'contains':
-            where[field] = { contains: value }
-            break
           case 'startsWith':
-            where[field] = { startsWith: value }
-            break
           case 'endsWith':
-            where[field] = { endsWith: value }
+            where[field as string] = { [operator]: value }
             break
           case 'in':
-            where[field] = { in: value.split(',') }
-            break
           case 'notIn':
-            where[field] = { notIn: value.split(',') }
+            where[field as string] = { [operator]: value.split(',') }
             break
           default:
-            console.warn(`Unsupported operator: ${operator}`)
-            break
+            throw new Error(`Unsupported operator: ${operator}`)
         }
       }
     })
   }
 
   // Handle ordering functionality
-  const orderBy = orders?.map((order) => {
-    const [field, direction] = order.split(splitter)
-    return { [field]: direction }
-  }) || []
+  const validDirections = ['asc', 'desc']
+  const orderBy: { [key: string]: string }[] = []
+  if (!isEmpty(orders)) {
+    orders.forEach((order) => {
+      const [field, direction] = order.split(splitter)
+      if (validDirections.includes(direction)) {
+        orderBy.push({ [field]: direction })
+      }
+    })
+  }
 
   const res = {
     where,

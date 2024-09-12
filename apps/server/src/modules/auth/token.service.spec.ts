@@ -1,14 +1,14 @@
 /* eslint-disable dot-notation */
-import { Test, TestingModule } from '@nestjs/testing'
-import { JwtService } from '@nestjs/jwt'
 import { NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
+import { Test, TestingModule } from '@nestjs/testing'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Request } from 'express'
 import type { IUser, IUserFull, IUserToken, IUserTokenPayload } from '@nextboard/common'
+import type { Request } from 'express'
 import { AppConfigService } from '../config/config.service'
 import { UserService } from '../user/user.service'
+import { RefreshTokenRequestDto } from './dto/login.dto'
 import { TokenService } from './token.service'
-import { RefreshTokenRequestDto } from './dto'
 
 describe('tokenService', () => {
   let service: TokenService
@@ -256,6 +256,36 @@ describe('tokenService', () => {
       expect(jwtService.verifyAsync).toHaveBeenCalledWith('valid-refresh-token', {
         secret: mockConfig.JWT_REFRESH_SECRET,
       })
+    })
+
+    it('should throw UnauthorizedException for empty token', async () => {
+      const mockRequest = {
+        headers: {
+          authorization: 'Bearer ',
+        },
+      } as Request
+
+      await expect(service.validateJwt(mockRequest)).rejects.toThrow(UnauthorizedException)
+    })
+
+    it('should handle malformed authorization header', async () => {
+      const mockRequest = {
+        headers: {
+          authorization: 'malformed-header-without-space',
+        },
+      } as Request
+
+      await expect(service.validateJwt(mockRequest)).rejects.toThrow(UnauthorizedException)
+    })
+
+    it('should handle empty authorization header', async () => {
+      const mockRequest = {
+        headers: {
+          authorization: '',
+        },
+      } as Request
+
+      await expect(service.validateJwt(mockRequest)).rejects.toThrow(UnauthorizedException)
     })
   })
 

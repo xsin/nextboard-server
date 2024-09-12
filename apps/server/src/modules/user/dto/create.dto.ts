@@ -24,11 +24,13 @@ export class CreateUserDto implements Prisma.UserCreateInput {
   @ApiPropertyOptional({ description: 'User name' })
   @IsString()
   @Length(4, 20)
+  @IsOptional()
   readonly name?: string | null
 
   @ApiPropertyOptional({ description: 'User display name' })
   @IsString()
   @Length(4, 20)
+  @IsOptional()
   readonly displayName?: string | null
 
   @ApiPropertyOptional({ description: 'User email verified date' })

@@ -1,8 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
 import type { EmailType, ISendEmailResult } from '@nextboard/common'
 import { IsDate, IsEmail, IsNumber, IsString } from 'class-validator'
-import { ApiResponse } from 'src/common/dto'
-import { UserDto } from 'src/modules/user/dto'
 
 export class SendOTPRequestDto {
   @ApiProperty({
@@ -32,11 +30,6 @@ export class SendOTPDto implements ISendEmailResult {
   duration?: number
 }
 
-export class SendOTPApiResponse extends ApiResponse<SendOTPDto> {
-  @ApiProperty({ type: SendOTPDto, description: 'Response data' })
-  data: SendOTPDto
-}
-
 export class OTPLoginDto {
   @ApiProperty({
     description: 'OTP code',
@@ -49,9 +42,4 @@ export class OTPLoginDto {
   })
   @IsEmail()
   email: string
-}
-
-export class OTPLoginApiResponse extends ApiResponse<UserDto> {
-  @ApiProperty({ type: UserDto, description: 'Response data' })
-  data: UserDto
 }

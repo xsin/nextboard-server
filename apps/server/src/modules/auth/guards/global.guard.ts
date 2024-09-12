@@ -2,8 +2,8 @@ import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator'
 import { AuthGuard } from './auth.guard'
-import { RoleGuard } from './role.guard'
 import { PermissionGuard } from './permission.guard'
+import { RoleGuard } from './role.guard'
 
 @Injectable()
 export class GlobalGuard implements CanActivate {

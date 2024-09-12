@@ -1,6 +1,7 @@
+import { buildFindManyParams } from '@/common/utils'
+import { saltAndHashPassword } from '@/common/utils/password'
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
 import { omit } from 'radash'
-import type { Account, Prisma, TAccountProvider } from '@prisma/client'
 import type {
   IListQueryDto,
   IListQueryResult,
@@ -9,18 +10,17 @@ import type {
   IUserProfile,
   Resource,
 } from '@nextboard/common'
-import { PrismaService } from '../prisma/prisma.service'
+import type { Account, Prisma, TAccountProvider } from '@prisma/client'
 import { AccountService } from '../account/account.service'
-import { UpdateAccountDto } from '../account/dto/update.dto'
 import { CreateAccountDto } from '../account/dto/create.dto'
+import { UpdateAccountDto } from '../account/dto/update.dto'
 import { AppConfigService } from '../config/config.service'
+import { PrismaService } from '../prisma/prisma.service'
 import {
   UserColumns,
-} from './dto/user.ext'
+} from './dto/user.dto'
 import type { CreateUserDto } from './dto/create.dto'
 import type { UpdateUserDto } from './dto/update.dto'
-import { buildFindManyParams } from '@/common/utils'
-import { saltAndHashPassword } from '@/common/utils/password'
 
 @Injectable()
 export class UserService {

@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { isEmpty, omit } from 'radash'
-import type { Request } from 'express'
 import type { IUser, IUserToken, IUserTokenPayload } from '@nextboard/common'
-import { UserService } from '../user/user.service'
-import { RefreshTokenRequestDto } from '../auth/dto'
+import type { Request } from 'express'
 import { AppConfigService } from '../config/config.service'
+import { UserService } from '../user/user.service'
+import { RefreshTokenRequestDto } from './dto/login.dto'
 
 @Injectable()
 export class TokenService {
@@ -26,7 +26,7 @@ export class TokenService {
     if (!authHeader) {
       throw new UnauthorizedException('Unauthorized')
     }
-    const [type, token] = authHeader.split(' ') ?? []
+    const [type, token] = authHeader.split(' ')
     if (isEmpty(token) || type !== 'Bearer') {
       throw new UnauthorizedException('Unauthorized')
     }

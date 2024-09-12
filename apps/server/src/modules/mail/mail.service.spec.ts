@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { Test, TestingModule } from '@nestjs/testing'
 import { InternalServerErrorException } from '@nestjs/common'
+import { Test, TestingModule } from '@nestjs/testing'
 import { EmailType } from '@nextboard/common'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'
 import { MailService } from './mail.service'
@@ -79,12 +79,38 @@ describe('mailService', () => {
       })
     })
 
+    it('should send a verification email with custom HTML content', async () => {
+      const email = 'user@example.com'
+      const customHtml = '<p>Custom verification email</p>'
+      vi.spyOn(resendService, 'sendEmail').mockResolvedValue({ data: { id: '123' }, error: null })
+
+      await service.sendVerificationEmail(email, customHtml)
+
+      expect(resendService.sendEmail).toHaveBeenCalledWith({
+        from: 'test@example.com',
+        to: email,
+        subject: 'Verify your email',
+        html: customHtml,
+      })
+    })
+
     it('should throw an InternalServerErrorException if sending email fails', async () => {
       const email = 'test@example.com'
       const sendMock = vi.spyOn(resendService, 'sendEmail').mockRejectedValue(new InternalServerErrorException('Send failed'))
 
       await expect(service.sendVerificationEmail(email)).rejects.toThrow(InternalServerErrorException)
       expect(sendMock).toHaveBeenCalled()
+    })
+
+    it('should throw an InternalServerErrorException if Resend returns an error', async () => {
+      const email = 'test@example.com'
+      vi.spyOn(resendService, 'sendEmail').mockResolvedValue({
+        data: null,
+        error: { message: 'Resend API error', name: 'internal_server_error' },
+      })
+
+      await expect(service.sendVerificationEmail(email)).rejects.toThrow(InternalServerErrorException)
+      await expect(service.sendVerificationEmail(email)).rejects.toThrow('Resend API error')
     })
   })
 
@@ -131,6 +157,48 @@ describe('mailService', () => {
 
       await expect(service.sendOTP(email)).rejects.toThrow(InternalServerErrorException)
       expect(sendMock).toHaveBeenCalled()
+    })
+
+    it('should handle missing NB_API_PREFIX', async () => {
+      const email = 'user@example.com'
+      vi.spyOn(configService, 'NB_API_PREFIX', 'get').mockReturnValue('')
+      vi.spyOn(resendService, 'sendEmail').mockResolvedValue({ data: { id: '123' }, error: null })
+
+      await service.sendVerificationEmail(email)
+
+      expect(resendService.sendEmail).toHaveBeenCalledWith(expect.objectContaining({
+        html: expect.stringContaining('http://localhost/user/verify?email=user@example.com'),
+      }))
+    })
+
+    it('should use default subject if RESEND_VERIFY_MAIL_SUBJECT is not set', async () => {
+      const email = 'user@example.com'
+      vi.spyOn(configService, 'RESEND_VERIFY_MAIL_SUBJECT', 'get').mockReturnValue(undefined)
+      vi.spyOn(resendService, 'sendEmail').mockResolvedValue({ data: { id: '123' }, error: null })
+
+      await service.sendVerificationEmail(email)
+
+      expect(resendService.sendEmail).toHaveBeenCalledWith(expect.objectContaining({
+        subject: 'Welcome to NextBoard, Pls verify your email address',
+      }))
+    })
+
+    it('should throw an InternalServerErrorException if Resend returns an error for OTP email', async () => {
+      const email = 'test@example.com'
+      vi.spyOn(vcodeService, 'create').mockResolvedValue({
+        id: 1,
+        owner: email,
+        code: '123456',
+        expiredAt: new Date(),
+        createdAt: new Date(),
+      })
+      vi.spyOn(resendService, 'sendEmail').mockResolvedValue({
+        data: null,
+        error: { message: 'Resend API error for OTP', name: 'internal_server_error' },
+      })
+
+      await expect(service.sendOTP(email)).rejects.toThrow(InternalServerErrorException)
+      await expect(service.sendOTP(email)).rejects.toThrow('Resend API error for OTP')
     })
   })
 })

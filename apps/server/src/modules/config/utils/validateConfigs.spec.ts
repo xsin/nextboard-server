@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import { describe, expect, it } from 'vitest'
-import { ConfigDto } from '../dto'
+import { ConfigDto } from '../dto/config.dto'
 import { validateConfigs } from './validateConfigs'
 
 describe('validateConfigs', () => {

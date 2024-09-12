@@ -1,19 +1,19 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { ConflictException, NotFoundException } from '@nestjs/common'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Account, IUserFull, IUserProfile, Resource, User } from '@nextboard/common'
-import { Prisma, TAccountProvider, TAccountType, TResourceOpenTarget, TUserGender } from '@nextboard/common'
-import { PrismaService } from '../prisma/prisma.service'
-import { AccountService } from '../account/account.service'
-import { AppConfigService } from '../config/config.service'
-import { CreateAccountDto } from '../account/dto/create.dto'
-import { UpdateAccountDto } from '../account/dto/update.dto'
-import { UserService } from './user.service'
-import { CreateUserDto } from './dto/create.dto'
-import { UpdateUserDto } from './dto/update.dto'
-import { UserColumns } from './dto/user.ext'
 import { buildFindManyParams } from '@/common/utils'
 import { saltAndHashPassword } from '@/common/utils/password'
+import { ConflictException, NotFoundException } from '@nestjs/common'
+import { Test, TestingModule } from '@nestjs/testing'
+import { Prisma, TAccountProvider, TAccountType, TResourceOpenTarget, TUserGender } from '@nextboard/common'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import type { Account, IUser, IUserFull, IUserProfile, Resource, User } from '@nextboard/common'
+import { AccountService } from '../account/account.service'
+import { CreateAccountDto } from '../account/dto/create.dto'
+import { UpdateAccountDto } from '../account/dto/update.dto'
+import { AppConfigService } from '../config/config.service'
+import { PrismaService } from '../prisma/prisma.service'
+import { CreateUserDto } from './dto/create.dto'
+import { UpdateUserDto } from './dto/update.dto'
+import { UserColumns } from './dto/user.dto'
+import { UserService } from './user.service'
 
 vi.mock('@/common/utils', () => ({
   buildFindManyParams: vi.fn(),
@@ -273,7 +273,21 @@ describe('userService', () => {
   })
 
   describe('verifyEmail', () => {
-    it('should verify user email', async () => {
+    it('should return the user if email is already verified', async () => {
+      const verifiedUser = {
+        ...mockUser1,
+        emailVerifiedAt: new Date(),
+      }
+      vi.spyOn(service, 'findByEmail').mockResolvedValue(verifiedUser)
+      const updateSpy = vi.spyOn(prismaService.user, 'update')
+
+      const result = await service.verifyEmail('test@example.com')
+
+      expect(result).toEqual(verifiedUser)
+      expect(updateSpy).not.toHaveBeenCalled()
+    })
+
+    it('should verify user email if not already verified', async () => {
       const verifiedUser = { ...mockUser1, emailVerifiedAt: new Date() }
       vi.spyOn(service, 'findByEmail').mockResolvedValue(mockUser1)
       vi.spyOn(prismaService.user, 'update').mockResolvedValue(verifiedUser)
@@ -296,7 +310,7 @@ describe('userService', () => {
   })
 
   describe('findUserResources', () => {
-    it('should find user resources', async () => {
+    it('should find user resources when user has resources', async () => {
       const mockUser: IUserFull = {
         ...mockUser1,
         resources: mockResources,
@@ -310,6 +324,40 @@ describe('userService', () => {
         total: 2,
         page: 1,
         limit: 2,
+      })
+    })
+
+    it('should return empty resources when user has no resources', async () => {
+      const mockUser: IUserFull = {
+        ...mockUser1,
+        resources: [],
+      }
+      vi.spyOn(service, 'findByEmailX').mockResolvedValue(mockUser)
+
+      const result = await service.findUserResources('test@example.com')
+
+      expect(result).toEqual({
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 0,
+      })
+    })
+
+    it('should return empty resources when user resources are undefined', async () => {
+      const mockUser: IUserFull = {
+        ...mockUser1,
+        resources: undefined,
+      }
+      vi.spyOn(service, 'findByEmailX').mockResolvedValue(mockUser)
+
+      const result = await service.findUserResources('test@example.com')
+
+      expect(result).toEqual({
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 0,
       })
     })
 
@@ -556,6 +604,86 @@ describe('userService', () => {
 
       expect(result).toEqual(mockUser)
       expect(service.findUser).toHaveBeenCalledWith({ id: '1' }, false)
+    })
+  })
+
+  // Test the private method
+  describe('parseUserResources', () => {
+    it('should parse user resources correctly', async () => {
+      const mockUser: IUser = {
+        id: '1',
+        email: 'test@example.com',
+        permissions: [
+          { id: 'perm1', name: 'Read' },
+          { id: 'perm2', name: 'Write' },
+        ],
+      } as IUser
+
+      const mockResources: Resource[] = [
+        { id: 'resource1', name: 'Resource 1' },
+        { id: 'resource2', name: 'Resource 2' },
+      ] as Resource[]
+
+      vi.spyOn(prismaService.resource, 'findMany').mockResolvedValue(mockResources)
+
+      // Use type assertion to access the private method
+      const result = await (service as any).parseUserResources(mockUser)
+
+      expect(result).toEqual(mockResources)
+      expect(prismaService.resource.findMany).toHaveBeenCalledWith({
+        where: {
+          permissions: {
+            some: {
+              permissionId: { in: ['perm1', 'perm2'] },
+            },
+          },
+        },
+      })
+    })
+
+    it('should return empty array when user has no permissions', async () => {
+      const mockUser: IUser = {
+        id: '1',
+        email: 'test@example.com',
+        permissions: [],
+      } as IUser
+
+      vi.spyOn(prismaService.resource, 'findMany').mockResolvedValue([])
+
+      const result = await (service as any).parseUserResources(mockUser)
+
+      expect(result).toEqual([])
+      expect(prismaService.resource.findMany).toHaveBeenCalledWith({
+        where: {
+          permissions: {
+            some: {
+              permissionId: { in: [] },
+            },
+          },
+        },
+      })
+    })
+
+    it('should handle undefined permissions', async () => {
+      const mockUser: IUser = {
+        id: '1',
+        email: 'test@example.com',
+      } as IUser
+
+      vi.spyOn(prismaService.resource, 'findMany').mockResolvedValue([])
+
+      const result = await (service as any).parseUserResources(mockUser)
+
+      expect(result).toEqual([])
+      expect(prismaService.resource.findMany).toHaveBeenCalledWith({
+        where: {
+          permissions: {
+            some: {
+              permissionId: { in: [] },
+            },
+          },
+        },
+      })
     })
   })
 })

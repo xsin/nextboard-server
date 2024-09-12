@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Resend } from 'resend'
+import { CreateEmailResponse, Resend } from 'resend'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppConfigService } from '../config/config.service'
 import { ResendService } from './resend.service'
@@ -41,6 +41,10 @@ describe('resendService', () => {
     expect(service).toBeDefined()
   })
 
+  it('should initialize Resend with the correct API key', () => {
+    expect(Resend).toHaveBeenCalledWith('test-api-key')
+  })
+
   it('should send an email', async () => {
     const sendMock = vi.spyOn(resendMock.emails, 'send').mockImplementation(() => {
       return Promise.resolve({
@@ -77,5 +81,25 @@ describe('resendService', () => {
 
     await expect(service.sendEmail(options)).rejects.toThrow('Send failed')
     expect(sendMock).toHaveBeenCalledWith(options)
+  })
+
+  it('should handle multiple recipients', async () => {
+    const mockResponse: CreateEmailResponse = {
+      data: { id: '123456' },
+      error: null,
+    }
+    vi.spyOn(resendMock.emails, 'send').mockResolvedValue(mockResponse)
+
+    const options = {
+      from: 'test@example.com',
+      to: ['recipient1@example.com', 'recipient2@example.com'],
+      subject: 'Test Email',
+      html: '<p>This is a test email</p>',
+    }
+
+    const result = await service.sendEmail(options)
+
+    expect(resendMock.emails.send).toHaveBeenCalledWith(options)
+    expect(result).toEqual(mockResponse)
   })
 })

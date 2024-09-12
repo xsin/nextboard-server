@@ -7,9 +7,9 @@ import {
   Injectable,
   Logger,
 } from '@nestjs/common'
-import type { Request, Response } from 'express'
 import { ApiResponse } from 'src/common/dto'
 import { LogService } from 'src/modules/log/log.service'
+import type { Request, Response } from 'express'
 
 @Injectable()
 @Catch()
@@ -45,8 +45,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
     errorResponse.code = status
     errorResponse.data = null
     errorResponse.success = false
-    errorResponse.message
-      = typeof message === 'string' ? message : (message as any).message
+    errorResponse.message = typeof message === 'string' ? message : (message as any).message
 
     this.logger.error(`HTTP Status: ${status}\r\nError Message: ${JSON.stringify(message)}`)
 

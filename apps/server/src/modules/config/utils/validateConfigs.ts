@@ -1,6 +1,6 @@
 import { plainToClass } from 'class-transformer'
 import { validateSync } from 'class-validator'
-import { ConfigDto } from '../dto'
+import { ConfigDto } from '../dto/config.dto'
 
 export function validateConfigs(config: Record<string, unknown>): ConfigDto {
   const validatedConfig = plainToClass(ConfigDto, config, { enableImplicitConversion: true })

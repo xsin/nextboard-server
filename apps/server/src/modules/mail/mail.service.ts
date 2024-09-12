@@ -1,11 +1,11 @@
+import { randomCode } from '@/common/utils'
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
+import { EmailType } from '@nextboard/common'
 import { template } from 'radash'
 import type { ISendEmailResult } from '@nextboard/common'
-import { EmailType } from '@nextboard/common'
 import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'
 import { ResendService } from './resend.service'
-import { randomCode } from '@/common/utils'
 
 @Injectable()
 export class MailService {
