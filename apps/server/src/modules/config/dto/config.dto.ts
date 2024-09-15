@@ -1,5 +1,5 @@
-import { IsArray, IsEmail, IsIn, IsInt, IsObject, IsOptional, IsString, IsUrl } from 'class-validator'
 import { type IConfigDto, type IPackageAuthor, TNodeEnv } from '@/types'
+import { IsArray, IsBoolean, IsEmail, IsIn, IsInt, IsObject, IsOptional, IsString, IsUrl } from 'class-validator'
 
 export class ConfigDto implements IConfigDto {
   @IsIn(['development', 'production', 'test'])
@@ -21,7 +21,7 @@ export class ConfigDto implements IConfigDto {
   RESEND_FROM: string
 
   @IsString()
-  RESEND_VERIFY_MAIL_SUBJECT: string
+  NB_MAIL_SUBJECT_VERIFY: string
 
   @IsString()
   DATABASE_URL: string
@@ -80,4 +80,20 @@ export class ConfigDto implements IConfigDto {
   @IsOptional()
   @IsObject()
   author?: IPackageAuthor
+
+  // SMTP
+  @IsString()
+  NB_SMTP_HOST: string
+
+  @IsInt()
+  NB_SMTP_PORT: number
+
+  @IsString()
+  NB_SMTP_USER: string
+
+  @IsString()
+  NB_SMTP_PASS: string
+
+  @IsBoolean()
+  NB_SMTP_SECURE: boolean
 }

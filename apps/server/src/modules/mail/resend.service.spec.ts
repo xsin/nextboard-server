@@ -1,5 +1,6 @@
+import type { ICreateEmailResponse } from '@/types'
 import { Test, TestingModule } from '@nestjs/testing'
-import { CreateEmailResponse, Resend } from 'resend'
+import { Resend } from 'resend'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppConfigService } from '../config/config.service'
 import { ResendService } from './resend.service'
@@ -84,7 +85,7 @@ describe('resendService', () => {
   })
 
   it('should handle multiple recipients', async () => {
-    const mockResponse: CreateEmailResponse = {
+    const mockResponse: ICreateEmailResponse = {
       data: { id: '123456' },
       error: null,
     }

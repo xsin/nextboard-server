@@ -1,9 +1,9 @@
+import type { ISendEmailResult, IUser, IUserFull, User } from '@nextboard/common'
+import * as utils from '@/common/utils'
 import { NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { EmailType, TAccountProvider, TAccountType, TUserGender } from '@nextboard/common'
-import * as utils from 'src/common/utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { ISendEmailResult, IUser, IUserFull, User } from '@nextboard/common'
 import { MailService } from '../mail/mail.service'
 import { CreateUserDto } from '../user/dto/create.dto'
 import { UserService } from '../user/user.service'
@@ -106,6 +106,7 @@ describe('authService', () => {
         {
           provide: UserService,
           useValue: {
+            findByEmail: vi.fn(),
             findByEmailX: vi.fn(),
             create: vi.fn(),
             updateAccount: vi.fn(),
@@ -217,6 +218,27 @@ describe('authService', () => {
         provider: TAccountProvider.localPwd,
         providerAccountId: signUpDto.email,
       }))
+      expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(signUpDto.email)
+    })
+
+    it('should resend verification email if user already exists but email is not verified', async () => {
+      const signUpDto: CreateUserDto = {
+        email: 'existinguser@example.com',
+        password: 'password123',
+        password1: 'password123',
+        name: 'Existing User',
+      }
+      const existingUser = { ...mockNewUser, email: 'existinguser@example.com' }
+      vi.spyOn(userService, 'findByEmail').mockResolvedValue(existingUser)
+      vi.spyOn(mailService, 'sendVerificationEmail').mockResolvedValue({
+        time: new Date(),
+        type: EmailType.VERIFY,
+      })
+
+      const result = await service.signUp(signUpDto)
+
+      expect(result).toEqual(existingUser)
+      expect(userService.create).not.toHaveBeenCalled()
       expect(mailService.sendVerificationEmail).toHaveBeenCalledWith(signUpDto.email)
     })
   })

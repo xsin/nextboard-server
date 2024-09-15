@@ -1,10 +1,10 @@
+import type { Account, IUser, IUserFull, IUserProfile, Resource, User } from '@nextboard/common'
 import { buildFindManyParams } from '@/common/utils'
 import { saltAndHashPassword } from '@/common/utils/password'
 import { ConflictException, NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Prisma, TAccountProvider, TAccountType, TResourceOpenTarget, TUserGender } from '@nextboard/common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Account, IUser, IUserFull, IUserProfile, Resource, User } from '@nextboard/common'
 import { AccountService } from '../account/account.service'
 import { CreateAccountDto } from '../account/dto/create.dto'
 import { UpdateAccountDto } from '../account/dto/update.dto'
@@ -145,7 +145,8 @@ describe('userService', () => {
   describe('create', () => {
     it('should create a new user', async () => {
       const createUserDto: CreateUserDto = { email: 'test@example.com', password: 'password', name: 'Test User', password1: 'password' }
-      const createAccountDto: CreateAccountDto = { type: 'oauth', provider: 'google', providerAccountId: '123', userId: '1' }
+      const createUserDtoWithoutPassword1 = { email: 'test@example.com', password: 'password', name: 'Test User' }
+      const createAccountDto: CreateAccountDto = { type: 'oauth', provider: 'google', providerAccountId: '123' }
       const mockUser0: User = {
         id: '1',
         email: createUserDto.email,
@@ -171,7 +172,7 @@ describe('userService', () => {
       expect(result).toEqual(mockUser0)
       expect(prismaService.user.create).toHaveBeenCalledWith({
         data: expect.objectContaining({
-          ...createUserDto,
+          ...createUserDtoWithoutPassword1,
           password: 'hashed_password',
           accounts: { create: createAccountDto },
           roles: { create: { role: { connect: { id: configService.NB_DEFAULT_ROLE_ID } } } },
@@ -182,7 +183,7 @@ describe('userService', () => {
 
     it('should throw ConflictException if user already exists', async () => {
       const createUserDto: CreateUserDto = { email: 'test@example.com', password: 'password', name: 'Test User', password1: 'password' }
-      const createAccountDto: CreateAccountDto = { type: 'oauth', provider: 'google', providerAccountId: '123', userId: '1' }
+      const createAccountDto: CreateAccountDto = { type: 'oauth', provider: 'google', providerAccountId: '123' }
 
       vi.spyOn(service, 'findByEmail').mockResolvedValue(mockUser1)
 

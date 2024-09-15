@@ -1,4 +1,4 @@
-import { IUser } from '@nextboard/common'
+import type { IUser } from '@nextboard/common'
 import type { Env } from './env'
 
 declare namespace NodeJS {

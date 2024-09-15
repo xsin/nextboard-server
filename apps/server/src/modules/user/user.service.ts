@@ -1,7 +1,3 @@
-import { buildFindManyParams } from '@/common/utils'
-import { saltAndHashPassword } from '@/common/utils/password'
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
-import { omit } from 'radash'
 import type {
   IListQueryDto,
   IListQueryResult,
@@ -11,6 +7,12 @@ import type {
   Resource,
 } from '@nextboard/common'
 import type { Account, Prisma, TAccountProvider } from '@prisma/client'
+import type { CreateUserDto } from './dto/create.dto'
+import type { UpdateUserDto } from './dto/update.dto'
+import { buildFindManyParams } from '@/common/utils'
+import { saltAndHashPassword } from '@/common/utils/password'
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import { omit } from 'radash'
 import { AccountService } from '../account/account.service'
 import { CreateAccountDto } from '../account/dto/create.dto'
 import { UpdateAccountDto } from '../account/dto/update.dto'
@@ -19,8 +21,6 @@ import { PrismaService } from '../prisma/prisma.service'
 import {
   UserColumns,
 } from './dto/user.dto'
-import type { CreateUserDto } from './dto/create.dto'
-import type { UpdateUserDto } from './dto/update.dto'
 
 @Injectable()
 export class UserService {
@@ -35,10 +35,16 @@ export class UserService {
     if (user) {
       throw new ConflictException('User already exists')
     }
+    // remove password1 from createUserDto
+    const {
+      password1,
+      ...userDto
+    } = createUserDto
+
     const defaultRoleId = this.configService.NB_DEFAULT_ROLE_ID
     const newUser = await this.prismaService.user.create({
       data: {
-        ...createUserDto,
+        ...userDto,
         password: await saltAndHashPassword(createUserDto.password),
         accounts: {
           create: {

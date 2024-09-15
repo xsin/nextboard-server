@@ -1,7 +1,7 @@
-import 'reflect-metadata'
 import { describe, expect, it } from 'vitest'
 import { ConfigDto } from '../dto/config.dto'
 import { validateConfigs } from './validateConfigs'
+import 'reflect-metadata'
 
 describe('validateConfigs', () => {
   it('should validate correct configs', () => {
@@ -11,7 +11,7 @@ describe('validateConfigs', () => {
       NB_API_PREFIX: '/api',
       RESEND_API_KEY: 'test_key',
       RESEND_FROM: 'test@example.com',
-      RESEND_VERIFY_MAIL_SUBJECT: 'Verify your email',
+      NB_MAIL_SUBJECT_VERIFY: 'Verify your email',
       DATABASE_URL: 'postgresql://user:password@localhost:5432/db',
       DIRECT_URL: 'postgresql://user:password@localhost:5432/db',
       JWT_EXPIRY: 3600,
@@ -21,6 +21,12 @@ describe('validateConfigs', () => {
       NB_DEFAULT_ROLE_ID: 'default_role_id',
       NB_OTP_EXPIRY: 300,
       NB_APP_PORT: 3000,
+      NB_SMTP_HOST: 'smtp.example.com',
+      NB_SMTP_PORT: 587,
+      NB_SMTP_USER: 'user',
+      NB_SMTP_PASS: 'password',
+      NB_SMTP_SECURE: false,
+      NB_MAIL_VERIFY_EXPIRY: 86400,
     }
 
     const result = validateConfigs(validConfig)
@@ -35,7 +41,7 @@ describe('validateConfigs', () => {
       NB_API_PREFIX: 123,
       RESEND_API_KEY: '',
       RESEND_FROM: 'not an email',
-      RESEND_VERIFY_MAIL_SUBJECT: '',
+      NB_MAIL_SUBJECT_VERIFY: '',
       DATABASE_URL: '',
       DIRECT_URL: '',
       JWT_EXPIRY: 'not a number',
@@ -45,6 +51,12 @@ describe('validateConfigs', () => {
       NB_DEFAULT_ROLE_ID: '',
       NB_OTP_EXPIRY: 'not a number',
       NB_APP_PORT: 'not a number',
+      NB_SMTP_HOST: 'smtp.example.com',
+      NB_SMTP_PORT: 587,
+      NB_SMTP_USER: 'user',
+      NB_SMTP_PASS: 'password',
+      NB_SMTP_SECURE: false,
+      NB_MAIL_VERIFY_EXPIRY: 86400,
     }
 
     expect(() => validateConfigs(invalidConfig)).toThrow()
@@ -57,7 +69,7 @@ describe('validateConfigs', () => {
       NB_API_PREFIX: '/api',
       RESEND_API_KEY: 'test_key',
       RESEND_FROM: 'test@example.com',
-      RESEND_VERIFY_MAIL_SUBJECT: 'Verify your email',
+      NB_MAIL_SUBJECT_VERIFY: 'Verify your email',
       DATABASE_URL: 'postgresql://user:password@localhost:5432/db',
       DIRECT_URL: 'postgresql://user:password@localhost:5432/db',
       JWT_EXPIRY: 3600,
@@ -67,6 +79,12 @@ describe('validateConfigs', () => {
       NB_DEFAULT_ROLE_ID: 'default_role_id',
       NB_OTP_EXPIRY: 300,
       NB_APP_PORT: 3000,
+      NB_SMTP_HOST: 'smtp.example.com',
+      NB_SMTP_PORT: 587,
+      NB_SMTP_USER: 'user',
+      NB_SMTP_PASS: 'password',
+      NB_SMTP_SECURE: false,
+      NB_MAIL_VERIFY_EXPIRY: 86400,
       name: 'MyApp',
       description: 'My awesome app',
       keywords: ['app', 'awesome'],

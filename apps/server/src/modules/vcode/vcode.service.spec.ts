@@ -1,10 +1,10 @@
+import type { VCode } from '@nextboard/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { VCode } from '@nextboard/common'
 import { PrismaService } from '../prisma/prisma.service'
-import { VCodeService } from './vcode.service'
 import { CreateVCodeDto } from './dto/create.dto'
 import { QueryVCodeDto } from './dto/query.dto'
+import { VCodeService } from './vcode.service'
 
 describe('vCodeService', () => {
   let service: VCodeService
@@ -29,6 +29,7 @@ describe('vCodeService', () => {
               create: vi.fn(),
               findUnique: vi.fn(),
               delete: vi.fn(),
+              findFirst: vi.fn(),
             },
           },
         },
@@ -134,6 +135,71 @@ describe('vCodeService', () => {
 
       const result = await service.verify(dto)
       expect(result).toBe(false)
+    })
+  })
+
+  describe('hasValidCode', () => {
+    it('should return true if user has a valid code', async () => {
+      const dto: QueryVCodeDto = { owner: 'user1', code: '123456' }
+      const expectedResult: VCode = {
+        ...mockVCode,
+        owner: dto.owner,
+        code: dto.code,
+        expiredAt: new Date(Date.now() + 3600000),
+      }
+      vi.spyOn(prismaService.vCode, 'findFirst').mockResolvedValue(expectedResult)
+
+      const result = await service.hasValidCode(dto)
+      expect(result).toBe(true)
+      expect(prismaService.vCode.findFirst).toHaveBeenCalledWith({
+        where: { owner: dto.owner },
+        orderBy: { createdAt: 'desc' },
+      })
+    })
+
+    it('should return false if user has no code', async () => {
+      const dto: QueryVCodeDto = { owner: 'user1', code: '123456' }
+      vi.spyOn(prismaService.vCode, 'findFirst').mockResolvedValue(null)
+
+      const result = await service.hasValidCode(dto)
+      expect(result).toBe(false)
+      expect(prismaService.vCode.findFirst).toHaveBeenCalledWith({
+        where: { owner: dto.owner },
+        orderBy: { createdAt: 'desc' },
+      })
+    })
+
+    it('should return false if user has an expired code', async () => {
+      const dto: QueryVCodeDto = { owner: 'user1', code: '123456' }
+      const expectedResult: VCode = {
+        ...mockVCode,
+        owner: dto.owner,
+        code: dto.code,
+        expiredAt: new Date(Date.now() - 3600000),
+      }
+      vi.spyOn(prismaService.vCode, 'findFirst').mockResolvedValue(expectedResult)
+
+      const result = await service.hasValidCode(dto)
+      expect(result).toBe(false)
+      expect(prismaService.vCode.findFirst).toHaveBeenCalledWith({
+        where: { owner: dto.owner },
+        orderBy: { createdAt: 'desc' },
+      })
+    })
+  })
+
+  describe('generateOwner', () => {
+    it('should return owner if no suffix is provided', () => {
+      const owner = 'user1'
+      const result = service.generateOwner(owner)
+      expect(result).toBe(owner)
+    })
+
+    it('should return owner with suffix if suffix is provided', () => {
+      const owner = 'user1'
+      const suffix = 'suffix'
+      const result = service.generateOwner(owner, suffix)
+      expect(result).toBe(`${owner}:${suffix}`)
     })
   })
 })

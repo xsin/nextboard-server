@@ -1,9 +1,9 @@
-import path from 'node:path'
+import type { IConfigDto, IPackageAuthor, IPackageInfo, TNodeEnv } from '@/types'
 import fs from 'node:fs'
+import path from 'node:path'
 import process from 'node:process'
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import type { IConfigDto, IPackageAuthor, IPackageInfo, TNodeEnv } from './dto/config.dto'
 import * as C from './utils/consts'
 
 @Injectable()
@@ -18,7 +18,7 @@ export class AppConfigService implements IConfigDto {
   NB_API_PREFIX: string
   RESEND_API_KEY: string
   RESEND_FROM: string
-  RESEND_VERIFY_MAIL_SUBJECT: string
+  NB_MAIL_SUBJECT_VERIFY: string
   DATABASE_URL: string
   DIRECT_URL: string
   JWT_EXPIRY: number
@@ -28,6 +28,12 @@ export class AppConfigService implements IConfigDto {
   NB_DEFAULT_ROLE_ID: string
   NB_OTP_EXPIRY: number
   NB_APP_PORT: number
+  NB_SMTP_HOST: string
+  NB_SMTP_PORT: number
+  NB_SMTP_PASS: string
+  NB_SMTP_USER: string
+  NB_SMTP_SECURE: boolean
+  NB_MAIL_VERIFY_EXPIRY: number
 
   private pkgInfo: IPackageInfo
 
@@ -37,7 +43,7 @@ export class AppConfigService implements IConfigDto {
     this.NB_API_PREFIX = this.configService.get<string>(C.C_API_PREFIX)
     this.RESEND_API_KEY = this.configService.get<string>(C.C_RESEND_API_KEY)
     this.RESEND_FROM = this.configService.get<string>(C.C_RESEND_FROM)
-    this.RESEND_VERIFY_MAIL_SUBJECT = this.configService.get<string>(C.C_RESEND_VERIFY_MAIL_SUBJECT)
+    this.NB_MAIL_SUBJECT_VERIFY = this.configService.get<string>(C.C_NB_MAIL_SUBJECT_VERIFY)
     this.DATABASE_URL = this.configService.get<string>(C.C_DATABASE_URL)
     this.DIRECT_URL = this.configService.get<string>(C.C_DIRECT_URL)
     this.JWT_EXPIRY = this.configService.get<number>(C.C_JWT_EXPIRY)
@@ -47,6 +53,12 @@ export class AppConfigService implements IConfigDto {
     this.NB_DEFAULT_ROLE_ID = this.configService.get<string>(C.C_DEFAULT_ROLE_ID)
     this.NB_OTP_EXPIRY = this.configService.get<number>(C.C_OTP_EXPIRY)
     this.NB_APP_PORT = this.configService.get<number>(C.C_APP_PORT)
+    this.NB_SMTP_HOST = this.configService.get<string>(C.C_NB_SMTP_HOST)
+    this.NB_SMTP_PORT = this.configService.get<number>(C.C_NB_SMTP_PORT)
+    this.NB_SMTP_USER = this.configService.get<string>(C.C_NB_SMTP_USER)
+    this.NB_SMTP_PASS = this.configService.get<string>(C.C_NB_SMTP_PASS)
+    this.NB_SMTP_SECURE = this.configService.get<boolean>(C.C_NB_SMTP_SECURE)
+    this.NB_MAIL_VERIFY_EXPIRY = this.configService.get<number>(C.C_NB_MAIL_VERIFY_EXPIRY)
 
     this.getPkgInfo()
   }

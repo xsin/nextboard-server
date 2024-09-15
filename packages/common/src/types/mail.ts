@@ -3,6 +3,11 @@ export enum EmailType {
   OTP = 'otp',
 }
 
+export enum EmailService {
+  NODEMAILER = 'NODEMAILER',
+  RESEND = 'RESEND',
+}
+
 export interface ISendEmailResult {
   /**
    * Email type

@@ -3,7 +3,7 @@ import { Prisma, TAccountProvider, TAccountType } from '@nextboard/common'
 import { Type } from 'class-transformer'
 import { IsDate, IsEnum, IsOptional, IsString } from 'class-validator'
 
-export class CreateAccountDto implements Prisma.AccountUncheckedCreateInput {
+export class CreateAccountDto implements Prisma.AccountCreateWithoutUserInput {
   @ApiProperty({
     description: 'Account type',
   })
@@ -79,10 +79,4 @@ export class CreateAccountDto implements Prisma.AccountUncheckedCreateInput {
   @IsString()
   @IsOptional()
   sessionState?: string | null
-
-  @ApiProperty({
-    description: 'User id',
-  })
-  @IsString()
-  userId: string
 }

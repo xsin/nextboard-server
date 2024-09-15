@@ -1,24 +1,28 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Request as Req } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
-import { Request } from 'express'
-import { TPermission } from '@nextboard/common'
+import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
+import { ListQueryDto, ListQueryResult } from '@/common/dto'
+import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, Request as Req, Res } from '@nestjs/common'
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { EmailType, TPermission } from '@nextboard/common'
 import { TAccountProvider, TAccountType } from '@prisma/client'
-import { Permissions } from '../auth/decorators/permissions.decorator'
+import { Request, Response } from 'express'
 import { CreateAccountDto } from '../account/dto/create.dto'
+import { Permissions } from '../auth/decorators/permissions.decorator'
 import { ResourceDto } from '../resource/dto/resource.dto'
-import { UserService } from './user.service'
+import { VCodeService } from '../vcode/vcode.service'
 import { CreateUserDto } from './dto/create.dto'
+import { UserProfileDto } from './dto/profile.dto'
 import { UpdateUserDto } from './dto/update.dto'
 import { UserDto } from './dto/user.dto'
-import { UserProfileDto } from './dto/profile.dto'
-import { ListQueryDto, ListQueryResult } from '@/common/dto'
-import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
+import { UserService } from './user.service'
 
 @ApiBearerAuth()
 @ApiTags('user')
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly vcodeService: VCodeService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
@@ -38,7 +42,6 @@ export class UserController {
       scope: null,
       idToken: null,
       sessionState: null,
-      userId: null,
     }
     return this.userService.create(dto, createAccountDto)
   }
@@ -110,15 +113,37 @@ export class UserController {
     return this.userService.getUserProfileByEmail(req.user?.email)
   }
 
-  @NBApiResponse(UserDto, {
-    description: 'Verify user email',
-  })
   @ApiOperation({ summary: 'Verify user email' })
   @Get('verify')
-  async verifyEmail(@Query('email') email: string): Promise<UserDto> {
-    if (!email) {
-      throw new BadRequestException('Email parameter is required')
+  async verifyEmail(
+    @Res() res: Response,
+    @Query('email') email: string,
+    @Query('vcode') vcode: string,
+    @Query('redirect') redirect: string,
+  ): Promise<void> {
+    if (!email || !vcode) {
+      throw new BadRequestException('"email" or "vcode" parameter is required')
     }
-    return this.userService.verifyEmail(email)
+
+    // Verify the vcode
+    const owner = this.vcodeService.generateOwner(email, EmailType.VERIFY)
+    const isValid = await this.vcodeService.verify({
+      owner,
+      code: vcode,
+    })
+
+    if (!isValid) {
+      if (redirect) {
+        return res.redirect(`${redirect}?error=Invalid verification code`)
+      }
+      throw new BadRequestException('Invalid verification code')
+    }
+
+    await this.userService.verifyEmail(email)
+    if (redirect) {
+      return res.redirect(`${redirect}?success=true`)
+    }
+
+    res.status(HttpStatus.OK).json('Email verified successfully')
   }
 }

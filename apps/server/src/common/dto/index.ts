@@ -1,16 +1,26 @@
-import { IsInt, IsOptional, IsString, Min } from 'class-validator'
+import type { IApiResponse, IListQueryDto, IListQueryResult } from '@nextboard/common'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IApiResponse, IListQueryDto, IListQueryResult } from '@nextboard/common'
+import { IsInt, IsOptional, IsString, Min } from 'class-validator'
 
 // Swagger uses concrete classes to generate the API documentation
 export class ListQueryDto implements IListQueryDto {
-  @ApiPropertyOptional({ description: 'Page number', minimum: 1, default: 1 })
+  @ApiPropertyOptional({
+    description: 'Page number',
+    minimum: 1,
+    default: 1,
+    example: 1,
+  })
   @IsOptional()
   @IsInt()
   @Min(1)
   page?: number = 1
 
-  @ApiPropertyOptional({ description: 'Number of items per page', minimum: 1, default: 20 })
+  @ApiPropertyOptional({
+    description: 'Number of items per page',
+    minimum: 1,
+    default: 20,
+    example: 20,
+  })
   @IsOptional()
   @IsInt()
   @Min(1)

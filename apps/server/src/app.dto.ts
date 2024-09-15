@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { ApiResponse } from './common/dto'
 
 export class AppDto {
   @ApiProperty({ description: 'Name of the app' })
@@ -16,9 +15,4 @@ export class AppDto {
 
   @ApiProperty({ description: 'Author of the app' })
   author: string
-}
-
-export class AppResponse extends ApiResponse<AppDto> {
-  @ApiProperty({ type: AppDto })
-  data: AppDto
 }

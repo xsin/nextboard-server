@@ -1,8 +1,8 @@
-import { ApiProperty } from '@nestjs/swagger'
 import type {
   Dict,
   Prisma,
 } from '@nextboard/common'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class DictDto implements Dict {
   @ApiProperty({

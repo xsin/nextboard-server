@@ -1,8 +1,8 @@
-import { IsDate, IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator'
+import { Match } from '@/common/decorators/match.decorator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Match } from 'src/common/decorators/match.decorator'
 import { Prisma } from '@nextboard/common'
 import { Type } from 'class-transformer'
+import { IsDate, IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator'
 
 export class CreateUserDto implements Prisma.UserCreateInput {
   @ApiProperty({ description: 'Email address' })

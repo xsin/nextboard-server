@@ -1,6 +1,6 @@
-import { IsBoolean, IsEmail, IsObject, IsOptional, IsString } from 'class-validator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Prisma } from '@nextboard/common'
+import { IsBoolean, IsEmail, IsObject, IsOptional, IsString } from 'class-validator'
 
 export class CreateLogDto implements Prisma.LogCreateInput {
   @ApiPropertyOptional({ description: 'User ID associated with the log entry' })

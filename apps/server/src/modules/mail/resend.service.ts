@@ -1,5 +1,6 @@
+import type { ICreateEmailResponse, TCreateEmailOptions } from '@/types'
 import { Injectable } from '@nestjs/common'
-import { type CreateEmailOptions, type CreateEmailResponse, Resend } from 'resend'
+import { Resend } from 'resend'
 import { AppConfigService } from '../config/config.service'
 
 @Injectable()
@@ -10,7 +11,7 @@ export class ResendService {
     this.resend = new Resend(this.configService.RESEND_API_KEY)
   }
 
-  async sendEmail(options: CreateEmailOptions): Promise<CreateEmailResponse> {
+  async sendEmail(options: TCreateEmailOptions): Promise<ICreateEmailResponse> {
     return this.resend.emails.send(options)
   }
 }

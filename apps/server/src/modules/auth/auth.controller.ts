@@ -1,16 +1,16 @@
+import { NBApiResponse } from '@/common/decorators/api.decorator'
 import { Body, Controller, Post } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
 import { CreateUserDto } from '../user/dto/create.dto'
 import { UserDto, UserTokenDto } from '../user/dto/user.dto'
-import { TokenService } from './token.service'
 import { AuthService } from './auth.service'
+import { Public } from './decorators/public.decorator'
 import {
   LoginRequestDto,
   RefreshTokenRequestDto,
 } from './dto/login.dto'
 import { OTPLoginDto, SendOTPDto, SendOTPRequestDto } from './dto/otp.dto'
-import { Public } from './decorators/public.decorator'
-import { NBApiResponse } from '@/common/decorators/api.decorator'
+import { TokenService } from './token.service'
 
 @Public()
 @ApiTags('auth')
@@ -26,14 +26,14 @@ export class AuthController {
     description: 'Sign up',
   })
   @ApiOperation({
-    description: 'Sign up',
+    summary: 'Sign up',
   })
   async signUp(@Body() dto: CreateUserDto): Promise<UserDto> {
     return this.authService.signUp(dto)
   }
 
   @ApiOperation({
-    description: 'Refresh token',
+    summary: 'Refresh token',
   })
   @NBApiResponse(UserTokenDto, {
     description: 'Refresh token',
@@ -44,7 +44,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    description: 'Login',
+    summary: 'Login',
   })
   @NBApiResponse(UserDto, {
     description: 'Login',
@@ -55,7 +55,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    description: 'Send OTP',
+    summary: 'Send OTP',
   })
   @NBApiResponse(SendOTPDto, {
     description: 'Send OTP',
@@ -66,12 +66,12 @@ export class AuthController {
   }
 
   @ApiOperation({
-    description: 'Login with OTP',
+    summary: 'Login with OTP',
   })
   @NBApiResponse(UserDto, {
     description: 'Login with OTP',
   })
-  @Post('login/otp')
+  @Post('otp/login')
   async loginWithOTP(@Body() dto: OTPLoginDto): Promise<UserDto> {
     return this.authService.loginWithOTP(dto.email, dto.code)
   }

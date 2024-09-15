@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { Test, TestingModule } from '@nestjs/testing'
 import { ConfigService } from '@nestjs/config'
+import { Test, TestingModule } from '@nestjs/testing'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppConfigService } from './config.service'
 import * as C from './utils/consts'
@@ -19,7 +19,7 @@ describe('appConfigService', () => {
     [C.C_API_PREFIX]: '/api',
     [C.C_RESEND_API_KEY]: 'test_key',
     [C.C_RESEND_FROM]: 'test@example.com',
-    [C.C_RESEND_VERIFY_MAIL_SUBJECT]: 'Verify your email',
+    [C.C_NB_MAIL_SUBJECT_VERIFY]: 'Verify your email',
     [C.C_DATABASE_URL]: 'postgresql://user:password@localhost:5432/db',
     [C.C_DIRECT_URL]: 'postgresql://user:password@localhost:5432/db',
     [C.C_JWT_EXPIRY]: 3600,
@@ -29,6 +29,12 @@ describe('appConfigService', () => {
     [C.C_DEFAULT_ROLE_ID]: 'default_role_id',
     [C.C_OTP_EXPIRY]: 300,
     [C.C_APP_PORT]: 3000,
+    [C.C_NB_SMTP_HOST]: 'smtp.example.com',
+    [C.C_NB_SMTP_PORT]: 587,
+    [C.C_NB_SMTP_USER]: 'user',
+    [C.C_NB_SMTP_PASS]: 'password',
+    [C.C_NB_SMTP_SECURE]: false,
+    [C.C_NB_MAIL_VERIFY_EXPIRY]: 86400,
   }
 
   const mockPackageInfo = {
@@ -76,7 +82,7 @@ describe('appConfigService', () => {
     expect(service.NB_API_PREFIX).toBe(mockConfig[C.C_API_PREFIX])
     expect(service.RESEND_API_KEY).toBe(mockConfig[C.C_RESEND_API_KEY])
     expect(service.RESEND_FROM).toBe(mockConfig[C.C_RESEND_FROM])
-    expect(service.RESEND_VERIFY_MAIL_SUBJECT).toBe(mockConfig[C.C_RESEND_VERIFY_MAIL_SUBJECT])
+    expect(service.NB_MAIL_SUBJECT_VERIFY).toBe(mockConfig[C.C_NB_MAIL_SUBJECT_VERIFY])
     expect(service.DATABASE_URL).toBe(mockConfig[C.C_DATABASE_URL])
     expect(service.DIRECT_URL).toBe(mockConfig[C.C_DIRECT_URL])
     expect(service.JWT_EXPIRY).toBe(mockConfig[C.C_JWT_EXPIRY])
@@ -86,6 +92,12 @@ describe('appConfigService', () => {
     expect(service.NB_DEFAULT_ROLE_ID).toBe(mockConfig[C.C_DEFAULT_ROLE_ID])
     expect(service.NB_OTP_EXPIRY).toBe(mockConfig[C.C_OTP_EXPIRY])
     expect(service.NB_APP_PORT).toBe(mockConfig[C.C_APP_PORT])
+    expect(service.NB_SMTP_HOST).toBe(mockConfig[C.C_NB_SMTP_HOST])
+    expect(service.NB_SMTP_PORT).toBe(mockConfig[C.C_NB_SMTP_PORT])
+    expect(service.NB_SMTP_USER).toBe(mockConfig[C.C_NB_SMTP_USER])
+    expect(service.NB_SMTP_PASS).toBe(mockConfig[C.C_NB_SMTP_PASS])
+    expect(service.NB_SMTP_SECURE).toBe(mockConfig[C.C_NB_SMTP_SECURE])
+    expect(service.NB_MAIL_VERIFY_EXPIRY).toBe(mockConfig[C.C_NB_MAIL_VERIFY_EXPIRY])
   })
 
   it('should load package information', () => {

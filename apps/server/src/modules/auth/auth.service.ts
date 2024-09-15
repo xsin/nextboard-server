@@ -1,3 +1,5 @@
+import type { Request, Response } from 'express'
+import { comparePasswords } from '@/common/utils'
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import {
   type ISendEmailResult,
@@ -6,8 +8,6 @@ import {
   TAccountType,
 } from '@nextboard/common'
 import { pick } from 'radash'
-import { comparePasswords } from 'src/common/utils'
-import type { Request, Response } from 'express'
 import { CreateAccountDto } from '../account/dto/create.dto'
 import { UpdateAccountDto } from '../account/dto/update.dto'
 import { MailService } from '../mail/mail.service'
@@ -86,10 +86,17 @@ export class AuthService {
       scope: null,
       idToken: null,
       sessionState: null,
-      userId: null,
     }
 
-    const user = await this.userService.create(dto, createAccountDto)
+    // Find the user and check if the email is already verified
+    let user = await this.userService.findByEmail(dto.email)
+    if (user && !user.emailVerifiedAt) {
+      // Resend verification email
+      await this.mailService.sendVerificationEmail(dto.email)
+      return user
+    }
+
+    user = await this.userService.create(dto, createAccountDto)
     // Send verification email
     await this.mailService.sendVerificationEmail(user.email)
     return user
@@ -123,7 +130,6 @@ export class AuthService {
         scope: null,
         idToken: null,
         sessionState: null,
-        userId: null,
       }
       await this.userService.create({
         email,

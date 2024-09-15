@@ -1,3 +1,4 @@
+import type { Request, Response } from 'express'
 import {
   ArgumentsHost,
   Catch,
@@ -9,7 +10,6 @@ import {
 } from '@nestjs/common'
 import { ApiResponse } from 'src/common/dto'
 import { LogService } from 'src/modules/log/log.service'
-import type { Request, Response } from 'express'
 
 @Injectable()
 @Catch()
@@ -24,7 +24,64 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const ips = (xForwardedFor as string).split(',')
       return ips[0].trim()
     }
-    return request.socket.remoteAddress || request.ip || ''
+
+    const ip = request.ip || request.socket.remoteAddress || ''
+
+    // Handle IPv6 addresses that are actually IPv4
+    if (ip.startsWith('::ffff:')) {
+      return ip.substring(7)
+    }
+
+    return ip
+  }
+
+  normalizeError(exception: unknown): Error {
+    let messageText: string
+    const normalizedError: Error = new Error('Unknown error')
+
+    if (exception instanceof HttpException) {
+      const message = exception.getResponse()
+      if (typeof message === 'string') {
+        messageText = message
+      }
+      else {
+        const messageObj = message as any
+        if (Array.isArray(messageObj.message)) {
+          messageText = messageObj.message.join('\n')
+        }
+        else {
+          messageText = messageObj.message
+        }
+      }
+      normalizedError.name = exception.name
+      normalizedError.stack = exception.stack
+    }
+    else if (exception instanceof Error) {
+      messageText = exception.message
+      normalizedError.name = exception.name
+      normalizedError.stack = exception.stack
+    }
+    else {
+      messageText = 'Unknown error'
+      normalizedError.name = 'UnknownError'
+    }
+    normalizedError.message = messageText
+
+    return normalizedError
+  }
+
+  removePasswordFields(body: any): any {
+    if (typeof body !== 'object' || body === null) {
+      return body
+    }
+
+    const sanitizedBody = { ...body }
+    for (const key of Object.keys(sanitizedBody)) {
+      if (key.toLowerCase().startsWith('password')) {
+        delete sanitizedBody[key]
+      }
+    }
+    return sanitizedBody
   }
 
   async catch(exception: unknown, host: ArgumentsHost): Promise<void> {
@@ -36,18 +93,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
         ? exception.getStatus()
         : HttpStatus.INTERNAL_SERVER_ERROR
 
-    const message
-      = exception instanceof HttpException
-        ? exception.getResponse()
-        : 'Internal server error'
+    const normalizedError = this.normalizeError(exception)
 
     const errorResponse = new ApiResponse()
     errorResponse.code = status
     errorResponse.data = null
     errorResponse.success = false
-    errorResponse.message = typeof message === 'string' ? message : (message as any).message
+    errorResponse.message = normalizedError.message
 
-    this.logger.error(`HTTP Status: ${status}\r\nError Message: ${JSON.stringify(message)}`)
+    this.logger.error(`HTTP Status: ${status}\r\nError Message: ${normalizedError.message}`)
 
     // Log the error
     const ip = this.getIp(request)
@@ -61,7 +115,19 @@ export class HttpExceptionFilter implements ExceptionFilter {
         isSystem: true,
         operation: HttpExceptionFilter.name,
         meta: {
-          message,
+          error: {
+            status,
+            name: normalizedError.name,
+            message: normalizedError.message,
+            stack: normalizedError.stack,
+          },
+          request: {
+            method: request.method,
+            url: request.url,
+            headers: request.headers,
+            body: this.removePasswordFields(request.body),
+            query: request.query,
+          },
         },
       })
     }

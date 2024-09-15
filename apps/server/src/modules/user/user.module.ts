@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common'
 import { AccountModule } from '../account/account.module'
-import { UserService } from './user.service'
+import { VCodeModule } from '../vcode/vcode.module'
 import { UserController } from './user.controller'
+import { UserService } from './user.service'
 
 @Module({
   imports: [
     AccountModule,
+    VCodeModule,
   ],
   controllers: [
     UserController,

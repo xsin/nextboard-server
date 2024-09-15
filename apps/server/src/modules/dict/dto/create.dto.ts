@@ -1,7 +1,7 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import type {
   Prisma,
 } from '@nextboard/common'
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsJSON, IsOptional, IsString } from 'class-validator'
 
 export class CreateDictDto implements Prisma.DictCreateInput {

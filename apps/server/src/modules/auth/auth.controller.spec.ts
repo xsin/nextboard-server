@@ -1,13 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { EmailType, type ISendEmailResult, TUserGender } from '@nextboard/common'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreateUserDto } from '../user/dto/create.dto'
 import { UserDto, UserTokenDto } from '../user/dto/user.dto'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
-import { TokenService } from './token.service'
 import { LoginRequestDto, RefreshTokenRequestDto } from './dto/login.dto'
 import { OTPLoginDto, SendOTPRequestDto } from './dto/otp.dto'
+import { TokenService } from './token.service'
 
 describe('authController', () => {
   let controller: AuthController

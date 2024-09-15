@@ -1,11 +1,11 @@
+import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
+import { ListQueryDto, ListQueryResult } from '@/common/dto'
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
-import { RoleService } from './role.service'
 import { CreateRoleDto } from './dto/create.dto'
-import { UpdateRoleDto } from './dto/update.dto'
 import { RoleDto } from './dto/role.dto'
-import { ListQueryDto, ListQueryResult } from '@/common/dto'
-import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
+import { UpdateRoleDto } from './dto/update.dto'
+import { RoleService } from './role.service'
 
 @ApiTags('role')
 @Controller('role')

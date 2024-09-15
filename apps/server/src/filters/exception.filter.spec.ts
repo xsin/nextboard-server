@@ -60,6 +60,87 @@ describe('httpExceptionFilter', () => {
       const request = { headers: {}, socket: {} } as any
       expect(filter.getIp(request)).toBe('')
     })
+
+    it('should handle IPv6 addresses that are actually IPv4', () => {
+      const request = {
+        headers: {},
+        socket: { remoteAddress: '::ffff:127.0.0.1' },
+      } as any
+      expect(filter.getIp(request)).toBe('127.0.0.1')
+    })
+  })
+
+  describe('removePasswordFields', () => {
+    it('should remove fields that start with "password"', () => {
+      const body = {
+        username: 'test-user',
+        password: 'secret',
+        passwordConfirm: 'secret',
+        otherField: 'value',
+      }
+      const sanitizedBody = filter.removePasswordFields(body)
+      expect(sanitizedBody).toEqual({
+        username: 'test-user',
+        otherField: 'value',
+      })
+    })
+
+    it('should not modify body if no fields start with "password"', () => {
+      const body = {
+        username: 'test-user',
+        otherField: 'value',
+      }
+      const sanitizedBody = filter.removePasswordFields(body)
+      expect(sanitizedBody).toEqual(body)
+    })
+
+    it('should handle non-object body', () => {
+      expect(filter.removePasswordFields(null)).toBeNull()
+      expect(filter.removePasswordFields('string')).toBe('string')
+      expect(filter.removePasswordFields(123)).toBe(123)
+    })
+  })
+
+  describe('normalizeError', () => {
+    it('should normalize HttpException with string message', () => {
+      const exception = new HttpException('Test error', HttpStatus.BAD_REQUEST)
+      const normalizedError = filter.normalizeError(exception)
+      expect(normalizedError.message).toBe('Test error')
+      expect(normalizedError.name).toBe(exception.name)
+      expect(normalizedError.stack).toBe(exception.stack)
+    })
+
+    it('should normalize HttpException with object message', () => {
+      const exception = new HttpException({ message: 'Custom error object' }, HttpStatus.BAD_REQUEST)
+      const normalizedError = filter.normalizeError(exception)
+      expect(normalizedError.message).toBe('Custom error object')
+      expect(normalizedError.name).toBe(exception.name)
+      expect(normalizedError.stack).toBe(exception.stack)
+    })
+
+    it('should normalize HttpException with array message', () => {
+      const exception = new HttpException({ message: ['Error 1', 'Error 2'] }, HttpStatus.BAD_REQUEST)
+      const normalizedError = filter.normalizeError(exception)
+      expect(normalizedError.message).toBe('Error 1\nError 2')
+      expect(normalizedError.name).toBe(exception.name)
+      expect(normalizedError.stack).toBe(exception.stack)
+    })
+
+    it('should normalize generic Error', () => {
+      const exception = new Error('Generic error')
+      const normalizedError = filter.normalizeError(exception)
+      expect(normalizedError.message).toBe('Generic error')
+      expect(normalizedError.name).toBe(exception.name)
+      expect(normalizedError.stack).toBe(exception.stack)
+    })
+
+    it('should normalize unknown exception', () => {
+      const exception = { unknown: 'error' }
+      const normalizedError = filter.normalizeError(exception)
+      expect(normalizedError.message).toBe('Unknown error')
+      expect(normalizedError.name).toBe('UnknownError')
+      expect(normalizedError.stack).toContain('Unknown error')
+    })
   })
 
   describe('catch', () => {
@@ -71,6 +152,11 @@ describe('httpExceptionFilter', () => {
       user: { id: '1', email: 'test@example.com' },
       socket: { remoteAddress: '127.0.0.1' },
       ip: '127.0.0.1',
+      body: {
+        username: 'test-user',
+        password: 'secret',
+        passwordConfirm: 'secret',
+      },
     })
     const mockHttpArgumentsHost = {
       getResponse: mockGetResponse,
@@ -80,7 +166,7 @@ describe('httpExceptionFilter', () => {
       switchToHttp: () => mockHttpArgumentsHost,
     }
 
-    it('should handle HttpException', async () => {
+    it('should handle HttpException with string message', async () => {
       const exception = new HttpException('Test error', HttpStatus.BAD_REQUEST)
       await filter.catch(exception, mockArgumentsHost as any)
 
@@ -95,9 +181,81 @@ describe('httpExceptionFilter', () => {
         isSystem: true,
         operation: HttpExceptionFilter.name,
         meta: expect.objectContaining({
-          message: 'Test error',
+          request: expect.objectContaining({
+            body: {
+              username: 'test-user',
+            },
+          }),
         }),
       }))
+      expect(loggerSpy).toHaveBeenCalled()
+    })
+
+    it('should handle HttpException with object message', async () => {
+      const exception = new HttpException({ message: 'Custom error object' }, HttpStatus.BAD_REQUEST)
+      await filter.catch(exception, mockArgumentsHost as any)
+
+      expect(mockStatus).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST)
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: HttpStatus.BAD_REQUEST,
+          success: false,
+          data: null,
+          message: 'Custom error object',
+        }),
+      )
+      expect(logService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: '1',
+          userEmail: 'test@example.com',
+          userAgent: 'test-agent',
+          ip: '127.0.0.1',
+          level: 'error',
+          isSystem: true,
+          operation: HttpExceptionFilter.name,
+          meta: expect.objectContaining({
+            request: expect.objectContaining({
+              body: {
+                username: 'test-user',
+              },
+            }),
+          }),
+        }),
+      )
+      expect(loggerSpy).toHaveBeenCalled()
+    })
+
+    it('should handle HttpException with array message', async () => {
+      const exception = new HttpException({ message: ['Error 1', 'Error 2'] }, HttpStatus.BAD_REQUEST)
+      await filter.catch(exception, mockArgumentsHost as any)
+
+      expect(mockStatus).toHaveBeenCalledWith(HttpStatus.BAD_REQUEST)
+      expect(mockJson).toHaveBeenCalledWith(
+        expect.objectContaining({
+          code: HttpStatus.BAD_REQUEST,
+          success: false,
+          data: null,
+          message: 'Error 1\nError 2',
+        }),
+      )
+      expect(logService.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: '1',
+          userEmail: 'test@example.com',
+          userAgent: 'test-agent',
+          ip: '127.0.0.1',
+          level: 'error',
+          isSystem: true,
+          operation: HttpExceptionFilter.name,
+          meta: expect.objectContaining({
+            request: expect.objectContaining({
+              body: {
+                username: 'test-user',
+              },
+            }),
+          }),
+        }),
+      )
       expect(loggerSpy).toHaveBeenCalled()
     })
 
@@ -146,7 +304,11 @@ describe('httpExceptionFilter', () => {
           isSystem: true,
           operation: HttpExceptionFilter.name,
           meta: expect.objectContaining({
-            message: { message: 'Custom error object' },
+            request: expect.objectContaining({
+              body: {
+                username: 'test-user',
+              },
+            }),
           }),
         }),
       )

@@ -1,8 +1,8 @@
-import { TAccountProvider, TAccountType } from '@nextboard/common'
 import type {
   Account,
 } from '@nextboard/common'
 import { ApiProperty } from '@nestjs/swagger'
+import { TAccountProvider, TAccountType } from '@nextboard/common'
 
 export class AccountDto implements Account {
   @ApiProperty({

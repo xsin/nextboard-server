@@ -1,4 +1,5 @@
 export * from './env'
+export * from './mail'
 
 export interface IPackageAuthor {
   name: string
@@ -32,7 +33,7 @@ export interface IConfigDto extends IPackageInfo {
 
   RESEND_FROM: string
 
-  RESEND_VERIFY_MAIL_SUBJECT: string
+  NB_MAIL_SUBJECT_VERIFY: string
 
   DATABASE_URL: string
 
@@ -61,5 +62,11 @@ export interface IConfigDto extends IPackageInfo {
   NB_OTP_EXPIRY: number
 
   NB_APP_PORT: number
+
+  NB_SMTP_HOST: string
+  NB_SMTP_PORT: number
+  NB_SMTP_USER: string
+  NB_SMTP_PASS: string
+  NB_SMTP_SECURE: boolean
 
 }

@@ -1,7 +1,8 @@
 import { Controller, Get } from '@nestjs/common'
-import { ApiResponse } from '@nestjs/swagger'
+import { ApiOperation } from '@nestjs/swagger'
+import { AppDto } from './app.dto'
 import { AppService } from './app.service'
-import { AppDto, AppResponse } from './app.dto'
+import { NBApiResponse } from './common/decorators/api.decorator'
 import { Public } from './modules/auth/decorators/public.decorator'
 
 @Public()
@@ -9,8 +10,11 @@ import { Public } from './modules/auth/decorators/public.decorator'
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @ApiResponse({
-    type: AppResponse,
+  @NBApiResponse(AppDto, {
+    description: 'Get app information',
+  })
+  @ApiOperation({
+    summary: 'Get app information',
   })
   @Get()
   getInfo(): AppDto {

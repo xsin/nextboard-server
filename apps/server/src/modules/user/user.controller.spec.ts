@@ -1,16 +1,20 @@
-import { Test, TestingModule } from '@nestjs/testing'
-import { BadRequestException } from '@nestjs/common'
-import { TAccountProvider, TAccountType, TUserGender } from '@nextboard/common'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { User } from '@nextboard/common'
-import { UserController } from './user.controller'
-import { UserService } from './user.service'
+import { ListQueryDto } from '@/common/dto'
+import { BadRequestException } from '@nestjs/common'
+import { Test, TestingModule } from '@nestjs/testing'
+import { EmailType, TAccountProvider, TAccountType, TUserGender } from '@nextboard/common'
+import { Response } from 'express'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { VCodeService } from '../vcode/vcode.service'
 import { CreateUserDto } from './dto/create.dto'
 import { UpdateUserDto } from './dto/update.dto'
-import { ListQueryDto } from '@/common/dto'
+import { UserController } from './user.controller'
+import { UserService } from './user.service'
 
 describe('userController', () => {
   let controller: UserController
+  let mockVCodeService: Partial<VCodeService>
+  let mockResponse: Partial<Response>
 
   const mockUser: User = {
     id: '1',
@@ -43,12 +47,26 @@ describe('userController', () => {
   }
 
   beforeEach(async () => {
+    mockVCodeService = {
+      generateOwner: vi.fn(),
+      verify: vi.fn(),
+    }
+    mockResponse = {
+      redirect: vi.fn(),
+      status: vi.fn().mockReturnThis(),
+      json: vi.fn(),
+    }
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
       providers: [
         {
           provide: UserService,
           useValue: mockUserService,
+        },
+        {
+          provide: VCodeService,
+          useValue: mockVCodeService,
         },
       ],
     }).compile()
@@ -169,17 +187,69 @@ describe('userController', () => {
   })
 
   describe('verifyEmail', () => {
-    it('should verify user email', async () => {
-      mockUserService.verifyEmail.mockResolvedValue(mockUser)
+    it('should verify user email and redirect to success URL', async () => {
+      const email = 'test@example.com'
+      const vcode = '123456'
+      const redirect = 'http://example.com/success'
 
-      const result = await controller.verifyEmail('test@example.com')
+      vi.spyOn(mockUserService, 'verifyEmail').mockResolvedValue(mockUser)
+      vi.spyOn(mockVCodeService, 'generateOwner').mockReturnValue(`${email}:${EmailType.VERIFY}`)
+      vi.spyOn(mockVCodeService, 'verify').mockResolvedValue(true)
 
-      expect(result).toEqual(mockUser)
-      expect(mockUserService.verifyEmail).toHaveBeenCalledWith('test@example.com')
+      await controller.verifyEmail(mockResponse as Response, email, vcode, redirect)
+
+      expect(mockVCodeService.generateOwner).toHaveBeenCalledWith(email, EmailType.VERIFY)
+      expect(mockVCodeService.verify).toHaveBeenCalledWith({ owner: `${email}:${EmailType.VERIFY}`, code: vcode })
+      expect(mockUserService.verifyEmail).toHaveBeenCalledWith(email)
+      expect(mockResponse.redirect).toHaveBeenCalledWith(`${redirect}?success=true`)
     })
 
-    it('should throw BadRequestException if email is not provided', async () => {
-      await expect(controller.verifyEmail('')).rejects.toThrow(BadRequestException)
+    it('should verify user email and return success message if no redirect URL', async () => {
+      const email = 'test@example.com'
+      const vcode = '123456'
+      const mockUser = { id: '1', email }
+
+      vi.spyOn(mockUserService, 'verifyEmail').mockResolvedValue(mockUser)
+      vi.spyOn(mockVCodeService, 'generateOwner').mockReturnValue(`${email}:${EmailType.VERIFY}`)
+      vi.spyOn(mockVCodeService, 'verify').mockResolvedValue(true)
+
+      await controller.verifyEmail(mockResponse as Response, email, vcode, '')
+
+      expect(mockVCodeService.generateOwner).toHaveBeenCalledWith(email, EmailType.VERIFY)
+      expect(mockVCodeService.verify).toHaveBeenCalledWith({ owner: `${email}:${EmailType.VERIFY}`, code: vcode })
+      expect(mockUserService.verifyEmail).toHaveBeenCalledWith(email)
+      expect(mockResponse.status).toHaveBeenCalledWith(200)
+      expect(mockResponse.json).toHaveBeenCalledWith('Email verified successfully')
+    })
+
+    it('should throw BadRequestException if email or vcode is not provided', async () => {
+      await expect(controller.verifyEmail(mockResponse as Response, '', '123456', '')).rejects.toThrow(BadRequestException)
+      await expect(controller.verifyEmail(mockResponse as Response, 'test@example.com', '', '')).rejects.toThrow(BadRequestException)
+    })
+
+    it('should redirect to error URL if verification fails', async () => {
+      const email = 'test@example.com'
+      const vcode = '123456'
+      const redirect = 'http://example.com/error'
+
+      vi.spyOn(mockVCodeService, 'generateOwner').mockReturnValue(`${email}:${EmailType.VERIFY}`)
+      vi.spyOn(mockVCodeService, 'verify').mockResolvedValue(false)
+
+      await controller.verifyEmail(mockResponse as Response, email, vcode, redirect)
+
+      expect(mockVCodeService.generateOwner).toHaveBeenCalledWith(email, EmailType.VERIFY)
+      expect(mockVCodeService.verify).toHaveBeenCalledWith({ owner: `${email}:${EmailType.VERIFY}`, code: vcode })
+      expect(mockResponse.redirect).toHaveBeenCalledWith(`${redirect}?error=Invalid verification code`)
+    })
+
+    it('should throw BadRequestException if verification fails and no redirect URL', async () => {
+      const email = 'test@example.com'
+      const vcode = '123456'
+
+      vi.spyOn(mockVCodeService, 'generateOwner').mockReturnValue(`${email}:${EmailType.VERIFY}`)
+      vi.spyOn(mockVCodeService, 'verify').mockResolvedValue(false)
+
+      await expect(controller.verifyEmail(mockResponse as Response, email, vcode, '')).rejects.toThrow(BadRequestException)
     })
   })
 })

@@ -1,5 +1,5 @@
+import type { VCode } from '@nextboard/common'
 import { Injectable } from '@nestjs/common'
-import type { VCode } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateVCodeDto } from './dto/create.dto'
 import { QueryVCodeDto } from './dto/query.dto'
@@ -48,5 +48,31 @@ export class VCodeService {
       return false
     }
     return token.expiredAt.getTime() > Date.now()
+  }
+
+  /**
+   * Check if the user(email) has a valid verification code
+   * @param {QueryVCodeDto} dto - Query object
+   * @returns {Promise<boolean>} True if the user has a valid code
+   */
+  async hasValidCode(dto: QueryVCodeDto): Promise<boolean> {
+    const token = await this.prisma.vCode.findFirst({
+      where: {
+        owner: dto.owner,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
+    if (!token) {
+      return false
+    }
+    return token.expiredAt.getTime() > Date.now()
+  }
+
+  generateOwner(owner: string, suffix?: string): string {
+    if (!suffix)
+      return owner
+    return `${owner}:${suffix}`
   }
 }
