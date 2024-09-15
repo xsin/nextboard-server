@@ -7,6 +7,7 @@ import { VCodeService } from '../vcode/vcode.service'
 import { MailService } from './mail.service'
 import { NodeMailerService } from './nodemailer.service'
 import { ResendService } from './resend.service'
+import { TemplateService } from './template.service'
 
 vi.mock('@/common/utils', () => ({
   randomCode: vi.fn().mockReturnValue('123456'),
@@ -18,11 +19,13 @@ describe('mailService', () => {
   let vcodeService: VCodeService
   let resendService: ResendService
   let nodemailerService: NodeMailerService
+  let templateService: TemplateService
 
   let service1: MailService
   let configService1: AppConfigService
   let vcodeService1: VCodeService
   let resendService1: ResendService
+  let templateService1: TemplateService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -43,6 +46,11 @@ describe('mailService', () => {
             NB_SMTP_PASS: 'password',
             NB_SMTP_SECURE: false,
             NB_MAIL_VERIFY_EXPIRY: 86400,
+            NB_MAIL_SUBJECT_OTP: 'NextBoard login code custom',
+            NB_BRAND_NAME: 'NextBoard',
+            description: 'NextBoard Description',
+            author: { name: 'Author', url: 'http://author.com' },
+            name: 'NextBoard',
           },
         },
         {
@@ -64,6 +72,12 @@ describe('mailService', () => {
           provide: NodeMailerService,
           useValue: {
             sendEmail: vi.fn(),
+          },
+        },
+        {
+          provide: TemplateService,
+          useValue: {
+            render: vi.fn(),
           },
         },
       ],
@@ -87,6 +101,11 @@ describe('mailService', () => {
             NB_SMTP_PASS: 'password',
             NB_SMTP_SECURE: false,
             NB_MAIL_VERIFY_EXPIRY: 86400,
+            NB_MAIL_SUBJECT_OTP: '',
+            NB_BRAND_NAME: 'NextBoard',
+            description: 'NextBoard Description',
+            author: { name: 'Author', url: 'http://author.com' },
+            name: 'NextBoard',
           },
         },
         {
@@ -110,6 +129,12 @@ describe('mailService', () => {
             sendEmail: vi.fn(),
           },
         },
+        {
+          provide: TemplateService,
+          useValue: {
+            render: vi.fn(),
+          },
+        },
       ],
     }).compile()
 
@@ -118,11 +143,13 @@ describe('mailService', () => {
     vcodeService = module.get<VCodeService>(VCodeService)
     resendService = module.get<ResendService>(ResendService)
     nodemailerService = module.get<NodeMailerService>(NodeMailerService)
+    templateService = module.get<TemplateService>(TemplateService)
 
     configService1 = module1.get<AppConfigService>(AppConfigService)
     vcodeService1 = module1.get<VCodeService>(VCodeService)
     resendService1 = module1.get<ResendService>(ResendService)
     service1 = module1.get<MailService>(MailService)
+    templateService1 = module1.get<TemplateService>(TemplateService)
   })
 
   it('should be defined', () => {
@@ -138,6 +165,9 @@ describe('mailService', () => {
         error: null,
       })
 
+      const defaultHtmlContent = '<p>Default verification email</p>'
+      const templateRenderMock = vi.spyOn(templateService1, 'render').mockResolvedValue(defaultHtmlContent)
+
       const result = await service1.sendVerificationEmail(email, undefined, EmailService.RESEND)
       const defaultSubject = 'Welcome to NextBoard, Pls verify your email address'
 
@@ -145,8 +175,19 @@ describe('mailService', () => {
         from: configService1.RESEND_FROM,
         to: email,
         subject: defaultSubject,
-        html: expect.stringContaining('/user/verify?email='),
+        html: defaultHtmlContent,
       })
+
+      expect(templateRenderMock).toHaveBeenCalledWith('verify', {
+        verifyUrl: expect.stringContaining('http://localhost/user/verify?email='),
+        brandName: 'NextBoard',
+        brandDesc: 'NextBoard Description',
+        authorName: 'Author',
+        authorUrl: 'http://author.com',
+        appName: 'NextBoard',
+        appUrl: 'http://localhost',
+      })
+
       expect(result).toEqual({
         time: expect.any(Date),
         type: EmailType.VERIFY,
@@ -161,13 +202,16 @@ describe('mailService', () => {
         error: null,
       })
 
+      const defaultHtmlContent = '<p>Default verification email</p>'
+      vi.spyOn(templateService, 'render').mockResolvedValue(defaultHtmlContent)
+
       const result = await service.sendVerificationEmail(email, undefined, EmailService.RESEND)
 
       expect(sendMock).toHaveBeenCalledWith({
         from: configService.RESEND_FROM,
         to: email,
         subject: configService.NB_MAIL_SUBJECT_VERIFY,
-        html: expect.stringContaining('Verify Email'),
+        html: defaultHtmlContent,
       })
       expect(result).toEqual({
         time: expect.any(Date),
@@ -183,13 +227,16 @@ describe('mailService', () => {
         error: null,
       })
 
+      const defaultHtmlContent = '<p>Default verification email</p>'
+      vi.spyOn(templateService, 'render').mockResolvedValue(defaultHtmlContent)
+
       const result = await service.sendVerificationEmail(email, undefined, EmailService.NODEMAILER)
 
       expect(sendMock).toHaveBeenCalledWith({
         from: configService.RESEND_FROM,
         to: email,
         subject: configService.NB_MAIL_SUBJECT_VERIFY,
-        html: expect.stringContaining('Verify Email'),
+        html: defaultHtmlContent,
       })
       expect(result).toEqual({
         time: expect.any(Date),
@@ -243,6 +290,46 @@ describe('mailService', () => {
   })
 
   describe('sendOTP', () => {
+    it('should send an OTP email with default subject using ResendService', async () => {
+      const email = 'test@example.com'
+      const code = '123456'
+      const expiresInMs = configService.NB_OTP_EXPIRY * 1000
+      vi.spyOn(vcodeService1, 'hasValidCode').mockResolvedValue(false)
+      const sendMock = vi.spyOn(resendService1, 'sendEmail').mockResolvedValue({
+        data: { id: '123456' },
+        error: null,
+      })
+      const createMock = vi.spyOn(vcodeService1, 'create').mockResolvedValue({
+        id: 1,
+        owner: email,
+        code,
+        expiredAt: expect.any(Date),
+        createdAt: expect.any(Date),
+      })
+
+      const defaultHtmlContent = '<p>Your OTP code is 123456</p>'
+      vi.spyOn(templateService1, 'render').mockResolvedValue(defaultHtmlContent)
+
+      const result = await service1.sendOTP(email, EmailService.RESEND)
+
+      expect(createMock).toHaveBeenCalledWith({
+        owner: email,
+        code,
+        expiredAt: expect.any(Date),
+      })
+      expect(sendMock).toHaveBeenCalledWith({
+        from: configService1.RESEND_FROM,
+        to: email,
+        subject: 'NextBoard login code',
+        html: defaultHtmlContent,
+      })
+      expect(result).toEqual({
+        time: expect.any(Date),
+        duration: expiresInMs,
+        type: EmailType.OTP,
+      })
+    })
+
     it('should send an OTP email using ResendService', async () => {
       const email = 'test@example.com'
       const code = '123456'
@@ -260,6 +347,9 @@ describe('mailService', () => {
         createdAt: expect.any(Date),
       })
 
+      const defaultHtmlContent = '<p>Your OTP code is 123456</p>'
+      vi.spyOn(templateService, 'render').mockResolvedValue(defaultHtmlContent)
+
       const result = await service.sendOTP(email, EmailService.RESEND)
 
       expect(createMock).toHaveBeenCalledWith({
@@ -270,8 +360,8 @@ describe('mailService', () => {
       expect(sendMock).toHaveBeenCalledWith({
         from: configService.RESEND_FROM,
         to: email,
-        subject: 'NextBoard login code',
-        html: `Your login verification code is ${code}`,
+        subject: configService.NB_MAIL_SUBJECT_OTP,
+        html: defaultHtmlContent,
       })
       expect(result).toEqual({
         time: expect.any(Date),
@@ -297,6 +387,9 @@ describe('mailService', () => {
         createdAt: expect.any(Date),
       })
 
+      const defaultHtmlContent = '<p>Your OTP code is 123456</p>'
+      vi.spyOn(templateService, 'render').mockResolvedValue(defaultHtmlContent)
+
       const result = await service.sendOTP(email, EmailService.NODEMAILER)
 
       expect(createMock).toHaveBeenCalledWith({
@@ -307,8 +400,8 @@ describe('mailService', () => {
       expect(sendMock).toHaveBeenCalledWith({
         from: configService.RESEND_FROM,
         to: email,
-        subject: 'NextBoard login code',
-        html: `Your login verification code is ${code}`,
+        subject: configService.NB_MAIL_SUBJECT_OTP,
+        html: defaultHtmlContent,
       })
       expect(result).toEqual({
         time: expect.any(Date),

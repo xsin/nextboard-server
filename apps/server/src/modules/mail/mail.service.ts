@@ -1,3 +1,4 @@
+import type { IEmailContext } from '@/types'
 import type { ISendEmailResult } from '@nextboard/common'
 import { randomCode } from '@/common/utils'
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common'
@@ -7,6 +8,7 @@ import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'
 import { NodeMailerService } from './nodemailer.service'
 import { ResendService } from './resend.service'
+import { TemplateService } from './template.service'
 
 /**
  * Service for sending emails.
@@ -18,6 +20,7 @@ export class MailService {
     private readonly vcodeService: VCodeService,
     private readonly resendService: ResendService,
     private readonly nodemailerService: NodeMailerService,
+    private readonly tplService: TemplateService,
   ) {}
 
   /**
@@ -54,17 +57,28 @@ export class MailService {
     })
 
     const apiPrefix = this.configService.NB_API_PREFIX ? `${this.configService.NB_API_PREFIX}/` : ''
-    const verificationLink = `${this.configService.NB_BASE_URL}/${apiPrefix}user/verify?email=${email}&vcode=${code}`
+    const verifyUrl = `${this.configService.NB_BASE_URL}/${apiPrefix}user/verify?email=${email}&vcode=${code}`
     const subject = this.configService.NB_MAIL_SUBJECT_VERIFY || 'Welcome to NextBoard, Pls verify your email address'
 
-    htmlContent = htmlContent ?? `<h1>Please verify your email address by clicking on the link below:</h1>
-                                  <a href="{{verificationLink}}">Verify Email</a>`
+    const ctxData: IEmailContext = {
+      verifyUrl,
+      brandName: this.configService.NB_BRAND_NAME,
+      brandDesc: this.configService.description,
+      authorName: this.configService.author.name,
+      authorUrl: this.configService.author.url,
+      appName: this.configService.name,
+      appUrl: this.configService.NB_BASE_URL,
+    }
+
+    const defaultHtmlContent = await this.tplService.render('verify', ctxData)
+
+    htmlContent = htmlContent ? template(htmlContent, ctxData) : defaultHtmlContent
 
     const mailOptions = {
       from: this.configService.RESEND_FROM,
       to: email,
       subject,
-      html: template(htmlContent, { verificationLink }),
+      html: htmlContent,
     }
 
     const result = serviceType === EmailService.NODEMAILER
@@ -108,11 +122,25 @@ export class MailService {
       expiredAt,
     })
 
+    const subject = this.configService.NB_MAIL_SUBJECT_OTP || 'NextBoard login code'
+
+    const ctxData: IEmailContext = {
+      vCode: code,
+      brandName: this.configService.NB_BRAND_NAME,
+      brandDesc: this.configService.description,
+      authorName: this.configService.author.name,
+      authorUrl: this.configService.author.url,
+      appName: this.configService.name,
+      appUrl: this.configService.NB_BASE_URL,
+    }
+
+    const html = await this.tplService.render('otp', ctxData)
+
     const mailOptions = {
       from: this.configService.RESEND_FROM,
       to: email,
-      subject: 'NextBoard login code',
-      html: `Your login verification code is ${code}`,
+      subject,
+      html,
     }
 
     const result = serviceType === EmailService.NODEMAILER

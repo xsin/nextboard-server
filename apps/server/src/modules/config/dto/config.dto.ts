@@ -24,6 +24,9 @@ export class ConfigDto implements IConfigDto {
   NB_MAIL_SUBJECT_VERIFY: string
 
   @IsString()
+  NB_MAIL_SUBJECT_OTP: string
+
+  @IsString()
   DATABASE_URL: string
 
   @IsString()
@@ -96,4 +99,10 @@ export class ConfigDto implements IConfigDto {
 
   @IsBoolean()
   NB_SMTP_SECURE: boolean
+
+  @IsInt()
+  NB_MAIL_VERIFY_EXPIRY: number
+
+  @IsString()
+  NB_BRAND_NAME: string
 }

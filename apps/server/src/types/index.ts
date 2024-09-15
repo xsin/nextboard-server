@@ -69,4 +69,8 @@ export interface IConfigDto extends IPackageInfo {
   NB_SMTP_PASS: string
   NB_SMTP_SECURE: boolean
 
+  NB_MAIL_VERIFY_EXPIRY: number
+
+  NB_BRAND_NAME: string
+
 }

@@ -19,7 +19,6 @@ describe('appConfigService', () => {
     [C.C_API_PREFIX]: '/api',
     [C.C_RESEND_API_KEY]: 'test_key',
     [C.C_RESEND_FROM]: 'test@example.com',
-    [C.C_NB_MAIL_SUBJECT_VERIFY]: 'Verify your email',
     [C.C_DATABASE_URL]: 'postgresql://user:password@localhost:5432/db',
     [C.C_DIRECT_URL]: 'postgresql://user:password@localhost:5432/db',
     [C.C_JWT_EXPIRY]: 3600,
@@ -34,7 +33,10 @@ describe('appConfigService', () => {
     [C.C_NB_SMTP_USER]: 'user',
     [C.C_NB_SMTP_PASS]: 'password',
     [C.C_NB_SMTP_SECURE]: false,
+    [C.C_NB_MAIL_SUBJECT_VERIFY]: 'Verify your email',
+    [C.C_NB_MAIL_SUBJECT_OTP]: 'Your OTP Code',
     [C.C_NB_MAIL_VERIFY_EXPIRY]: 86400,
+    [C.C_NB_BRAND_NAME]: 'brand_name',
   }
 
   const mockPackageInfo = {
@@ -82,7 +84,6 @@ describe('appConfigService', () => {
     expect(service.NB_API_PREFIX).toBe(mockConfig[C.C_API_PREFIX])
     expect(service.RESEND_API_KEY).toBe(mockConfig[C.C_RESEND_API_KEY])
     expect(service.RESEND_FROM).toBe(mockConfig[C.C_RESEND_FROM])
-    expect(service.NB_MAIL_SUBJECT_VERIFY).toBe(mockConfig[C.C_NB_MAIL_SUBJECT_VERIFY])
     expect(service.DATABASE_URL).toBe(mockConfig[C.C_DATABASE_URL])
     expect(service.DIRECT_URL).toBe(mockConfig[C.C_DIRECT_URL])
     expect(service.JWT_EXPIRY).toBe(mockConfig[C.C_JWT_EXPIRY])
@@ -97,7 +98,10 @@ describe('appConfigService', () => {
     expect(service.NB_SMTP_USER).toBe(mockConfig[C.C_NB_SMTP_USER])
     expect(service.NB_SMTP_PASS).toBe(mockConfig[C.C_NB_SMTP_PASS])
     expect(service.NB_SMTP_SECURE).toBe(mockConfig[C.C_NB_SMTP_SECURE])
+    expect(service.NB_MAIL_SUBJECT_VERIFY).toBe(mockConfig[C.C_NB_MAIL_SUBJECT_VERIFY])
+    expect(service.NB_MAIL_SUBJECT_OTP).toBe(mockConfig[C.C_NB_MAIL_SUBJECT_OTP])
     expect(service.NB_MAIL_VERIFY_EXPIRY).toBe(mockConfig[C.C_NB_MAIL_VERIFY_EXPIRY])
+    expect(service.NB_BRAND_NAME).toBe(mockConfig[C.C_NB_BRAND_NAME])
   })
 
   it('should load package information', () => {

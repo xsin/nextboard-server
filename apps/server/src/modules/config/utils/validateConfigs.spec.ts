@@ -11,7 +11,6 @@ describe('validateConfigs', () => {
       NB_API_PREFIX: '/api',
       RESEND_API_KEY: 'test_key',
       RESEND_FROM: 'test@example.com',
-      NB_MAIL_SUBJECT_VERIFY: 'Verify your email',
       DATABASE_URL: 'postgresql://user:password@localhost:5432/db',
       DIRECT_URL: 'postgresql://user:password@localhost:5432/db',
       JWT_EXPIRY: 3600,
@@ -26,7 +25,10 @@ describe('validateConfigs', () => {
       NB_SMTP_USER: 'user',
       NB_SMTP_PASS: 'password',
       NB_SMTP_SECURE: false,
+      NB_MAIL_SUBJECT_VERIFY: 'Verify your email',
+      NB_MAIL_SUBJECT_OTP: 'Your OTP Code',
       NB_MAIL_VERIFY_EXPIRY: 86400,
+      NB_BRAND_NAME: 'brand_name',
     }
 
     const result = validateConfigs(validConfig)
@@ -41,7 +43,6 @@ describe('validateConfigs', () => {
       NB_API_PREFIX: 123,
       RESEND_API_KEY: '',
       RESEND_FROM: 'not an email',
-      NB_MAIL_SUBJECT_VERIFY: '',
       DATABASE_URL: '',
       DIRECT_URL: '',
       JWT_EXPIRY: 'not a number',
@@ -56,7 +57,10 @@ describe('validateConfigs', () => {
       NB_SMTP_USER: 'user',
       NB_SMTP_PASS: 'password',
       NB_SMTP_SECURE: false,
+      NB_MAIL_SUBJECT_VERIFY: '',
+      NB_MAIL_SUBJECT_OTP: 'Your OTP Code',
       NB_MAIL_VERIFY_EXPIRY: 86400,
+      NB_BRAND_NAME: 'brand_name',
     }
 
     expect(() => validateConfigs(invalidConfig)).toThrow()
@@ -69,7 +73,6 @@ describe('validateConfigs', () => {
       NB_API_PREFIX: '/api',
       RESEND_API_KEY: 'test_key',
       RESEND_FROM: 'test@example.com',
-      NB_MAIL_SUBJECT_VERIFY: 'Verify your email',
       DATABASE_URL: 'postgresql://user:password@localhost:5432/db',
       DIRECT_URL: 'postgresql://user:password@localhost:5432/db',
       JWT_EXPIRY: 3600,
@@ -84,7 +87,10 @@ describe('validateConfigs', () => {
       NB_SMTP_USER: 'user',
       NB_SMTP_PASS: 'password',
       NB_SMTP_SECURE: false,
+      NB_MAIL_SUBJECT_VERIFY: 'Verify your email',
+      NB_MAIL_SUBJECT_OTP: 'Your OTP Code',
       NB_MAIL_VERIFY_EXPIRY: 86400,
+      NB_BRAND_NAME: 'brand_name',
       name: 'MyApp',
       description: 'My awesome app',
       keywords: ['app', 'awesome'],

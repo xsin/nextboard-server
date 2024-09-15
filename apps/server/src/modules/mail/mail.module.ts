@@ -3,6 +3,7 @@ import { VCodeModule } from '../vcode/vcode.module'
 import { MailService } from './mail.service'
 import { NodeMailerService } from './nodemailer.service'
 import { ResendService } from './resend.service'
+import { TemplateService } from './template.service'
 
 @Module({
   imports: [
@@ -11,11 +12,13 @@ import { ResendService } from './resend.service'
   providers: [
     ResendService,
     NodeMailerService,
+    TemplateService,
     MailService,
   ],
   exports: [
     ResendService,
     NodeMailerService,
+    TemplateService,
     MailService,
   ],
 })
