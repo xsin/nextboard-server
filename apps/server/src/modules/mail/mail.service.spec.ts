@@ -1,6 +1,6 @@
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { EmailService, EmailType } from '@nextboard/common'
+import { EmailService, EmailType, NBError } from '@nextboard/common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'
@@ -156,6 +156,18 @@ describe('mailService', () => {
     expect(service).toBeDefined()
   })
 
+  describe('getFromEmail', () => {
+    it('should return NB_SMTP_USER when serviceType is NODEMAILER', () => {
+      const result = service.getFromEmail(EmailService.NODEMAILER)
+      expect(result).toBe(configService.NB_SMTP_USER)
+    })
+
+    it('should return RESEND_FROM when serviceType is RESEND', () => {
+      const result = service.getFromEmail(EmailService.RESEND)
+      expect(result).toBe(configService.RESEND_FROM)
+    })
+  })
+
   describe('sendVerificationEmail', () => {
     it('should send a verification email using default subject', async () => {
       const email = 'test@example.com'
@@ -233,7 +245,7 @@ describe('mailService', () => {
       const result = await service.sendVerificationEmail(email, undefined, EmailService.NODEMAILER)
 
       expect(sendMock).toHaveBeenCalledWith({
-        from: configService.RESEND_FROM,
+        from: configService.NB_SMTP_USER,
         to: email,
         subject: configService.NB_MAIL_SUBJECT_VERIFY,
         html: defaultHtmlContent,
@@ -278,7 +290,7 @@ describe('mailService', () => {
       })
 
       await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(InternalServerErrorException)
-      await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow('Resend API error')
+      await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(NBError.EMAIL_SENT_FAILED)
     })
 
     it('should throw a BadRequestException if a valid verification email already sent', async () => {
@@ -286,6 +298,7 @@ describe('mailService', () => {
       vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(true)
 
       await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(BadRequestException)
+      await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(NBError.EMAIL_ALREADY_SENT)
     })
   })
 
@@ -398,7 +411,7 @@ describe('mailService', () => {
         expiredAt: expect.any(Date),
       })
       expect(sendMock).toHaveBeenCalledWith({
-        from: configService.RESEND_FROM,
+        from: configService.NB_SMTP_USER,
         to: email,
         subject: configService.NB_MAIL_SUBJECT_OTP,
         html: defaultHtmlContent,
@@ -424,6 +437,7 @@ describe('mailService', () => {
       vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(true)
 
       await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(BadRequestException)
+      await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(NBError.AUTH_OTP_EXISTS)
     })
 
     it('should throw an InternalServerErrorException if Resend returns an error for OTP email', async () => {
@@ -441,7 +455,7 @@ describe('mailService', () => {
       })
 
       await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(InternalServerErrorException)
-      await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow('Resend API error for OTP')
+      await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(NBError.EMAIL_SENT_FAILED)
     })
   })
 })

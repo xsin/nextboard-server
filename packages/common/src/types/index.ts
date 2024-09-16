@@ -1,5 +1,6 @@
 export * from './common'
 export * from './dict'
+export * from './error'
 export * from './mail'
 export * from './prisma'
 export * from './role'

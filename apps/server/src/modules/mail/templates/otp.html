@@ -31,21 +31,38 @@
         vertical-align: top;
       }
       /* -------------------------------------
+    TYPOGRAPHY
+------------------------------------- */
+
+      .nb-mail p {
+        font-family: Helvetica, sans-serif;
+        font-size: 16px;
+        font-weight: normal;
+        margin: 0;
+        margin-bottom: 16px;
+      }
+
+      .nb-mail a,
+      .nb-mail-vcode {
+        color: #0867ec;
+        text-decoration: underline;
+      }
+      /* -------------------------------------
     BODY & CONTAINER
 ------------------------------------- */
 
-      body {
+      .nb-mail {
         background-color: #f4f5f6;
         margin: 0;
         padding: 0;
       }
 
-      .body {
+      .nb-mail-body {
         background-color: #f4f5f6;
         width: 100%;
       }
 
-      .container {
+      .nb-mail-container {
         margin: 0 auto !important;
         max-width: 600px;
         padding: 0;
@@ -53,7 +70,7 @@
         width: 600px;
       }
 
-      .content {
+      .nb-mail-content {
         box-sizing: border-box;
         display: block;
         margin: 0 auto;
@@ -64,76 +81,59 @@
     HEADER, FOOTER, MAIN
 ------------------------------------- */
 
-      .main {
+      .nb-mail-main {
         background: #ffffff;
         border: 1px solid #eaebed;
         border-radius: 16px;
         width: 100%;
       }
 
-      .wrapper {
+      .nb-mail-wrapper {
         box-sizing: border-box;
         padding: 24px;
       }
 
-      .footer {
+      .nb-mail-footer {
         clear: both;
         padding-top: 24px;
         text-align: center;
         width: 100%;
       }
 
-      .footer td,
-      .footer p,
-      .footer span,
-      .footer a {
+      .nb-mail-footer td,
+      .nb-mail-footer p,
+      .nb-mail-footer span,
+      .nb-mail-footer a {
         color: #9a9ea6;
         font-size: 16px;
         text-align: center;
       }
       /* -------------------------------------
-    TYPOGRAPHY
-------------------------------------- */
-
-      p {
-        font-family: Helvetica, sans-serif;
-        font-size: 16px;
-        font-weight: normal;
-        margin: 0;
-        margin-bottom: 16px;
-      }
-
-      a,
-      .vcode {
-        color: #0867ec;
-        text-decoration: underline;
-      }
-      /* -------------------------------------
     BUTTONS
 ------------------------------------- */
 
-      .btn {
+      .nb-mail-btn {
         box-sizing: border-box;
         min-width: 100% !important;
         width: 100%;
       }
 
-      .btn > tbody > tr > td {
+      .nb-mail-btn > tbody > tr > td {
         padding-bottom: 16px;
       }
 
-      .btn table {
+      .nb-mail-btn table {
         width: auto;
       }
 
-      .btn table td {
+      .nb-mail-btn table td {
         background-color: #ffffff;
         border-radius: 4px;
         text-align: center;
       }
 
-      .btn a,
-      .vcode {
+      .nb-mail-btn a,
+      .nb-mail-vcode {
         background-color: #ffffff;
         border: solid 2px #0867ec;
         border-radius: 4px;
@@ -147,34 +147,34 @@
         text-decoration: none;
       }
 
-      .btn a {
+      .nb-mail-btn a {
         cursor: pointer;
         text-transform: capitalize;
       }
 
-      .vcode {
+      .nb-mail-vcode {
         cursor: text;
         font-size: 20px;
         text-transform: none;
         letter-spacing: 5px;
       }
 
-      .btn-primary table td {
+      .nb-mail-btn-primary table td {
         background-color: #0867ec;
       }
 
-      .btn-primary a,
-      .btn-primary .vcode {
+      .nb-mail-btn-primary a,
+      .nb-mail-btn-primary .nb-mail-vcode {
         background-color: #0867ec;
         border-color: #0867ec;
         color: #ffffff;
       }
 
       @media all {
-        .btn-primary table td:hover {
+        .nb-mail-btn-primary table td:hover {
           background-color: #ec0867 !important;
         }
-        .btn-primary a:hover {
+        .nb-mail-btn-primary a:hover {
           background-color: #ec0867 !important;
           border-color: #ec0867 !important;
         }
@@ -184,44 +184,44 @@
     OTHER STYLES THAT MIGHT BE USEFUL
 ------------------------------------- */
 
-      .last {
+      .nb-mail-last {
         margin-bottom: 0;
       }
 
-      .first {
+      .nb-mail-first {
         margin-top: 0;
       }
 
-      .align-center {
+      .nb-mail-align-center {
         text-align: center;
       }
 
-      .align-right {
+      .nb-mail-align-right {
         text-align: right;
       }
 
-      .align-left {
+      .nb-mail-align-left {
         text-align: left;
       }
 
-      .text-link {
+      .nb-mail-text-link {
         color: #0867ec !important;
         text-decoration: underline !important;
       }
 
-      .clear {
+      .nb-mail-clear {
         clear: both;
       }
 
-      .mt0 {
+      .nb-mail-mt0 {
         margin-top: 0;
       }
 
-      .mb0 {
+      .nb-mail-mb0 {
         margin-bottom: 0;
       }
 
-      .preheader {
+      .nb-mail-preheader {
         color: transparent;
         display: none;
         height: 0;
@@ -234,7 +234,7 @@
         width: 0;
       }
 
-      .powered-by a {
+      .nb-mail-powered-by a {
         text-decoration: none;
       }
 
@@ -243,37 +243,37 @@
 ------------------------------------- */
 
       @media only screen and (max-width: 640px) {
-        .main p,
-        .main td,
-        .main span {
+        .nb-mail-main p,
+        .nb-mail-main td,
+        .nb-mail-main span {
           font-size: 16px !important;
         }
-        .wrapper {
+        .nb-mail-wrapper {
           padding: 8px !important;
         }
-        .content {
+        .nb-mail-content {
           padding: 0 !important;
         }
-        .container {
+        .nb-mail-container {
           padding: 0 !important;
           padding-top: 8px !important;
           width: 100% !important;
         }
-        .main {
+        .nb-mail-main {
           border-left-width: 0 !important;
           border-radius: 0 !important;
           border-right-width: 0 !important;
         }
-        .btn table {
+        .nb-mail-btn table {
           max-width: 100% !important;
           width: 100% !important;
         }
-        .btn a {
+        .nb-mail-btn a {
           font-size: 16px !important;
           max-width: 100% !important;
           width: 100% !important;
         }
-        .vcode {
+        .nb-mail-vcode {
           font-size: 18px !important;
           letter-spacing: 5px !important;
           max-width: 100% !important;
@@ -296,14 +296,6 @@
         .ExternalClass div {
           line-height: 100%;
         }
-        .apple-link a {
-          color: inherit !important;
-          font-family: inherit !important;
-          font-size: inherit !important;
-          font-weight: inherit !important;
-          line-height: inherit !important;
-          text-decoration: none !important;
-        }
         #MessageViewBody a {
           color: inherit;
           text-decoration: none;
@@ -315,28 +307,34 @@
       }
     </style>
   </head>
-  <body>
-    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="body">
+  <body class="nb-mail">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="nb-mail-body">
       <tr>
         <td>&nbsp;</td>
-        <td class="container">
-          <div class="content">
+        <td class="nb-mail-container">
+          <div class="nb-mail-content">
             <!-- START CENTERED WHITE CONTAINER -->
-            <span class="preheader">Enjoy your life at {{ brandName }}.</span>
-            <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="main">
+            <span class="nb-mail-preheader">Enjoy your life at {{brandName}}.</span>
+            <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="nb-mail-main">
               <!-- START MAIN CONTENT AREA -->
               <tr>
-                <td class="wrapper">
-                  <h2>Welcome to {{ brandName }}</h2>
+                <td class="nb-mail-wrapper">
+                  <h2>Welcome to {{brandName}}</h2>
                   <p>Your one-time login verification code is:</p>
-                  <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+                  <table
+                    role="presentation"
+                    border="0"
+                    cellpadding="0"
+                    cellspacing="0"
+                    class="nb-mail-btn nb-mail-btn-primary"
+                  >
                     <tbody>
                       <tr>
                         <td align="left">
                           <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                             <tbody>
                               <tr>
-                                <td><span class="vcode">{{ vCode }}</span></td>
+                                <td><span class="nb-mail-vcode">{{vCode}}</span></td>
                               </tr>
                             </tbody>
                           </table>
@@ -344,7 +342,7 @@
                       </tr>
                     </tbody>
                   </table>
-                  <p>{{ brandDesc }}</p>
+                  <p>{{brandDesc}}</p>
                   <p>Good luck and have a nice day!</p>
                 </td>
               </tr>
@@ -353,16 +351,16 @@
             </table>
 
             <!-- START FOOTER -->
-            <div class="footer">
+            <div class="nb-mail-footer">
               <table role="presentation" border="0" cellpadding="0" cellspacing="0">
                 <tr>
-                  <td class="content-block">
-                    <a href="{{ authorUrl }}" target="_blank"><span class="apple-link">{{ authorName }}</span></a>
+                  <td class="nb-mail-content-block">
+                    <a href="{{authorUrl}}" target="_blank">{{authorName}}</a>
                   </td>
                 </tr>
                 <tr>
-                  <td class="content-block powered-by">
-                    Powered by <a href="{{ appUrl }}" target="_blank">{{ appName }}</a>
+                  <td class="nb-mail-content-block nb-mail-powered-by">
+                    Powered by <a href="{{appUrl}}" target="_blank">{{appName}}</a>
                   </td>
                 </tr>
               </table>

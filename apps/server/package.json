@@ -16,8 +16,8 @@
   "scripts": {
     "build": "nest build && ts-node scripts/copyfiles.ts",
     "start": "nest start",
-    "start:dev": "ts-node scripts/copyfiles.ts && nest start --watch",
-    "start:debug": "ts-node scripts/copyfiles.ts && nest start --debug --watch",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
     "prisma:seed": "ts-node prisma/seed.ts",
     "prisma:gen": "prisma generate",
     "prisma:migrate": "prisma migrate dev",

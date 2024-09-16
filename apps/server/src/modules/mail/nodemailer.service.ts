@@ -1,13 +1,14 @@
 import type { ICreateEmailResponse, INodeMailerResponse, TCreateEmailOptions } from '@/types'
 
 import type { SendMailOptions, Transporter } from 'nodemailer'
-import { Injectable } from '@nestjs/common'
+import { Injectable, Logger } from '@nestjs/common'
 import { createTransport } from 'nodemailer'
 import { AppConfigService } from '../config/config.service'
 
 @Injectable()
 export class NodeMailerService {
   private sender: Transporter
+  private readonly logger = new Logger(NodeMailerService.name)
 
   constructor(private readonly configService: AppConfigService) {
     this.sender = createTransport({
@@ -38,6 +39,7 @@ export class NodeMailerService {
       }
     }
     catch (e) {
+      this.logger.error(e)
       return {
         data: null,
         error: e,

@@ -2,7 +2,7 @@ import type { IEmailContext } from '@/types'
 import type { ISendEmailResult } from '@nextboard/common'
 import { randomCode } from '@/common/utils'
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common'
-import { EmailService, EmailType } from '@nextboard/common'
+import { EmailService, EmailType, NBError } from '@nextboard/common'
 import { template } from 'radash'
 import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'
@@ -42,7 +42,7 @@ export class MailService {
     // Check if the user has a valid code
     const hasValidCode = await this.vcodeService.hasValidCode({ owner })
     if (hasValidCode) {
-      throw new BadRequestException('A valid verification email already sent!')
+      throw new BadRequestException(NBError.EMAIL_ALREADY_SENT)
     }
 
     // Create token record in the database
@@ -75,7 +75,7 @@ export class MailService {
     htmlContent = htmlContent ? template(htmlContent, ctxData) : defaultHtmlContent
 
     const mailOptions = {
-      from: this.configService.RESEND_FROM,
+      from: this.getFromEmail(serviceType),
       to: email,
       subject,
       html: htmlContent,
@@ -86,13 +86,17 @@ export class MailService {
       : await this.resendService.sendEmail(mailOptions)
 
     if (result.error) {
-      throw new InternalServerErrorException(result.error.message)
+      throw new InternalServerErrorException(NBError.EMAIL_SENT_FAILED, result.error.message)
     }
 
     return {
       time: new Date(),
       type: EmailType.VERIFY,
     }
+  }
+
+  getFromEmail(serviceType: EmailService): string {
+    return serviceType === EmailService.RESEND ? this.configService.RESEND_FROM : this.configService.NB_SMTP_USER
   }
 
   /**
@@ -108,7 +112,7 @@ export class MailService {
     // Check if the user has a valid code
     const hasValidCode = await this.vcodeService.hasValidCode({ owner: email })
     if (hasValidCode) {
-      throw new BadRequestException('A valid OTP already exists')
+      throw new BadRequestException(NBError.AUTH_OTP_EXISTS)
     }
 
     // Create token record in the database
@@ -137,7 +141,7 @@ export class MailService {
     const html = await this.tplService.render('otp', ctxData)
 
     const mailOptions = {
-      from: this.configService.RESEND_FROM,
+      from: this.getFromEmail(serviceType),
       to: email,
       subject,
       html,
@@ -148,7 +152,7 @@ export class MailService {
       : await this.resendService.sendEmail(mailOptions)
 
     if (result.error) {
-      throw new InternalServerErrorException(result.error.message)
+      throw new InternalServerErrorException(NBError.EMAIL_SENT_FAILED, result.error.message)
     }
 
     return {

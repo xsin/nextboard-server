@@ -5,8 +5,6 @@ import process from 'node:process'
 // relative to project root directory
 const destinations = [
   ['package.json', 'dist/package.json'],
-  ['src/modules/mail/templates/otp.html', 'dist/modules/mail/templates/otp.html'],
-  ['src/modules/mail/templates/verify.html', 'dist/modules/mail/templates/verify.html'],
 ]
 
 const currentDir = process.cwd()
