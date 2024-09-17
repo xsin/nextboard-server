@@ -1,12 +1,13 @@
 import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
 import { ListQueryDto, ListQueryResult } from '@/common/dto'
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, Request as Req, Res } from '@nestjs/common'
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger'
-import { EmailType, TPermission } from '@nextboard/common'
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { EmailType, NBError, TPermission } from '@nextboard/common'
 import { TAccountProvider, TAccountType } from '@prisma/client'
 import { Request, Response } from 'express'
 import { CreateAccountDto } from '../account/dto/create.dto'
 import { Permissions } from '../auth/decorators/permissions.decorator'
+import { Public } from '../auth/decorators/public.decorator'
 import { ResourceDto } from '../resource/dto/resource.dto'
 import { VCodeService } from '../vcode/vcode.service'
 import { CreateUserDto } from './dto/create.dto'
@@ -55,33 +56,6 @@ export class UserController {
     return this.userService.findAll(dto)
   }
 
-  @Get(':id')
-  @NBApiResponse(UserDto, {
-    description: 'Get a user by ID',
-  })
-  @ApiOperation({ summary: 'Get a user by ID' })
-  async findOne(@Param('id') id: string): Promise<UserDto> {
-    return this.userService.findOne(id)
-  }
-
-  @Patch(':id')
-  @NBApiResponse(UserDto, {
-    description: 'Update a user by ID',
-  })
-  @ApiOperation({ summary: 'Update a user by ID' })
-  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<UserDto> {
-    return this.userService.update(id, updateUserDto)
-  }
-
-  @Delete(':id')
-  @NBApiResponse(UserDto, {
-    description: 'Delete a user by ID',
-  })
-  @ApiOperation({ summary: 'Delete a user by ID' })
-  async remove(@Param('id') id: string): Promise<UserDto> {
-    return this.userService.remove(id)
-  }
-
   @NBApiResponsePaginated(ResourceDto, {
     description: 'Get user resources',
   })
@@ -113,7 +87,9 @@ export class UserController {
     return this.userService.getUserProfileByEmail(req.user?.email)
   }
 
-  @ApiOperation({ summary: 'Verify user email' })
+  @Public()
+  @ApiOperation({ summary: 'Verify user email', security: [] })
+  @ApiQuery({ name: 'redirect', required: false, description: 'Optional redirect URL after verification' })
   @Get('verify')
   async verifyEmail(
     @Res() res: Response,
@@ -122,7 +98,7 @@ export class UserController {
     @Query('redirect') redirect: string,
   ): Promise<void> {
     if (!email || !vcode) {
-      throw new BadRequestException('"email" or "vcode" parameter is required')
+      throw new BadRequestException(NBError.INVALID_PARAMETERS)
     }
 
     // Verify the vcode
@@ -134,9 +110,9 @@ export class UserController {
 
     if (!isValid) {
       if (redirect) {
-        return res.redirect(`${redirect}?error=Invalid verification code`)
+        return res.redirect(`${redirect}?error=${NBError.AUTH_INVALID_OTP}`)
       }
-      throw new BadRequestException('Invalid verification code')
+      throw new BadRequestException(NBError.AUTH_INVALID_OTP)
     }
 
     await this.userService.verifyEmail(email)
@@ -145,5 +121,36 @@ export class UserController {
     }
 
     res.status(HttpStatus.OK).json('Email verified successfully')
+  }
+
+  // Put the general endpoints at the bottom, or they will override the specific ones
+  // In NestJS, routes are matched in order, so the `/user/:id` route will match any path that starts with `/user/`, including `/user/verify`.
+  // To avoid such conflicts, you need to ensure that more specific routes (like `/user/verify`) are defined before more general routes (like `/user/:id`).
+
+  @Get(':id')
+  @NBApiResponse(UserDto, {
+    description: 'Get a user by ID',
+  })
+  @ApiOperation({ summary: 'Get a user by ID' })
+  async findOne(@Param('id') id: string): Promise<UserDto> {
+    return this.userService.findOne(id)
+  }
+
+  @Patch(':id')
+  @NBApiResponse(UserDto, {
+    description: 'Update a user by ID',
+  })
+  @ApiOperation({ summary: 'Update a user by ID' })
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<UserDto> {
+    return this.userService.update(id, updateUserDto)
+  }
+
+  @Delete(':id')
+  @NBApiResponse(UserDto, {
+    description: 'Delete a user by ID',
+  })
+  @ApiOperation({ summary: 'Delete a user by ID' })
+  async remove(@Param('id') id: string): Promise<UserDto> {
+    return this.userService.remove(id)
   }
 }

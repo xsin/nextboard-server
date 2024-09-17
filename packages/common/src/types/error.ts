@@ -9,6 +9,7 @@ export enum NBError {
   FORBIDDEN = 'error.forbidden',
   NOT_FOUND = 'error.notFound',
   DUPLICATE = 'error.duplicate',
+  INVALID_PARAMETERS = 'error.invalidParameters',
 
   // Email
   EMAIL_NOT_VERIFIED = 'error.emailNotVerified',
@@ -17,4 +18,5 @@ export enum NBError {
 
   // Auth
   AUTH_OTP_EXISTS = 'error.authOTPExists',
+  AUTH_INVALID_OTP = 'error.authInvalidOTP',
 }

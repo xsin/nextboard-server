@@ -2,7 +2,7 @@ import type { User } from '@nextboard/common'
 import { ListQueryDto } from '@/common/dto'
 import { BadRequestException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { EmailType, TAccountProvider, TAccountType, TUserGender } from '@nextboard/common'
+import { EmailType, NBError, TAccountProvider, TAccountType, TUserGender } from '@nextboard/common'
 import { Response } from 'express'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { VCodeService } from '../vcode/vcode.service'
@@ -239,7 +239,7 @@ describe('userController', () => {
 
       expect(mockVCodeService.generateOwner).toHaveBeenCalledWith(email, EmailType.VERIFY)
       expect(mockVCodeService.verify).toHaveBeenCalledWith({ owner: `${email}:${EmailType.VERIFY}`, code: vcode })
-      expect(mockResponse.redirect).toHaveBeenCalledWith(`${redirect}?error=Invalid verification code`)
+      expect(mockResponse.redirect).toHaveBeenCalledWith(`${redirect}?error=${NBError.AUTH_INVALID_OTP}`)
     })
 
     it('should throw BadRequestException if verification fails and no redirect URL', async () => {
