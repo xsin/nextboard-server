@@ -1,12 +1,12 @@
 import { Global, Module } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { UserModule } from '../user/user.module'
 import { MailModule } from '../mail/mail.module'
+import { UserModule } from '../user/user.module'
 import { VCodeModule } from '../vcode/vcode.module'
-import { TokenService } from './token.service'
-import { AuthService } from './auth.service'
 import { AuthController } from './auth.controller'
+import { AuthService } from './auth.service'
 import { AuthGuard, GlobalGuard, PermissionGuard, RoleGuard } from './guards'
+import { TokenService } from './token.service'
 
 // Use @Global() to make the module available globally
 // So that we can use `PublicGuard` without importing the `AuthModule` in other modules

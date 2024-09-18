@@ -121,6 +121,7 @@
     "vitest",
     "vueuse",
     "webfont",
+    "websockets",
     "xfetch",
     "xgplayer",
     "xsin"

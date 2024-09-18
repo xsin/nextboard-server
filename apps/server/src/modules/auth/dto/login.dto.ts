@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
+import { NBError } from '@nextboard/common'
 import { IsEmail, IsString, Matches } from 'class-validator'
 
 export class LoginRequestDto {
@@ -6,10 +7,10 @@ export class LoginRequestDto {
   @IsEmail()
   readonly username: string
 
-  @ApiProperty({ description: 'Password' })
+  @ApiProperty({ description: 'Password. Must be 8-20 characters long and contain at least one special character' })
   @IsString()
   @Matches(/^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,20}$/, {
-    message: 'Password must be 8-20 characters long and contain at least one special character',
+    message: NBError.AUTH_INVALID_PWD,
   })
   readonly password: string
 }

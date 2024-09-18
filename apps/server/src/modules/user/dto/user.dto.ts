@@ -20,6 +20,7 @@ export const UserColumns: IUserSelectScalar = {
   disabled: true,
   avatar: true,
   online: true,
+  loginAt: true,
   createdBy: true,
   updatedBy: true,
 }
@@ -85,4 +86,7 @@ export class UserDto extends UserTokenDto implements IUser {
 
   @ApiProperty({ description: 'Updated by' })
   updatedBy: string
+
+  @ApiProperty({ description: 'User last login date' })
+  loginAt: Date
 }

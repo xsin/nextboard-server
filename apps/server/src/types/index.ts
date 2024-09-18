@@ -73,4 +73,11 @@ export interface IConfigDto extends IPackageInfo {
 
   NB_BRAND_NAME: string
 
+  // Redis
+  NB_REDIS_HOST: string
+  NB_REDIS_PORT: number
+  NB_REDIS_TTL_COMMON: number
+  NB_REDIS_TTL_JWT_USER: number
+  NB_REDIS_MAX_ITEMS: number
+
 }

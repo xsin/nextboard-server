@@ -1,5 +1,9 @@
+import process from 'node:process'
+import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager'
 import { Module } from '@nestjs/common'
+import { APP_INTERCEPTOR } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
+import { redisStore } from 'cache-manager-redis-yet'
 import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { AccountModule } from './modules/account/account.module'
@@ -18,6 +22,14 @@ import { VCodeModule } from './modules/vcode/vcode.module'
 @Module({
   imports: [
     // Global modules decorated with @Global() are available globally
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      host: process.env.NB_REDIS_HOST,
+      port: process.env.NB_REDIS_PORT,
+      ttl: 1000 * Number(process.env.NB_REDIS_TTL_COMMON),
+      max: Number(process.env.NB_REDIS_MAX_ITEMS),
+    }),
     AppConfigModule,
     PrismaModule,
     AuthModule,
@@ -36,8 +48,15 @@ import { VCodeModule } from './modules/vcode/vcode.module'
     AppController,
   ],
   providers: [
+    // Global cache on every controller
+    // https://docs.nestjs.com/techniques/caching
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: CacheInterceptor,
+    },
     AppService,
     JwtService,
+
   ],
 })
 export class AppModule {}

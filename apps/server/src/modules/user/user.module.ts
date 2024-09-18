@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common'
 import { AccountModule } from '../account/account.module'
+import { TokenService } from '../auth/token.service'
 import { VCodeModule } from '../vcode/vcode.module'
 import { UserController } from './user.controller'
+import { UserGateway } from './user.gateway'
 import { UserService } from './user.service'
 
 @Module({
@@ -13,6 +15,8 @@ import { UserService } from './user.service'
     UserController,
   ],
   providers: [
+    TokenService,
+    UserGateway,
     UserService,
   ],
   exports: [

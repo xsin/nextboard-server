@@ -1,10 +1,12 @@
+import type { IUser, IUserFull, IUserToken, IUserTokenPayload } from '@nextboard/common'
+import type { Request } from 'express'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
 /* eslint-disable dot-notation */
 import { NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
+import { Cache } from 'cache-manager'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { IUser, IUserFull, IUserToken, IUserTokenPayload } from '@nextboard/common'
-import type { Request } from 'express'
 import { AppConfigService } from '../config/config.service'
 import { UserService } from '../user/user.service'
 import { RefreshTokenRequestDto } from './dto/login.dto'
@@ -15,6 +17,7 @@ describe('tokenService', () => {
   let jwtService: JwtService
   let userService: UserService
   let configService: AppConfigService
+  let cacheManager: Cache
   let service1: TokenService
   let service2: TokenService
   let service3: TokenService
@@ -34,6 +37,7 @@ describe('tokenService', () => {
     updatedAt: new Date(),
     createdBy: '1',
     updatedBy: '1',
+    loginAt: new Date(),
   }
 
   const mockUserFull: IUserFull = {
@@ -46,6 +50,7 @@ describe('tokenService', () => {
     JWT_REFRESH_SECRET: 'test-refresh-secret',
     JWT_EXPIRY: 3600,
     JWT_REFRESH_EXPIRY: 86400,
+    NB_REDIS_TTL_JWT_USER: 3600,
   }
 
   const mockConfig1 = {
@@ -53,6 +58,7 @@ describe('tokenService', () => {
     JWT_REFRESH_SECRET: 'test-refresh-secret',
     JWT_EXPIRY: 3600,
     JWT_REFRESH_EXPIRY: 86400,
+    NB_REDIS_TTL_JWT_USER: 3600,
   }
 
   const mockConfig2 = {
@@ -60,6 +66,7 @@ describe('tokenService', () => {
     JWT_REFRESH_SECRET: '',
     JWT_EXPIRY: 3600,
     JWT_REFRESH_EXPIRY: 86400,
+    NB_REDIS_TTL_JWT_USER: 3600,
   }
 
   const mockConfig3 = {
@@ -67,6 +74,7 @@ describe('tokenService', () => {
     JWT_REFRESH_SECRET: '',
     JWT_EXPIRY: 3600,
     JWT_REFRESH_EXPIRY: 86400,
+    NB_REDIS_TTL_JWT_USER: 3600,
   }
 
   beforeEach(async () => {
@@ -85,11 +93,19 @@ describe('tokenService', () => {
           useValue: {
             findByIdX: vi.fn(),
             findByEmail: vi.fn(),
+            getItemCacheKey: vi.fn((...idLikes: string[]) => `user:${idLikes.join(':')}`),
           },
         },
         {
           provide: AppConfigService,
           useValue: mockConfig,
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: vi.fn(),
+            set: vi.fn(),
+          },
         },
       ],
     }).compile()
@@ -109,11 +125,19 @@ describe('tokenService', () => {
           useValue: {
             findByIdX: vi.fn(),
             findByEmail: vi.fn(),
+            getItemCacheKey: vi.fn((...idLikes: string[]) => `user:${idLikes.join(':')}`),
           },
         },
         {
           provide: AppConfigService,
           useValue: mockConfig1,
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: vi.fn(),
+            set: vi.fn(),
+          },
         },
       ],
     }).compile()
@@ -133,11 +157,19 @@ describe('tokenService', () => {
           useValue: {
             findByIdX: vi.fn(),
             findByEmail: vi.fn(),
+            getItemCacheKey: vi.fn((...idLikes: string[]) => `user:${idLikes.join(':')}`),
           },
         },
         {
           provide: AppConfigService,
           useValue: mockConfig2,
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: vi.fn(),
+            set: vi.fn(),
+          },
         },
       ],
     }).compile()
@@ -157,11 +189,19 @@ describe('tokenService', () => {
           useValue: {
             findByIdX: vi.fn(),
             findByEmail: vi.fn(),
+            getItemCacheKey: vi.fn((...idLikes: string[]) => `user:${idLikes.join(':')}`),
           },
         },
         {
           provide: AppConfigService,
           useValue: mockConfig3,
+        },
+        {
+          provide: CACHE_MANAGER,
+          useValue: {
+            get: vi.fn(),
+            set: vi.fn(),
+          },
         },
       ],
     }).compile()
@@ -170,6 +210,7 @@ describe('tokenService', () => {
     jwtService = module.get<JwtService>(JwtService)
     userService = module.get<UserService>(UserService)
     configService = module.get<AppConfigService>(AppConfigService)
+    cacheManager = module.get<Cache>(CACHE_MANAGER)
 
     service1 = module1.get<TokenService>(TokenService)
 
@@ -286,6 +327,74 @@ describe('tokenService', () => {
       } as Request
 
       await expect(service.validateJwt(mockRequest)).rejects.toThrow(UnauthorizedException)
+    })
+  })
+
+  describe('parseUserFromJwt', () => {
+    it('should parse user from JWT token and cache the result', async () => {
+      const token = 'valid-token'
+      const cacheKey = 'user:1:jwt'
+      vi.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ sub: '1' })
+      vi.spyOn(cacheManager, 'get').mockResolvedValue(null)
+      vi.spyOn(userService, 'findByIdX').mockResolvedValue(mockUserFull)
+      vi.spyOn(cacheManager, 'set').mockResolvedValue(undefined)
+
+      const result = await service.parseUserFrowJwt(token)
+      expect(result).toEqual(mockUserFull)
+      expect(cacheManager.get).toHaveBeenCalledWith(cacheKey)
+      expect(userService.findByIdX).toHaveBeenCalledWith('1', false)
+      expect(cacheManager.set).toHaveBeenCalledWith(cacheKey, mockUserFull, mockConfig.NB_REDIS_TTL_JWT_USER * 1000)
+    })
+
+    it('should return user from cache if available', async () => {
+      const token = 'valid-token'
+      const cacheKey = 'user:1:jwt'
+      vi.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ sub: '1' })
+      vi.spyOn(cacheManager, 'get').mockResolvedValue(mockUserFull)
+
+      const result = await service.parseUserFrowJwt(token)
+      expect(result).toEqual(mockUserFull)
+      expect(cacheManager.get).toHaveBeenCalledWith(cacheKey)
+      expect(userService.findByIdX).not.toHaveBeenCalled()
+      expect(cacheManager.set).not.toHaveBeenCalled()
+    })
+
+    it('should use refresh token secret when isRefreshToken is true', async () => {
+      const token = 'valid-refresh-token'
+      const cacheKey = 'user:1:jwt'
+      vi.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ sub: '1' })
+      vi.spyOn(cacheManager, 'get').mockResolvedValue(null)
+      vi.spyOn(userService, 'findByIdX').mockResolvedValue(mockUserFull)
+      vi.spyOn(cacheManager, 'set').mockResolvedValue(undefined)
+
+      await service.parseUserFrowJwt(token, true)
+
+      expect(jwtService.verifyAsync).toHaveBeenCalledWith('valid-refresh-token', {
+        secret: mockConfig.JWT_REFRESH_SECRET,
+      })
+      expect(cacheManager.get).toHaveBeenCalledWith(cacheKey)
+      expect(userService.findByIdX).toHaveBeenCalledWith('1', false)
+      expect(cacheManager.set).toHaveBeenCalledWith(cacheKey, mockUserFull, mockConfig.NB_REDIS_TTL_JWT_USER * 1000)
+    })
+
+    it('should throw Exception for invalid token', async () => {
+      const token = 'invalid-token'
+      vi.spyOn(jwtService, 'verifyAsync').mockRejectedValue(new Error('Invalid token'))
+
+      await expect(service.parseUserFrowJwt(token)).rejects.toThrow(Error)
+    })
+
+    it('should return null for non-existent user', async () => {
+      const token = 'valid-token'
+      vi.spyOn(jwtService, 'verifyAsync').mockResolvedValue({ sub: '1' })
+      vi.spyOn(cacheManager, 'get').mockResolvedValue(null)
+      vi.spyOn(userService, 'findByIdX').mockResolvedValue(null)
+
+      const result = await service.parseUserFrowJwt(token)
+      expect(result).toBeNull()
+      expect(cacheManager.get).toHaveBeenCalledWith('user:1:jwt')
+      expect(userService.findByIdX).toHaveBeenCalledWith('1', false)
+      expect(cacheManager.set).not.toHaveBeenCalled()
     })
   })
 

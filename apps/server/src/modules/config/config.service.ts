@@ -36,6 +36,12 @@ export class AppConfigService implements IConfigDto {
   NB_MAIL_SUBJECT_OTP: string
   NB_MAIL_VERIFY_EXPIRY: number
   NB_BRAND_NAME: string
+  // Redis
+  NB_REDIS_HOST: string
+  NB_REDIS_PORT: number
+  NB_REDIS_TTL_COMMON: number
+  NB_REDIS_TTL_JWT_USER: number
+  NB_REDIS_MAX_ITEMS: number
 
   private pkgInfo: IPackageInfo
 
@@ -63,6 +69,11 @@ export class AppConfigService implements IConfigDto {
     this.NB_MAIL_SUBJECT_OTP = this.configService.get<string>(C.C_NB_MAIL_SUBJECT_OTP)
     this.NB_MAIL_VERIFY_EXPIRY = this.configService.get<number>(C.C_NB_MAIL_VERIFY_EXPIRY)
     this.NB_BRAND_NAME = this.configService.get<string>(C.C_NB_BRAND_NAME)
+    this.NB_REDIS_HOST = this.configService.get<string>(C.C_REDIS_HOST)
+    this.NB_REDIS_PORT = this.configService.get<number>(C.C_REDIS_PORT)
+    this.NB_REDIS_TTL_COMMON = this.configService.get<number>(C.C_REDIS_TTL_COMMON)
+    this.NB_REDIS_TTL_JWT_USER = this.configService.get<number>(C.C_REDIS_TTL_JWT_USER)
+    this.NB_REDIS_MAX_ITEMS = this.configService.get<number>(C.C_REDIS_MAX_ITEMS)
 
     this.getPkgInfo()
   }

@@ -45,6 +45,7 @@ describe('userService', () => {
     createdBy: '1',
     updatedBy: '1',
     password: 'hashed_password1',
+    loginAt: new Date(),
   }
 
   const mockUser2: User = {
@@ -63,6 +64,7 @@ describe('userService', () => {
     createdBy: '1',
     updatedBy: '1',
     password: 'hashed_password2',
+    loginAt: new Date(),
   }
 
   const mockResources: Resource[] = [
@@ -163,6 +165,7 @@ describe('userService', () => {
         createdBy: '1',
         updatedBy: '1',
         password: 'hashed_password',
+        loginAt: new Date(),
       }
       vi.spyOn(prismaService.user, 'create').mockResolvedValue(mockUser0)
       vi.mocked(saltAndHashPassword).mockResolvedValue('hashed_password')
@@ -391,6 +394,7 @@ describe('userService', () => {
         avatar: mockUser.avatar,
         gender: mockUser.gender,
         birthday: mockUser.birthday,
+        loginAt: mockUser.loginAt,
       }
 
       vi.spyOn(service, 'findUser').mockResolvedValue(mockUser)
@@ -423,6 +427,7 @@ describe('userService', () => {
         avatar: mockUser.avatar,
         gender: mockUser.gender,
         birthday: mockUser.birthday,
+        loginAt: mockUser.loginAt,
       }
 
       vi.spyOn(service, 'findUser').mockResolvedValue(mockUser)
@@ -605,6 +610,29 @@ describe('userService', () => {
 
       expect(result).toEqual(mockUser)
       expect(service.findUser).toHaveBeenCalledWith({ id: '1' }, false)
+    })
+  })
+
+  describe('getItemCacheKey', () => {
+    it('should return the correct cache key for a single id', () => {
+      const idLike = '123'
+      const expectedCacheKey = `user:${idLike}`
+      const result = service.getItemCacheKey(idLike)
+      expect(result).toBe(expectedCacheKey)
+    })
+
+    it('should return the correct cache key for multiple ids', () => {
+      const idLikes = ['123', '456', '789']
+      const expectedCacheKey = `user:${idLikes.join(':')}`
+      const result = service.getItemCacheKey(...idLikes)
+      expect(result).toBe(expectedCacheKey)
+    })
+
+    it('should return the correct cache key for a given email', () => {
+      const emailLike = 'test@example.com'
+      const expectedCacheKey = `user:${emailLike}`
+      const result = service.getItemCacheKey(emailLike)
+      expect(result).toBe(expectedCacheKey)
     })
   })
 

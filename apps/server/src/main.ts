@@ -12,6 +12,7 @@ import { LogService } from './modules/log/log.service'
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule)
+  app.enableCors()
 
   const configService = app.get(AppConfigService)
 

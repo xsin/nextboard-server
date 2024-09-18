@@ -31,4 +31,7 @@ export class UserProfileDto implements IUserProfile {
 
   @ApiProperty({ description: 'User Birthday' })
   birthday: Date
+
+  @ApiProperty({ description: 'User last login date' })
+  loginAt: Date | null
 }

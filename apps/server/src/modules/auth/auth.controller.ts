@@ -44,7 +44,7 @@ export class AuthController {
   }
 
   @ApiOperation({
-    summary: 'Login',
+    summary: 'Login with email and password',
   })
   @NBApiResponse(UserDto, {
     description: 'Login',

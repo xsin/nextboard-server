@@ -286,8 +286,14 @@ export class UserService {
       avatar: userInfo.avatar,
       gender: userInfo.gender,
       birthday: userInfo.birthday,
+      loginAt: userInfo.loginAt,
     }
     return profile
+  }
+
+  getItemCacheKey(...idLikes: string[]): string {
+    const id = idLikes.join(':')
+    return `user:${id}`
   }
 
   // Account related methods

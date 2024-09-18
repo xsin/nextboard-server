@@ -29,6 +29,11 @@ describe('validateConfigs', () => {
       NB_MAIL_SUBJECT_OTP: 'Your OTP Code',
       NB_MAIL_VERIFY_EXPIRY: 86400,
       NB_BRAND_NAME: 'brand_name',
+      NB_REDIS_HOST: 'localhost',
+      NB_REDIS_PORT: 6379,
+      NB_REDIS_TTL_COMMON: 5,
+      NB_REDIS_TTL_JWT_USER: 60,
+      NB_REDIS_MAX_ITEMS: 1000,
     }
 
     const result = validateConfigs(validConfig)
@@ -61,6 +66,11 @@ describe('validateConfigs', () => {
       NB_MAIL_SUBJECT_OTP: 'Your OTP Code',
       NB_MAIL_VERIFY_EXPIRY: 86400,
       NB_BRAND_NAME: 'brand_name',
+      NB_REDIS_HOST: 'localhost',
+      NB_REDIS_PORT: 6379,
+      NB_REDIS_TTL_COMMON: 5,
+      NB_REDIS_TTL_JWT_USER: 60,
+      NB_REDIS_MAX_ITEMS: 1000,
     }
 
     expect(() => validateConfigs(invalidConfig)).toThrow()
@@ -91,6 +101,11 @@ describe('validateConfigs', () => {
       NB_MAIL_SUBJECT_OTP: 'Your OTP Code',
       NB_MAIL_VERIFY_EXPIRY: 86400,
       NB_BRAND_NAME: 'brand_name',
+      NB_REDIS_HOST: 'localhost',
+      NB_REDIS_PORT: 6379,
+      NB_REDIS_TTL_COMMON: 5,
+      NB_REDIS_TTL_JWT_USER: 60,
+      NB_REDIS_MAX_ITEMS: 1000,
       name: 'MyApp',
       description: 'My awesome app',
       keywords: ['app', 'awesome'],

@@ -2,7 +2,7 @@ import { Match } from '@/common/decorators/match.decorator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { Prisma } from '@nextboard/common'
 import { Type } from 'class-transformer'
-import { IsDate, IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator'
+import { IsBoolean, IsDate, IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator'
 
 export class CreateUserDto implements Prisma.UserCreateInput {
   @ApiProperty({ description: 'Email address' })
@@ -38,4 +38,15 @@ export class CreateUserDto implements Prisma.UserCreateInput {
   @IsOptional()
   @Type(() => Date)
   readonly emailVerifiedAt?: Date | string | null
+
+  @ApiPropertyOptional({ description: 'User online status' })
+  @IsOptional()
+  @IsBoolean()
+  online?: boolean
+
+  @ApiPropertyOptional({ description: 'User last login date' })
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date)
+  loginAt?: Date | string | null
 }

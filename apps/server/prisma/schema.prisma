@@ -1,8 +1,8 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+  // This is your Prisma schema file,
+  // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+  // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+  // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
   provider        = "prisma-client-js"
@@ -16,7 +16,7 @@ datasource db {
   schemas   = ["nextboard"]
 }
 
-// Custom types
+  // Custom types
 enum TUserGender {
   unknown
   male
@@ -52,7 +52,7 @@ enum TAccountProvider {
   @@schema("nextboard")
 }
 
-// Tables
+  // Tables
 
 model User {
   id              String      @id @default(cuid())
@@ -70,10 +70,11 @@ model User {
   accounts Account[]
   roles    UserRole[]
 
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-  createdBy String?  @map("created_by")
-  updatedBy String?  @map("updated_by")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  createdBy String?   @map("created_by")
+  updatedBy String?   @map("updated_by")
+  loginAt DateTime?   @map("login_at")
 
   creator      User?  @relation("UserCreatedUsers", fields: [createdBy], references: [id])
   createdUsers User[] @relation("UserCreatedUsers")
@@ -126,7 +127,7 @@ model Account {
   @@schema("nextboard")
 }
 
-// Verification code
+  // Verification code
 model VCode {
   id        Int      @id @default(autoincrement())
   owner     String

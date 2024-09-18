@@ -20,4 +20,10 @@ export interface Env {
   [C.C_NB_SMTP_PORT]: string
   [C.C_NB_SMTP_USER]: string
   [C.C_NB_SMTP_PASS]: string
+  // Redis
+  [C.C_REDIS_HOST]: string
+  [C.C_REDIS_PORT]: string
+  [C.C_REDIS_TTL_COMMON]: string
+  [C.C_REDIS_TTL_JWT_USER]: string
+  [C.C_REDIS_MAX_ITEMS]: string
 }

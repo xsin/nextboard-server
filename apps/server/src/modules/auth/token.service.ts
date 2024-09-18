@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
-import { JwtService } from '@nestjs/jwt'
-import { isEmpty, omit } from 'radash'
-import type { IUser, IUserToken, IUserTokenPayload } from '@nextboard/common'
 import type { Request } from 'express'
+import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
+import { type IUser, IUserFull, type IUserToken, type IUserTokenPayload, NBError } from '@nextboard/common'
+import { isEmpty, omit } from 'radash'
 import { AppConfigService } from '../config/config.service'
 import { UserService } from '../user/user.service'
 import { RefreshTokenRequestDto } from './dto/login.dto'
@@ -13,6 +14,7 @@ export class TokenService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: AppConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   /**
@@ -31,20 +33,38 @@ export class TokenService {
       throw new UnauthorizedException('Unauthorized')
     }
 
-    const secret = isRefreshToken ? this.getJwtRefreshSecret() : this.getJwtSecret()
-
-    const payload: IUserTokenPayload = await this.jwtService.verifyAsync(token, {
-      secret,
-    })
-    // Retrieve the user object from the database
-    const userFromDb = await this.userService.findByIdX(payload.sub, false)
+    const userFromDb = await this.parseUserFrowJwt(token, isRefreshToken)
     if (!userFromDb) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException(NBError.NOT_FOUND)
     }
     // Save the user object to the request object
     req.user = omit(userFromDb, ['password'])
 
     return req.user
+  }
+
+  /**
+   * Parse user from JWT token
+   * @param {string} token - JWT token
+   * @param {boolean} isRefreshToken - Whether is refreshing token
+   * @returns {Promise<IUser>} User object
+   */
+  async parseUserFrowJwt(token: string, isRefreshToken?: boolean): Promise<IUserFull> {
+    const secret = isRefreshToken ? this.getJwtRefreshSecret() : this.getJwtSecret()
+    const payload: IUserTokenPayload = await this.jwtService.verifyAsync(token, {
+      secret,
+    })
+    // Check cache first
+    const cacheKey = this.userService.getItemCacheKey(payload.sub, 'jwt')
+    let user = await this.cacheManager.get<IUserFull>(cacheKey)
+    if (!user) {
+      user = await this.userService.findByIdX(payload.sub, false)
+      if (user) {
+        // Cache user information
+        await this.cacheManager.set(cacheKey, user, this.configService.NB_REDIS_TTL_JWT_USER * 1000)
+      }
+    }
+    return user
   }
 
   async refreshToken(dto: RefreshTokenRequestDto): Promise<IUserToken> {

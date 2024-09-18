@@ -37,6 +37,10 @@ describe('appConfigService', () => {
     [C.C_NB_MAIL_SUBJECT_OTP]: 'Your OTP Code',
     [C.C_NB_MAIL_VERIFY_EXPIRY]: 86400,
     [C.C_NB_BRAND_NAME]: 'brand_name',
+    [C.C_REDIS_HOST]: 'localhost',
+    [C.C_REDIS_PORT]: 6379,
+    [C.C_REDIS_TTL_COMMON]: 5,
+    [C.C_REDIS_TTL_JWT_USER]: 60,
   }
 
   const mockPackageInfo = {
@@ -102,6 +106,10 @@ describe('appConfigService', () => {
     expect(service.NB_MAIL_SUBJECT_OTP).toBe(mockConfig[C.C_NB_MAIL_SUBJECT_OTP])
     expect(service.NB_MAIL_VERIFY_EXPIRY).toBe(mockConfig[C.C_NB_MAIL_VERIFY_EXPIRY])
     expect(service.NB_BRAND_NAME).toBe(mockConfig[C.C_NB_BRAND_NAME])
+    expect(service.NB_REDIS_HOST).toBe(mockConfig[C.C_REDIS_HOST])
+    expect(service.NB_REDIS_PORT).toBe(mockConfig[C.C_REDIS_PORT])
+    expect(service.NB_REDIS_TTL_COMMON).toBe(mockConfig[C.C_REDIS_TTL_COMMON])
+    expect(service.NB_REDIS_TTL_JWT_USER).toBe(mockConfig[C.C_REDIS_TTL_JWT_USER])
   })
 
   it('should load package information', () => {

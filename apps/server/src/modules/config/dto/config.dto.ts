@@ -105,4 +105,20 @@ export class ConfigDto implements IConfigDto {
 
   @IsString()
   NB_BRAND_NAME: string
+
+  // Redis
+  @IsString()
+  NB_REDIS_HOST: string
+
+  @IsInt()
+  NB_REDIS_PORT: number
+
+  @IsInt()
+  NB_REDIS_TTL_COMMON: number
+
+  @IsInt()
+  NB_REDIS_TTL_JWT_USER: number
+
+  @IsInt()
+  NB_REDIS_MAX_ITEMS: number
 }
