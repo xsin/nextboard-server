@@ -10,7 +10,6 @@ import {
   RefreshTokenRequestDto,
 } from './dto/login.dto'
 import { OTPLoginDto, SendOTPDto, SendOTPRequestDto } from './dto/otp.dto'
-import { TokenService } from './token.service'
 
 @Public()
 @ApiTags('auth')
@@ -18,7 +17,6 @@ import { TokenService } from './token.service'
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
-    private readonly tokenService: TokenService,
   ) {}
 
   @Post('signup')
@@ -40,7 +38,7 @@ export class AuthController {
   })
   @Post('refresh')
   async refreshToken(@Body() dto: RefreshTokenRequestDto): Promise<UserTokenDto> {
-    return this.tokenService.refreshToken(dto)
+    return this.authService.refreshToken(dto)
   }
 
   @ApiOperation({

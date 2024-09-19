@@ -40,7 +40,7 @@ export class MailService {
     const owner = this.vcodeService.generateOwner(email, EmailType.VERIFY)
 
     // Check if the user has a valid code
-    const hasValidCode = await this.vcodeService.hasValidCode({ owner })
+    const hasValidCode = await this.vcodeService.hasCodeWithinResendInterval({ owner }, this.configService.NB_MAIL_RESEND_INTERVAL)
     if (hasValidCode) {
       throw new BadRequestException(NBError.EMAIL_ALREADY_SENT)
     }
@@ -110,7 +110,7 @@ export class MailService {
     serviceType: EmailService = EmailService.NODEMAILER,
   ): Promise<ISendEmailResult> {
     // Check if the user has a valid code
-    const hasValidCode = await this.vcodeService.hasValidCode({ owner: email })
+    const hasValidCode = await this.vcodeService.hasCodeWithinResendInterval({ owner: email }, this.configService.NB_MAIL_RESEND_INTERVAL)
     if (hasValidCode) {
       throw new BadRequestException(NBError.AUTH_OTP_EXISTS)
     }

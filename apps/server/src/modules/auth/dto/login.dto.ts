@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { NBError } from '@nextboard/common'
-import { IsEmail, IsString, Matches } from 'class-validator'
+import { NBError, TAccountProvider } from '@nextboard/common'
+import { IsEmail, IsEnum, IsString, Matches } from 'class-validator'
 
 export class LoginRequestDto {
   @ApiProperty({ description: 'Username. In NextBoard, we use email for the username parameter.' })
@@ -19,4 +19,12 @@ export class RefreshTokenRequestDto {
   @ApiProperty({ description: 'Refresh token' })
   @IsString()
   readonly refreshToken: string
+
+  @ApiProperty({ description: 'Provider' })
+  @IsEnum(TAccountProvider)
+  readonly provider: TAccountProvider
+
+  @ApiProperty({ description: 'Username. In NextBoard, we use email for the username parameter.' })
+  @IsEmail()
+  readonly username: string
 }

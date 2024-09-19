@@ -75,7 +75,7 @@ export class TokenService {
 
     const user = await this.userService.findByEmail(payload.username)
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException(NBError.NOT_FOUND)
     }
 
     return this.generateTokens(user)
@@ -98,7 +98,7 @@ export class TokenService {
     const expiredAt1 = new Date(Date.now() + expiresIn1 * 1000)
     const expiredAt2 = new Date(Date.now() + expiresIn2 * 1000)
 
-    return {
+    const tokens = {
       accessToken: await this.jwtService.signAsync(payload, {
         expiresIn: expiresIn1,
         secret: jwtSecret,
@@ -110,6 +110,7 @@ export class TokenService {
       accessTokenExpiredAt: expiredAt1,
       refreshTokenExpiredAt: expiredAt2,
     }
+    return tokens
   }
 
   private getJwtSecret(): string {

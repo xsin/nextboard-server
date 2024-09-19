@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common'
+import { JwtService } from '@nestjs/jwt'
 import { AccountModule } from '../account/account.module'
 import { TokenService } from '../auth/token.service'
 import { VCodeModule } from '../vcode/vcode.module'
@@ -16,6 +17,7 @@ import { UserService } from './user.service'
   ],
   providers: [
     TokenService,
+    JwtService,
     UserGateway,
     UserService,
   ],

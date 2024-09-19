@@ -126,6 +126,9 @@ export class UserService {
         },
       },
     })
+    if (!user) {
+      return null
+    }
     const userInfo = omit(user, ['roles'])
     const roles = user.roles.map(userRole => userRole.role)
     const roleNames = roles.map(role => role.name)

@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { EmailType, type ISendEmailResult, TUserGender } from '@nextboard/common'
+import { EmailType, type ISendEmailResult, TAccountProvider, TUserGender } from '@nextboard/common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreateUserDto } from '../user/dto/create.dto'
 import { UserDto, UserTokenDto } from '../user/dto/user.dto'
@@ -7,12 +7,10 @@ import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { LoginRequestDto, RefreshTokenRequestDto } from './dto/login.dto'
 import { OTPLoginDto, SendOTPRequestDto } from './dto/otp.dto'
-import { TokenService } from './token.service'
 
 describe('authController', () => {
   let controller: AuthController
   let authService: AuthService
-  let tokenService: TokenService
 
   const mockUser: UserDto = {
     id: '1',
@@ -33,6 +31,7 @@ describe('authController', () => {
     refreshToken: 'mockRefreshToken',
     accessTokenExpiredAt: new Date(),
     refreshTokenExpiredAt: new Date(),
+    loginAt: new Date(),
   }
 
   const mockUserToken: UserTokenDto = {
@@ -51,11 +50,6 @@ describe('authController', () => {
             login: vi.fn(),
             sendOTP: vi.fn(),
             loginWithOTP: vi.fn(),
-          },
-        },
-        {
-          provide: TokenService,
-          useValue: {
             refreshToken: vi.fn(),
           },
         },
@@ -64,7 +58,6 @@ describe('authController', () => {
 
     controller = module.get<AuthController>(AuthController)
     authService = module.get<AuthService>(AuthService)
-    tokenService = module.get<TokenService>(TokenService)
   })
 
   it('should be defined', () => {
@@ -92,13 +85,15 @@ describe('authController', () => {
     it('should refresh the token', async () => {
       const refreshTokenDto: RefreshTokenRequestDto = {
         refreshToken: 'oldRefreshToken',
+        provider: TAccountProvider.localPwd,
+        username: 'test@example.com',
       }
-      vi.spyOn(tokenService, 'refreshToken').mockResolvedValue(mockUserToken)
+      vi.spyOn(authService, 'refreshToken').mockResolvedValue(mockUserToken)
 
       const result = await controller.refreshToken(refreshTokenDto)
 
       expect(result).toEqual(mockUserToken)
-      expect(tokenService.refreshToken).toHaveBeenCalledWith(refreshTokenDto)
+      expect(authService.refreshToken).toHaveBeenCalledWith(refreshTokenDto)
     })
   })
 

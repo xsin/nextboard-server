@@ -70,6 +70,10 @@ export interface IConfigDto extends IPackageInfo {
   NB_SMTP_SECURE: boolean
 
   NB_MAIL_VERIFY_EXPIRY: number
+  /**
+   * Email resend interval in seconds
+   */
+  NB_MAIL_RESEND_INTERVAL: number
 
   NB_BRAND_NAME: string
 

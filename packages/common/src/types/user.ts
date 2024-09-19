@@ -1,10 +1,10 @@
-import { KeysOf } from './common'
 import type {
   Permission,
   Resource,
   Role,
   User,
 } from './prisma'
+import { KeysOf } from './common'
 
 export interface IUserToken {
   accessToken?: string

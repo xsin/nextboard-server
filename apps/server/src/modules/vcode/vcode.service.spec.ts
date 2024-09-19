@@ -188,6 +188,51 @@ describe('vCodeService', () => {
     })
   })
 
+  describe('hasCodeWithinResendInterval', () => {
+    it('should return true if a valid code exists within the resend interval', async () => {
+      const dto: QueryVCodeDto = { owner: 'test@example.com', code: '123456' }
+      vi.spyOn(prismaService.vCode, 'findFirst').mockResolvedValue(mockVCode)
+
+      const result = await service.hasCodeWithinResendInterval(dto, 60) // 60 seconds resend interval
+
+      expect(result).toBe(true)
+      expect(prismaService.vCode.findFirst).toHaveBeenCalledWith({
+        where: { owner: dto.owner },
+        orderBy: { createdAt: 'desc' },
+      })
+    })
+
+    it('should return false if no code exists', async () => {
+      const dto: QueryVCodeDto = { owner: 'test@example.com', code: '123456' }
+      vi.spyOn(prismaService.vCode, 'findFirst').mockResolvedValue(null)
+
+      const result = await service.hasCodeWithinResendInterval(dto, 60)
+
+      expect(result).toBe(false)
+      expect(prismaService.vCode.findFirst).toHaveBeenCalledWith({
+        where: { owner: dto.owner },
+        orderBy: { createdAt: 'desc' },
+      })
+    })
+
+    it('should return false if the code exists but is outside the resend interval', async () => {
+      const dto: QueryVCodeDto = { owner: 'test@example.com', code: '123456' }
+      const expiredToken = {
+        ...mockVCode,
+        createdAt: new Date(Date.now() - 120000), // Created 2 minutes ago
+      }
+      vi.spyOn(prismaService.vCode, 'findFirst').mockResolvedValue(expiredToken)
+
+      const result = await service.hasCodeWithinResendInterval(dto, 60) // 60 seconds resend interval
+
+      expect(result).toBe(false)
+      expect(prismaService.vCode.findFirst).toHaveBeenCalledWith({
+        where: { owner: dto.owner },
+        orderBy: { createdAt: 'desc' },
+      })
+    })
+  })
+
   describe('generateOwner', () => {
     it('should return owner if no suffix is provided', () => {
       const owner = 'user1'

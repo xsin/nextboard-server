@@ -47,6 +47,7 @@ describe('mailService', () => {
             NB_SMTP_SECURE: false,
             NB_MAIL_VERIFY_EXPIRY: 86400,
             NB_MAIL_SUBJECT_OTP: 'NextBoard login code custom',
+            NB_MAIL_RESEND_INTERVAL: 60,
             NB_BRAND_NAME: 'NextBoard',
             description: 'NextBoard Description',
             author: { name: 'Author', url: 'http://author.com' },
@@ -57,7 +58,7 @@ describe('mailService', () => {
           provide: VCodeService,
           useValue: {
             create: vi.fn(),
-            hasValidCode: vi.fn(),
+            hasCodeWithinResendInterval: vi.fn(),
             generateOwner: vi.fn().mockImplementation((email, type) => `${email}:${type}`),
             verify: vi.fn(),
           },
@@ -102,6 +103,7 @@ describe('mailService', () => {
             NB_SMTP_SECURE: false,
             NB_MAIL_VERIFY_EXPIRY: 86400,
             NB_MAIL_SUBJECT_OTP: '',
+            NB_MAIL_RESEND_INTERVAL: 60,
             NB_BRAND_NAME: 'NextBoard',
             description: 'NextBoard Description',
             author: { name: 'Author', url: 'http://author.com' },
@@ -112,7 +114,7 @@ describe('mailService', () => {
           provide: VCodeService,
           useValue: {
             create: vi.fn(),
-            hasValidCode: vi.fn(),
+            hasCodeWithinResendInterval: vi.fn(),
             generateOwner: vi.fn().mockImplementation((email, type) => `${email}:${type}`),
             verify: vi.fn(),
           },
@@ -171,7 +173,7 @@ describe('mailService', () => {
   describe('sendVerificationEmail', () => {
     it('should send a verification email using default subject', async () => {
       const email = 'test@example.com'
-      vi.spyOn(vcodeService1, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService1, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       const sendMock = vi.spyOn(resendService1, 'sendEmail').mockResolvedValue({
         data: { id: '123456' },
         error: null,
@@ -208,7 +210,7 @@ describe('mailService', () => {
 
     it('should send a verification email using ResendService', async () => {
       const email = 'test@example.com'
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       const sendMock = vi.spyOn(resendService, 'sendEmail').mockResolvedValue({
         data: { id: '123456' },
         error: null,
@@ -233,7 +235,7 @@ describe('mailService', () => {
 
     it('should send a verification email using NodeMailerService', async () => {
       const email = 'test@example.com'
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       const sendMock = vi.spyOn(nodemailerService, 'sendEmail').mockResolvedValue({
         data: { id: '123456' },
         error: null,
@@ -259,7 +261,7 @@ describe('mailService', () => {
     it('should send a verification email with custom HTML content', async () => {
       const email = 'user@example.com'
       const customHtml = '<p>Custom verification email</p>'
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       vi.spyOn(resendService, 'sendEmail').mockResolvedValue({ data: { id: '123' }, error: null })
 
       await service.sendVerificationEmail(email, customHtml, EmailService.RESEND)
@@ -274,7 +276,7 @@ describe('mailService', () => {
 
     it('should throw an InternalServerErrorException if sending email fails', async () => {
       const email = 'test@example.com'
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       const sendMock = vi.spyOn(resendService, 'sendEmail').mockRejectedValue(new InternalServerErrorException('Send failed'))
 
       await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(InternalServerErrorException)
@@ -283,7 +285,7 @@ describe('mailService', () => {
 
     it('should throw an InternalServerErrorException if Resend returns an error', async () => {
       const email = 'test@example.com'
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       vi.spyOn(resendService, 'sendEmail').mockResolvedValue({
         data: null,
         error: { message: 'Resend API error', name: 'internal_server_error' },
@@ -295,7 +297,7 @@ describe('mailService', () => {
 
     it('should throw a BadRequestException if a valid verification email already sent', async () => {
       const email = 'test@example.com'
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(true)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(true)
 
       await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(BadRequestException)
       await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(NBError.EMAIL_ALREADY_SENT)
@@ -307,7 +309,7 @@ describe('mailService', () => {
       const email = 'test@example.com'
       const code = '123456'
       const expiresInMs = configService.NB_OTP_EXPIRY * 1000
-      vi.spyOn(vcodeService1, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService1, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       const sendMock = vi.spyOn(resendService1, 'sendEmail').mockResolvedValue({
         data: { id: '123456' },
         error: null,
@@ -347,7 +349,7 @@ describe('mailService', () => {
       const email = 'test@example.com'
       const code = '123456'
       const expiresInMs = configService.NB_OTP_EXPIRY * 1000
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       const sendMock = vi.spyOn(resendService, 'sendEmail').mockResolvedValue({
         data: { id: '123456' },
         error: null,
@@ -387,7 +389,7 @@ describe('mailService', () => {
       const email = 'test@example.com'
       const code = '123456'
       const expiresInMs = configService.NB_OTP_EXPIRY * 1000
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       const sendMock = vi.spyOn(nodemailerService, 'sendEmail').mockResolvedValue({
         data: { id: '123456' },
         error: null,
@@ -425,7 +427,7 @@ describe('mailService', () => {
 
     it('should throw an InternalServerErrorException if sending OTP email fails', async () => {
       const email = 'test@example.com'
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(false)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(false)
       const sendMock = vi.spyOn(resendService, 'sendEmail').mockRejectedValue(new InternalServerErrorException('Send failed'))
 
       await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(InternalServerErrorException)
@@ -434,7 +436,7 @@ describe('mailService', () => {
 
     it('should throw a BadRequestException if a valid OTP already exists', async () => {
       const email = 'test@example.com'
-      vi.spyOn(vcodeService, 'hasValidCode').mockResolvedValue(true)
+      vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(true)
 
       await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(BadRequestException)
       await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(NBError.AUTH_OTP_EXISTS)

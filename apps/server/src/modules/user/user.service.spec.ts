@@ -510,6 +510,13 @@ describe('userService', () => {
       expect(prismaService.resource.findMany).toHaveBeenCalled()
     })
 
+    it('should return null if user does not exist', async () => {
+      const whereArgs = { id: 'nonexistent-id' }
+      vi.spyOn(prismaService.user, 'findUnique').mockResolvedValue(null)
+
+      await expect(service.findUser(whereArgs)).resolves.toBeNull()
+    })
+
     it('should find a user without resources when includeResources is false', async () => {
       const mockUser = {
         id: '1',

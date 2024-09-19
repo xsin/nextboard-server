@@ -9,7 +9,7 @@ import { CreateUserDto } from '../user/dto/create.dto'
 import { UserService } from '../user/user.service'
 import { VCodeService } from '../vcode/vcode.service'
 import { AuthService } from './auth.service'
-import { LoginRequestDto } from './dto/login.dto'
+import { LoginRequestDto, RefreshTokenRequestDto } from './dto/login.dto'
 import { TokenService } from './token.service'
 
 describe('authService', () => {
@@ -35,6 +35,7 @@ describe('authService', () => {
     createdBy: '1',
     updatedBy: '1',
     password: 'hashed_password1',
+    loginAt: new Date(),
   }
 
   const mockNewUser: IUser = {
@@ -52,6 +53,7 @@ describe('authService', () => {
     updatedAt: new Date(),
     createdBy: '1',
     updatedBy: '1',
+    loginAt: new Date(),
   }
 
   const mockNewUserFull: IUserFull = {
@@ -71,6 +73,7 @@ describe('authService', () => {
     updatedBy: '1',
     password: 'hashed_password1',
     resources: undefined,
+    loginAt: new Date(),
   }
 
   const mockUserVerified: IUserFull = {
@@ -90,6 +93,7 @@ describe('authService', () => {
     updatedBy: '1',
     password: 'hashed_password1',
     resources: undefined,
+    loginAt: new Date(),
   }
 
   const mockTokens = {
@@ -117,6 +121,7 @@ describe('authService', () => {
           useValue: {
             validateJwt: vi.fn(),
             generateTokens: vi.fn(),
+            refreshToken: vi.fn(),
           },
         },
         {
@@ -301,6 +306,41 @@ describe('authService', () => {
       vi.spyOn(vcodeService, 'verify').mockResolvedValue(false)
 
       await expect(service.loginWithOTP(email, code)).rejects.toThrow(UnauthorizedException)
+    })
+  })
+
+  describe('refreshToken', () => {
+    it('should refresh tokens successfully', async () => {
+      const dto: RefreshTokenRequestDto = {
+        refreshToken: 'valid-refresh-token',
+        provider: TAccountProvider.localPwd,
+        username: 'test@example.com',
+      }
+      vi.spyOn(tokenService, 'refreshToken').mockResolvedValue(mockTokens)
+
+      const result = await service.refreshToken(dto)
+
+      expect(result).toEqual(mockTokens)
+      expect(tokenService.refreshToken).toHaveBeenCalledWith(dto)
+      expect(userService.updateAccount).toHaveBeenCalledWith(dto.provider, dto.username, {
+        accessToken: mockTokens.accessToken,
+        refreshToken: mockTokens.refreshToken,
+        expiredAt: mockTokens.accessTokenExpiredAt,
+        refreshExpiredAt: mockTokens.refreshTokenExpiredAt,
+      })
+    })
+
+    it('should throw UnauthorizedException if refresh token is invalid', async () => {
+      const dto: RefreshTokenRequestDto = {
+        refreshToken: 'invalid-refresh-token',
+        provider: TAccountProvider.localPwd,
+        username: 'test@example.com',
+      }
+      vi.spyOn(tokenService, 'refreshToken').mockRejectedValue(new UnauthorizedException('Invalid refresh token'))
+
+      await expect(service.refreshToken(dto)).rejects.toThrow(UnauthorizedException)
+      expect(tokenService.refreshToken).toHaveBeenCalledWith(dto)
+      expect(userService.updateAccount).not.toHaveBeenCalled()
     })
   })
 })

@@ -34,6 +34,7 @@ describe('validateConfigs', () => {
       NB_REDIS_TTL_COMMON: 5,
       NB_REDIS_TTL_JWT_USER: 60,
       NB_REDIS_MAX_ITEMS: 1000,
+      NB_MAIL_RESEND_INTERVAL: 60,
     }
 
     const result = validateConfigs(validConfig)
@@ -71,6 +72,7 @@ describe('validateConfigs', () => {
       NB_REDIS_TTL_COMMON: 5,
       NB_REDIS_TTL_JWT_USER: 60,
       NB_REDIS_MAX_ITEMS: 1000,
+      NB_MAIL_RESEND_INTERVAL: 60,
     }
 
     expect(() => validateConfigs(invalidConfig)).toThrow()
@@ -106,6 +108,7 @@ describe('validateConfigs', () => {
       NB_REDIS_TTL_COMMON: 5,
       NB_REDIS_TTL_JWT_USER: 60,
       NB_REDIS_MAX_ITEMS: 1000,
+      NB_MAIL_RESEND_INTERVAL: 60,
       name: 'MyApp',
       description: 'My awesome app',
       keywords: ['app', 'awesome'],

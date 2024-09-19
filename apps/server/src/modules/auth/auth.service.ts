@@ -4,12 +4,13 @@ import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/co
 import {
   type ISendEmailResult,
   type IUser,
+  IUserToken,
+  NBError,
   TAccountProvider,
   TAccountType,
 } from '@nextboard/common'
 import { pick } from 'radash'
 import { CreateAccountDto } from '../account/dto/create.dto'
-import { UpdateAccountDto } from '../account/dto/update.dto'
 import { MailService } from '../mail/mail.service'
 import {
   CreateUserDto,
@@ -17,7 +18,7 @@ import {
 import { UserPublicKeys } from '../user/dto/user.dto'
 import { UserService } from '../user/user.service'
 import { VCodeService } from '../vcode/vcode.service'
-import { LoginRequestDto } from './dto/login.dto'
+import { LoginRequestDto, RefreshTokenRequestDto } from './dto/login.dto'
 import { TokenService } from './token.service'
 
 @Injectable()
@@ -49,25 +50,42 @@ export class AuthService {
     // Return user with tokens
     const user1 = await this.getLoginResponseData(user)
     // Update the Account record with the latest tokens
-    await this.updateAccountTokens(user1, TAccountProvider.localPwd)
+    await this.userService.updateAccount(TAccountProvider.localPwd, user1.email, {
+      accessToken: user1.accessToken,
+      refreshToken: user1.refreshToken,
+      expiredAt: user1.accessTokenExpiredAt,
+      refreshExpiredAt: user1.refreshTokenExpiredAt,
+    })
 
     return user1
+  }
+
+  async refreshToken(dto: RefreshTokenRequestDto): Promise<IUserToken> {
+    const tokens = await this.tokenService.refreshToken(dto)
+    // Update the Account record with the latest tokens
+    await this.userService.updateAccount(dto.provider, dto.username, {
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      expiredAt: tokens.accessTokenExpiredAt,
+      refreshExpiredAt: tokens.refreshTokenExpiredAt,
+    })
+    return tokens
   }
 
   private async validateUser(dto: LoginRequestDto): Promise<IUser> {
     const user = await this.userService.findByEmailX(dto.username)
     if (!user) {
-      throw new NotFoundException('User not found')
+      throw new NotFoundException(NBError.NOT_FOUND)
     }
 
     // Check email's verification status
     if (!user.emailVerifiedAt) {
-      throw new UnauthorizedException('Email is not verified')
+      throw new UnauthorizedException(NBError.AUTH_UNVERIFIED_EMAIL)
     }
 
     const isValid = await comparePasswords(dto.password, user.password)
     if (!isValid) {
-      throw new UnauthorizedException('Invalid password')
+      throw new UnauthorizedException(NBError.AUTH_INVALID_PWD)
     }
 
     return user
@@ -112,7 +130,7 @@ export class AuthService {
       code,
     })
     if (!isCodeValid) {
-      throw new UnauthorizedException('Invalid verification code')
+      throw new UnauthorizedException(NBError.AUTH_INVALID_OTP)
     }
 
     let user = await this.userService.findByEmailX(email)
@@ -143,7 +161,12 @@ export class AuthService {
     const user1 = await this.getLoginResponseData(user)
 
     // Update the Account record with the latest tokens
-    await this.updateAccountTokens(user1, TAccountProvider.localOtp)
+    await this.userService.updateAccount(TAccountProvider.localOtp, user1.email, {
+      accessToken: user1.accessToken,
+      refreshToken: user1.refreshToken,
+      expiredAt: user1.accessTokenExpiredAt,
+      refreshExpiredAt: user1.refreshTokenExpiredAt,
+    })
 
     return user1
   }
@@ -156,15 +179,5 @@ export class AuthService {
       ...tokens,
       resources: user.resources,
     }
-  }
-
-  private async updateAccountTokens(user: IUser, provider: TAccountProvider): Promise<void> {
-    const accountUpdateDto: UpdateAccountDto = {
-      accessToken: user.accessToken,
-      refreshToken: user.refreshToken,
-      expiredAt: user.accessTokenExpiredAt,
-      refreshExpiredAt: user.refreshTokenExpiredAt,
-    }
-    await this.userService.updateAccount(provider, user.email, accountUpdateDto)
   }
 }

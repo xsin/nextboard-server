@@ -60,6 +60,12 @@ export class ConfigDto implements IConfigDto {
   @IsInt()
   NB_OTP_EXPIRY: number
 
+  /**
+   * OTP resend interval in seconds
+   */
+  @IsInt()
+  NB_MAIL_RESEND_INTERVAL: number
+
   @IsInt()
   NB_APP_PORT: number
 

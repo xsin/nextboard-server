@@ -35,6 +35,7 @@ export class AppConfigService implements IConfigDto {
   NB_MAIL_SUBJECT_VERIFY: string
   NB_MAIL_SUBJECT_OTP: string
   NB_MAIL_VERIFY_EXPIRY: number
+  NB_MAIL_RESEND_INTERVAL: number
   NB_BRAND_NAME: string
   // Redis
   NB_REDIS_HOST: string
@@ -59,6 +60,7 @@ export class AppConfigService implements IConfigDto {
     this.JWT_REFRESH_SECRET = this.configService.get<string>(C.C_JWT_REFRESH_SECRET)
     this.NB_DEFAULT_ROLE_ID = this.configService.get<string>(C.C_DEFAULT_ROLE_ID)
     this.NB_OTP_EXPIRY = this.configService.get<number>(C.C_OTP_EXPIRY)
+    this.NB_MAIL_RESEND_INTERVAL = this.configService.get<number>(C.C_NB_MAIL_RESEND_INTERVAL)
     this.NB_APP_PORT = this.configService.get<number>(C.C_APP_PORT)
     this.NB_SMTP_HOST = this.configService.get<string>(C.C_NB_SMTP_HOST)
     this.NB_SMTP_PORT = this.configService.get<number>(C.C_NB_SMTP_PORT)

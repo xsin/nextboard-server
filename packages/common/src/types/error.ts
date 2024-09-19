@@ -20,4 +20,5 @@ export enum NBError {
   AUTH_OTP_EXISTS = 'error.authOTPExists',
   AUTH_INVALID_OTP = 'error.authInvalidOTP',
   AUTH_INVALID_PWD = 'error.authInvalidPassword',
+  AUTH_UNVERIFIED_EMAIL = 'error.authUnverifiedEmail',
 }
