@@ -18,6 +18,10 @@ export enum TPermission {
   RESOURCE_CREATE = 'resource.create',
   RESOURCE_UPDATE = 'resource.update',
   RESOURCE_DELETE = 'resource.delete',
+  DIC_SELECT = 'dic.select',
+  DIC_CREATE = 'dic.create',
+  DIC_UPDATE = 'dic.update',
+  DIC_DELETE = 'dic.delete',
   LOG_SELECT = 'log.select',
   LOG_DELETE = 'log.delete',
 }
