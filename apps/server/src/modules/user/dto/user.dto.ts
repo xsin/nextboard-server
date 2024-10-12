@@ -1,7 +1,7 @@
-import type { IUser, IUserToken } from '@nextboard/common'
+import type { IUser, IUserToken } from '@xsin/nextboard-common'
 import { ResourceDto } from '@/modules/resource/dto/resource.dto'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { KeysOf, Prisma, TUserGender } from '@nextboard/common'
+import { KeysOf, Prisma, TUserGender } from '@xsin/nextboard-common'
 
 type TUserSelectScalar = Omit<Prisma.UserSelectScalar, 'password'>
 

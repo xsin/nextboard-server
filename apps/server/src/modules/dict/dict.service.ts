@@ -1,10 +1,10 @@
+import type { Dict, IListQueryDto, IListQueryResult } from '@xsin/nextboard-common'
+import { buildFindManyParams } from '@/common/utils'
 import { Injectable } from '@nestjs/common'
-import type { Dict, IListQueryDto, IListQueryResult } from '@nextboard/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateDictDto } from './dto/create.dto'
 import { UpdateDictDto } from './dto/update.dto'
-import { buildFindManyParams } from '@/common/utils'
 
 @Injectable()
 export class DictService {

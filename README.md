@@ -1,4 +1,4 @@
-# @nextboard/server
+# @xsin/nextboard-server
 
 https://docs.qq.com/desktop/mydoc/folder/BhdvnNAanMKd
 
@@ -155,14 +155,14 @@ https://docs.qq.com/desktop/mydoc/folder/BhdvnNAanMKd
 
 ### 具体步骤
 
-1. 创建共享包（`@nextboard/common`）
+1. 创建共享包（`@xsin/nextboard-common`）
 
 在项目中创建一个共享的包，用于存放客户端和服务端共享的类型文件。
 在共享包中创建一个类型文件，只导出需要在客户端使用的类型。例如：
 
 ```ts
 // packages/shared/prisma/types/index.ts
-export type { User, Post } from '@prisma/client'
+export type { Post, User } from '@prisma/client'
 ```
 
 2. 配置 Typescript 路径
@@ -174,7 +174,7 @@ export type { User, Post } from '@prisma/client'
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@nextboard/common": ["../../packages/common/src/index.ts"]
+      "@xsin/nextboard-common": ["../../packages/common/src/index.ts"]
     }
   }
 }
@@ -185,7 +185,7 @@ export type { User, Post } from '@prisma/client'
 在服务器端和客户端代码中分别导入共享类型。
 
 ```ts
-import type { Post, User } from '@nextboard/common'
+import type { Post, User } from '@xsin/nextboard-common'
 ```
 
 NestJS 项目中的 DTO（数据传输对象）通常是类，并且可能包含装饰器和验证逻辑，这些类不适合直接共享给客户端。客户端通常只需要类型定义，而不需要这些类的具体实现和装饰器。

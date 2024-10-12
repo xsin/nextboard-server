@@ -12,7 +12,7 @@ import {
   type IUserProfile,
   NBError,
   type Resource,
-} from '@nextboard/common'
+} from '@xsin/nextboard-common'
 import { isEmpty, omit } from 'radash'
 import { AccountService } from '../account/account.service'
 import { CreateAccountDto } from '../account/dto/create.dto'

@@ -1,10 +1,10 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing'
-import { IListQueryDto, IListQueryResult, Resource, TResourceOpenTarget } from '@nextboard/common'
+import { IListQueryDto, IListQueryResult, Resource, TResourceOpenTarget } from '@xsin/nextboard-common'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PrismaService } from '../prisma/prisma.service'
-import { ResourceService } from './resource.service'
 import { CreateResourceDto } from './dto/create.dto'
 import { UpdateResourceDto } from './dto/update.dto'
+import { ResourceService } from './resource.service'
 
 describe('resourceService', () => {
   let service: ResourceService

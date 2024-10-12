@@ -8,7 +8,7 @@ import {
   NBError,
   TAccountProvider,
   TAccountType,
-} from '@nextboard/common'
+} from '@xsin/nextboard-common'
 import { pick } from 'radash'
 import { CreateAccountDto } from '../account/dto/create.dto'
 import { MailService } from '../mail/mail.service'

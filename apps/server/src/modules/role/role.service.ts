@@ -1,10 +1,10 @@
+import type { IListQueryDto, IListQueryResult, Role } from '@xsin/nextboard-common'
+import { buildFindManyParams } from '@/common/utils'
 import { Injectable } from '@nestjs/common'
-import type { IListQueryDto, IListQueryResult, Role } from '@nextboard/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateRoleDto } from './dto/create.dto'
 import { UpdateRoleDto } from './dto/update.dto'
-import { buildFindManyParams } from '@/common/utils'
 
 @Injectable()
 export class RoleService {

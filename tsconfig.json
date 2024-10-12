@@ -6,10 +6,10 @@
     "experimentalDecorators": true,
     "module": "ESNext",
     "paths": {
-      "@nextboard/common": [
+      "@xsin/nextboard-common": [
         "./packages/common/src"
       ],
-      "@nextboard/common/*": [
+      "@xsin/nextboard-common/*": [
         "./packages/common/src/*"
       ]
     },

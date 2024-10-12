@@ -1,10 +1,10 @@
+import type { IListQueryDto, IListQueryResult, Permission } from '@xsin/nextboard-common'
+import { buildFindManyParams } from '@/common/utils'
 import { Injectable } from '@nestjs/common'
-import type { IListQueryDto, IListQueryResult, Permission } from '@nextboard/common'
 import { Prisma } from '@prisma/client'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreatePermissionDto } from './dto/create.dto'
 import { UpdatePermissionDto } from './dto/update.dto'
-import { buildFindManyParams } from '@/common/utils'
 
 @Injectable()
 export class PermissionService {

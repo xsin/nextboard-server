@@ -1,12 +1,12 @@
+import { ListQueryDto } from '@/common/dto'
 import { Test, TestingModule } from '@nestjs/testing'
+import { TResourceOpenTarget } from '@xsin/nextboard-common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { TResourceOpenTarget } from '@nextboard/common'
+import { CreateResourceDto } from './dto/create.dto'
+import { ResourceDto } from './dto/resource.dto'
+import { UpdateResourceDto } from './dto/update.dto'
 import { ResourceController } from './resource.controller'
 import { ResourceService } from './resource.service'
-import { CreateResourceDto } from './dto/create.dto'
-import { UpdateResourceDto } from './dto/update.dto'
-import { ResourceDto } from './dto/resource.dto'
-import { ListQueryDto } from '@/common/dto'
 
 describe('resourceController', () => {
   let controller: ResourceController

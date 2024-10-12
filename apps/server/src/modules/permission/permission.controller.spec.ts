@@ -1,12 +1,12 @@
+import { ListQueryDto } from '@/common/dto'
 import { Test, TestingModule } from '@nestjs/testing'
+import { Permission } from '@xsin/nextboard-common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { Permission } from '@nextboard/common'
+import { CreatePermissionDto } from './dto/create.dto'
+import { PermissionDto } from './dto/permission.dto'
+import { UpdatePermissionDto } from './dto/update.dto'
 import { PermissionController } from './permission.controller'
 import { PermissionService } from './permission.service'
-import { CreatePermissionDto } from './dto/create.dto'
-import { UpdatePermissionDto } from './dto/update.dto'
-import { PermissionDto } from './dto/permission.dto'
-import { ListQueryDto } from '@/common/dto'
 
 describe('permissionController', () => {
   let controller: PermissionController

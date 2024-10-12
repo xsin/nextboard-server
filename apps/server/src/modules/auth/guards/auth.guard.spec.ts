@@ -1,7 +1,7 @@
+import type { IUser } from '@xsin/nextboard-common'
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { IUser } from '@nextboard/common'
 import { AuthService } from '../auth.service'
 import { AuthGuard } from './auth.guard'
 
@@ -24,6 +24,7 @@ describe('authGuard', () => {
     disabled: false,
     createdBy: '1',
     updatedBy: '1',
+    loginAt: new Date(),
   }
 
   beforeEach(async () => {

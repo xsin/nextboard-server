@@ -1,11 +1,11 @@
+import type { Account, IListQueryDto, IListQueryResult } from '@xsin/nextboard-common'
+import { buildFindManyParams } from '@/common/utils'
 import { Test, TestingModule } from '@nestjs/testing'
+import { Prisma, TAccountProvider } from '@xsin/nextboard-common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import type { Account, IListQueryDto, IListQueryResult } from '@nextboard/common'
-import { Prisma, TAccountProvider } from '@nextboard/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { AccountService } from './account.service'
 import { UpdateAccountDto } from './dto/update.dto'
-import { buildFindManyParams } from '@/common/utils'
 
 // Mock the buildFindManyParams function
 vi.mock('@/common/utils', () => ({

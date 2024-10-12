@@ -1,6 +1,6 @@
-import type { IUser, IUserFull, IUserToken, IUserTokenPayload } from '@nextboard/common'
 import type { Request } from 'express'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { type IUser, type IUserFull, type IUserToken, type IUserTokenPayload, TAccountProvider } from '@xsin/nextboard-common'
 /* eslint-disable dot-notation */
 import { NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
@@ -400,7 +400,11 @@ describe('tokenService', () => {
 
   describe('refreshToken', () => {
     it('should refresh token and return new tokens', async () => {
-      const mockDto: RefreshTokenRequestDto = { refreshToken: 'valid-refresh-token' }
+      const mockDto: RefreshTokenRequestDto = {
+        refreshToken: 'valid-refresh-token',
+        provider: TAccountProvider.localPwd,
+        username: 'test@example.com',
+      }
       const mockPayload: IUserTokenPayload = { iss: 'NextBoard', username: 'test@example.com', sub: '1' }
       const mockTokens: IUserToken = {
         accessToken: 'new-access-token',
@@ -418,13 +422,21 @@ describe('tokenService', () => {
     })
 
     it('should throw Exception for invalid refresh token', async () => {
-      const mockDto: RefreshTokenRequestDto = { refreshToken: 'invalid-refresh-token' }
+      const mockDto: RefreshTokenRequestDto = {
+        refreshToken: 'invalid-refresh-token',
+        provider: TAccountProvider.localPwd,
+        username: 'test@example.com',
+      }
       vi.spyOn(jwtService, 'verifyAsync').mockRejectedValue(new Error('Invalid token'))
       await expect(service.refreshToken(mockDto)).rejects.toThrow(Error)
     })
 
     it('should throw NotFoundException for non-existent user', async () => {
-      const mockDto: RefreshTokenRequestDto = { refreshToken: 'valid-refresh-token' }
+      const mockDto: RefreshTokenRequestDto = {
+        refreshToken: 'valid-refresh-token',
+        provider: TAccountProvider.localPwd,
+        username: 'test@example.com',
+      }
       const mockPayload: IUserTokenPayload = { iss: 'NextBoard', username: 'test@example.com', sub: '1' }
       vi.spyOn(jwtService, 'verifyAsync').mockResolvedValue(mockPayload)
       vi.spyOn(userService, 'findByEmail').mockResolvedValue(null)

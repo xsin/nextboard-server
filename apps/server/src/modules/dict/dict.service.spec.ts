@@ -1,6 +1,6 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Dict, IListQueryDto, IListQueryResult } from '@nextboard/common'
+import { Dict, IListQueryDto, IListQueryResult } from '@xsin/nextboard-common'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PrismaService } from '../prisma/prisma.service'
 import { DictService } from './dict.service'
 import { CreateDictDto } from './dto/create.dto'

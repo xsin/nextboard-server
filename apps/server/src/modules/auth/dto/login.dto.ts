@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { NBError, TAccountProvider } from '@nextboard/common'
+import { NBError, TAccountProvider } from '@xsin/nextboard-common'
 import { IsEmail, IsEnum, IsString, Matches } from 'class-validator'
 
 export class LoginRequestDto {

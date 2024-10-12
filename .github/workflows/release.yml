@@ -34,7 +34,9 @@ jobs:
         run: pnpm i
 
       - name: PNPM build
-        run: pnpm run pkg:build
+        run: |
+          pnpm run prisma:gen
+          pnpm run pkg:build
 
       - name: Publish to NPM
         run: pnpm -r publish --filter "@xsin/nextboard-common" --access public --no-git-checks

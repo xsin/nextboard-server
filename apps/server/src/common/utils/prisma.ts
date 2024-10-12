@@ -1,5 +1,5 @@
+import type { IListQueryDto } from '@xsin/nextboard-common'
 import { isEmpty } from 'radash'
-import type { IListQueryDto } from '@nextboard/common'
 
 /**
  * Builds the parameters for a Prisma findMany query based on the provided DTO.

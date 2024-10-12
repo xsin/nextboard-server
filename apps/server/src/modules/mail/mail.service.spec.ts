@@ -1,6 +1,6 @@
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { EmailService, EmailType, NBError } from '@nextboard/common'
+import { EmailService, EmailType, NBError } from '@xsin/nextboard-common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'

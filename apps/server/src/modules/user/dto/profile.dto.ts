@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IUserProfile, TUserGender } from '@nextboard/common'
+import { IUserProfile, TUserGender } from '@xsin/nextboard-common'
 
 export class UserProfileDto implements IUserProfile {
   @ApiProperty({ description: 'User ID' })

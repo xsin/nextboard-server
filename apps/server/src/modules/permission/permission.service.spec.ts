@@ -1,10 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { IListQueryDto, Permission } from '@nextboard/common'
+import { IListQueryDto, Permission } from '@xsin/nextboard-common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PrismaService } from '../prisma/prisma.service'
-import { PermissionService } from './permission.service'
 import { CreatePermissionDto } from './dto/create.dto'
 import { UpdatePermissionDto } from './dto/update.dto'
+import { PermissionService } from './permission.service'
 
 describe('permissionService', () => {
   let service: PermissionService
