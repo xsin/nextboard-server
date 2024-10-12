@@ -7,6 +7,10 @@
   "author": {
     "name": "XSIN STUDIO"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xsin/nextboard-server"
+  },
   "keywords": [
     "NextBoard"
   ],
