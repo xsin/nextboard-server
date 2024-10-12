@@ -1,8 +1,8 @@
 import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
 import { ListQueryDto, ListQueryResult } from '@/common/dto'
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, Request as Req, Res } from '@nestjs/common'
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
-import { EmailType, NBError, TPermission } from '@nextboard/common'
+import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
+import { EmailType, IUserProfile, NBError, TPermission } from '@nextboard/common'
 import { TAccountProvider, TAccountType } from '@prisma/client'
 import { Request, Response } from 'express'
 import { CreateAccountDto } from '../account/dto/create.dto'
@@ -30,6 +30,7 @@ export class UserController {
   @NBApiResponse(UserDto, {
     description: 'Create a new user',
   })
+  @Permissions(TPermission.USER_CREATE)
   async create(@Body() dto: CreateUserDto): Promise<UserDto> {
     const createAccountDto: CreateAccountDto = {
       type: TAccountType.local,
@@ -52,6 +53,7 @@ export class UserController {
   @NBApiResponsePaginated(UserDto, {
     description: 'Get all users',
   })
+  @Permissions(TPermission.USER_SELECT)
   async findAll(@Query() dto: ListQueryDto): Promise<ListQueryResult<UserDto>> {
     return this.userService.findAll(dto)
   }
@@ -61,6 +63,7 @@ export class UserController {
   })
   @ApiOperation({ summary: 'Get user resources' })
   @Get('resources')
+  @Permissions(TPermission.USER_SELECT)
   async getResources(@Req() req: Request): Promise<ListQueryResult<ResourceDto>> {
     return this.userService.findUserResources(req.user?.email)
   }
@@ -85,6 +88,30 @@ export class UserController {
   @Get('me')
   async getSelfProfile(@Req() req: Request): Promise<UserProfileDto> {
     return this.userService.getUserProfileByEmail(req.user?.email)
+  }
+
+  @Patch('me')
+  @NBApiResponse(UserProfileDto, {
+    description: 'Update self profile',
+  })
+  @ApiOperation({ summary: 'Update self profile' })
+  async updateSelf(@Req() req: Request, @Body() dto: UpdateUserDto): Promise<UserProfileDto> {
+    const user = await this.userService.update(req.user?.id, dto)
+    // Convert to UserProfileDto
+    const userProfileDto: IUserProfile = {
+      id: user.id,
+      name: user.name,
+      displayName: user.displayName,
+      email: user.email,
+      avatar: user.avatar,
+      emailVerifiedAt: user.emailVerifiedAt,
+      gender: user.gender,
+      birthday: user.birthday,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      loginAt: user.loginAt,
+    }
+    return userProfileDto
   }
 
   @Public()
@@ -132,6 +159,7 @@ export class UserController {
     description: 'Get a user by ID',
   })
   @ApiOperation({ summary: 'Get a user by ID' })
+  @Permissions(TPermission.USER_SELECT)
   async findOne(@Param('id') id: string): Promise<UserDto> {
     return this.userService.findOne(id)
   }
@@ -141,6 +169,7 @@ export class UserController {
     description: 'Update a user by ID',
   })
   @ApiOperation({ summary: 'Update a user by ID' })
+  @Permissions(TPermission.USER_UPDATE)
   async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto): Promise<UserDto> {
     return this.userService.update(id, updateUserDto)
   }
@@ -150,6 +179,7 @@ export class UserController {
     description: 'Delete a user by ID',
   })
   @ApiOperation({ summary: 'Delete a user by ID' })
+  @Permissions(TPermission.USER_DELETE)
   async remove(@Param('id') id: string): Promise<UserDto> {
     return this.userService.remove(id)
   }

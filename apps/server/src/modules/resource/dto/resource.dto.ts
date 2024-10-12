@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger'
 import type { Resource, TResourceOpenTarget } from '@nextboard/common'
+import { ApiProperty } from '@nestjs/swagger'
 
 export class ResourceDto implements Resource {
   @ApiProperty({ description: 'Resource ID' })

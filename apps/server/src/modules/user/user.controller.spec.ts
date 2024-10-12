@@ -1,4 +1,4 @@
-import type { User } from '@nextboard/common'
+import type { IUserProfile, User } from '@nextboard/common'
 import { ListQueryDto } from '@/common/dto'
 import { BadRequestException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -32,6 +32,7 @@ describe('userController', () => {
     createdBy: '1',
     updatedBy: '1',
     password: 'hashed_password1',
+    loginAt: new Date(),
   }
 
   const mockUserService = {
@@ -131,6 +132,32 @@ describe('userController', () => {
       const result = await controller.update('1', updateUserDto)
 
       expect(result).toEqual({ ...mockUser, ...updateUserDto })
+      expect(mockUserService.update).toHaveBeenCalledWith('1', updateUserDto)
+    })
+  })
+
+  describe('updateSelf', () => {
+    it('should update self profile', async () => {
+      const updateUserDto: UpdateUserDto = { name: 'Updated Name' }
+      const mockRequest = { user: { id: '1' } } as any
+      const updatedUser: IUserProfile = {
+        id: '1',
+        name: updateUserDto.name,
+        displayName: mockUser.displayName,
+        email: mockUser.email,
+        avatar: mockUser.avatar,
+        emailVerifiedAt: mockUser.emailVerifiedAt,
+        gender: mockUser.gender,
+        birthday: mockUser.birthday,
+        createdAt: mockUser.createdAt,
+        updatedAt: mockUser.updatedAt,
+        loginAt: mockUser.loginAt,
+      }
+      mockUserService.update.mockResolvedValue(updatedUser)
+
+      const result = await controller.updateSelf(mockRequest, updateUserDto)
+
+      expect(result).toEqual(updatedUser)
       expect(mockUserService.update).toHaveBeenCalledWith('1', updateUserDto)
     })
   })

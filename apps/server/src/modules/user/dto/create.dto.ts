@@ -1,43 +1,43 @@
 import { Match } from '@/common/decorators/match.decorator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Prisma } from '@nextboard/common'
+import { Prisma, TUserGender } from '@nextboard/common'
 import { Type } from 'class-transformer'
-import { IsBoolean, IsDate, IsEmail, IsOptional, IsString, Length, Matches } from 'class-validator'
+import { IsBoolean, IsDate, IsEmail, IsEnum, IsOptional, IsString, IsUrl, Length, Matches } from 'class-validator'
 
 export class CreateUserDto implements Prisma.UserCreateInput {
   @ApiProperty({ description: 'Email address' })
   @IsEmail()
-  readonly email: string
+  email: string
 
   @ApiProperty({ description: 'Password' })
   @IsString()
   @Matches(/^(?=.*[!@#$%^&*(),.?":{}|<>]).{8,20}$/, {
     message: 'Password must be 8-20 characters long and contain at least one special character',
   })
-  readonly password: string
+  password: string
 
   @ApiProperty({ description: 'Confirm password' })
   @IsString()
   @Match('password', { message: 'Passwords do not match' })
-  readonly password1: string
+  password1: string
 
   @ApiPropertyOptional({ description: 'User name' })
   @IsString()
   @Length(4, 20)
   @IsOptional()
-  readonly name?: string | null
+  name?: string | null
 
   @ApiPropertyOptional({ description: 'User display name' })
   @IsString()
   @Length(4, 20)
   @IsOptional()
-  readonly displayName?: string | null
+  displayName?: string | null
 
   @ApiPropertyOptional({ description: 'User email verified date' })
   @IsDate()
   @IsOptional()
   @Type(() => Date)
-  readonly emailVerifiedAt?: Date | string | null
+  emailVerifiedAt?: Date | string | null
 
   @ApiPropertyOptional({ description: 'User online status' })
   @IsOptional()
@@ -49,4 +49,21 @@ export class CreateUserDto implements Prisma.UserCreateInput {
   @IsOptional()
   @Type(() => Date)
   loginAt?: Date | string | null
+
+  @ApiPropertyOptional({ description: 'User Avatar' })
+  @IsString()
+  @IsOptional()
+  @IsUrl()
+  avatar?: string | null
+
+  @ApiPropertyOptional({ description: 'User Gender' })
+  @IsEnum(TUserGender)
+  @IsOptional()
+  gender?: TUserGender
+
+  @ApiPropertyOptional({ description: 'User Birthday' })
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date)
+  birthday?: Date | string | null
 }

@@ -1,9 +1,9 @@
 {
-  "name": "@nextboard/supabase",
-  "version": "1.0.0",
+  "name": "@xsin/nextboard-supabase",
+  "version": "0.0.1",
   "description": "Supabase data provider for NextBoard",
   "author": {
-    "name": "Levin Wong"
+    "name": "XSIN STUDIO"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

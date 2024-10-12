@@ -1,18 +1,19 @@
-import type {
-  IListQueryDto,
-  IListQueryResult,
-  IUser,
-  IUserFull,
-  IUserProfile,
-  Resource,
-} from '@nextboard/common'
 import type { Account, Prisma, TAccountProvider } from '@prisma/client'
 import type { CreateUserDto } from './dto/create.dto'
 import type { UpdateUserDto } from './dto/update.dto'
 import { buildFindManyParams } from '@/common/utils'
 import { saltAndHashPassword } from '@/common/utils/password'
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common'
-import { omit } from 'radash'
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
+import {
+  type IListQueryDto,
+  type IListQueryResult,
+  type IUser,
+  type IUserFull,
+  type IUserProfile,
+  NBError,
+  type Resource,
+} from '@nextboard/common'
+import { isEmpty, omit } from 'radash'
 import { AccountService } from '../account/account.service'
 import { CreateAccountDto } from '../account/dto/create.dto'
 import { UpdateAccountDto } from '../account/dto/update.dto'
@@ -171,11 +172,26 @@ export class UserService {
   }
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<IUser> {
+    if (isEmpty(id)) {
+      throw new BadRequestException(NBError.INVALID_PARAMETERS)
+    }
+
+    // process password
+    if (updateUserDto.password && updateUserDto.password1 && updateUserDto.password === updateUserDto.password1) {
+      updateUserDto.password = await saltAndHashPassword(updateUserDto.password)
+    }
+
+    // remove password1 from updateUserDto
+    const {
+      password1,
+      ...userDto
+    } = updateUserDto
+
     return this.prismaService.user.update({
       where: {
         id,
       },
-      data: updateUserDto,
+      data: userDto,
       select: UserColumns,
     })
   }

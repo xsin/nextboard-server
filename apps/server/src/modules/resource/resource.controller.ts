@@ -1,11 +1,11 @@
+import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
+import { ListQueryDto, ListQueryResult } from '@/common/dto'
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
-import { ResourceService } from './resource.service'
 import { CreateResourceDto } from './dto/create.dto'
-import { UpdateResourceDto } from './dto/update.dto'
 import { ResourceDto } from './dto/resource.dto'
-import { ListQueryDto, ListQueryResult } from '@/common/dto'
-import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
+import { UpdateResourceDto } from './dto/update.dto'
+import { ResourceService } from './resource.service'
 
 @ApiTags('resource')
 @Controller('resource')

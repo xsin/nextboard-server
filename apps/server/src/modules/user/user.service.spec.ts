@@ -1,7 +1,7 @@
 import type { Account, IUser, IUserFull, IUserProfile, Resource, User } from '@nextboard/common'
 import { buildFindManyParams } from '@/common/utils'
 import { saltAndHashPassword } from '@/common/utils/password'
-import { ConflictException, NotFoundException } from '@nestjs/common'
+import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { Prisma, TAccountProvider, TAccountType, TResourceOpenTarget, TUserGender } from '@nextboard/common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -246,18 +246,53 @@ describe('userService', () => {
   })
 
   describe('update', () => {
-    it('should update a user', async () => {
+    it('should update a user successfully', async () => {
       const updateUserDto: UpdateUserDto = { name: 'Updated Name' }
-      const mockUser = { ...mockUser1, name: 'Updated Name' }
+      const emailVerifiedAt = typeof mockUser1.emailVerifiedAt === 'string' ? new Date(mockUser1.emailVerifiedAt) : mockUser1.emailVerifiedAt
+      const birthday = typeof mockUser1.birthday === 'string' ? new Date(mockUser1.birthday) : mockUser1.birthday
+      const loginAt = typeof mockUser1.loginAt === 'string' ? new Date(mockUser1.loginAt) : mockUser1.loginAt
+      const mockUser = { ...mockUser1, ...updateUserDto, emailVerifiedAt, birthday, loginAt }
       vi.spyOn(prismaService.user, 'update').mockResolvedValue(mockUser)
 
       const result = await service.update('1', updateUserDto)
 
-      expect(result).toEqual(mockUser)
+      expect(result).toEqual({ ...mockUser1, ...updateUserDto })
       expect(prismaService.user.update).toHaveBeenCalledWith({
         where: { id: '1' },
         data: updateUserDto,
-        select: UserColumns,
+        select: expect.any(Object),
+      })
+    })
+
+    it('should throw BadRequestException if id is empty', async () => {
+      const updateUserDto: UpdateUserDto = { name: 'Updated Name' }
+
+      await expect(service.update('', updateUserDto)).rejects.toThrow(BadRequestException)
+    })
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      const updateUserDto: UpdateUserDto = { name: 'Updated Name' }
+      vi.spyOn(prismaService.user, 'update').mockRejectedValue(new NotFoundException())
+
+      await expect(service.update('nonexistent-id', updateUserDto)).rejects.toThrow(NotFoundException)
+    })
+
+    it('should hash the password if password and password1 are provided and match', async () => {
+      const updateUserDto: UpdateUserDto = { password: 'new_password', password1: 'new_password' }
+      const emailVerifiedAt = typeof mockUser1.emailVerifiedAt === 'string' ? new Date(mockUser1.emailVerifiedAt) : mockUser1.emailVerifiedAt
+      const birthday = typeof mockUser1.birthday === 'string' ? new Date(mockUser1.birthday) : mockUser1.birthday
+      const loginAt = typeof mockUser1.loginAt === 'string' ? new Date(mockUser1.loginAt) : mockUser1.loginAt
+      const mockUser = { ...mockUser1, ...updateUserDto, emailVerifiedAt, birthday, loginAt }
+      vi.mocked(saltAndHashPassword).mockResolvedValue('hashed_password')
+      vi.spyOn(prismaService.user, 'update').mockResolvedValue(mockUser)
+
+      await service.update('1', updateUserDto)
+
+      expect(saltAndHashPassword).toHaveBeenCalledWith('new_password')
+      expect(prismaService.user.update).toHaveBeenCalledWith({
+        where: { id: '1' },
+        data: { password: 'hashed_password' },
+        select: expect.any(Object),
       })
     })
   })

@@ -10,9 +10,9 @@ export class ListQueryDto implements IListQueryDto {
     default: 1,
     example: 1,
   })
-  @IsOptional()
   @IsInt()
   @Min(1)
+  @IsOptional()
   page?: number = 1
 
   @ApiPropertyOptional({
@@ -21,9 +21,9 @@ export class ListQueryDto implements IListQueryDto {
     default: 20,
     example: 20,
   })
-  @IsOptional()
   @IsInt()
   @Min(1)
+  @IsOptional()
   limit?: number = 20
 
   @ApiPropertyOptional({

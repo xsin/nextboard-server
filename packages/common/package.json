@@ -1,7 +1,7 @@
 {
-  "name": "@nextboard/common",
+  "name": "@xsin/nextboard-common",
   "type": "module",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "Common utilities for Nextboard, used by both the client and server",
   "author": {
     "name": "XSIN STUDIO"
@@ -40,11 +40,11 @@
     }
   },
   "dependencies": {
-    "@prisma/client": "^5.19.1"
+    "@prisma/client": "^5.20.0"
   },
   "devDependencies": {
-    "@vitest/coverage-v8": "^2.1.1",
+    "@vitest/coverage-v8": "^2.1.2",
     "unbuild": "^2.0.0",
-    "vitest": "^2.1.1"
+    "vitest": "^2.1.2"
   }
 }
