@@ -1,20 +1,20 @@
 import { Prisma } from '@prisma/client'
 
 export type {
-  User,
   Account,
-  Role,
+  Dict,
+  Log,
   Permission,
   Resource,
-  Log,
+  Role,
+  User,
   VCode,
-  Dict,
 } from '@prisma/client'
 
 export {
   TAccountProvider,
-  TResourceOpenTarget,
   TAccountType,
+  TResourceOpenTarget,
   TUserGender,
 } from '@prisma/client'
 
