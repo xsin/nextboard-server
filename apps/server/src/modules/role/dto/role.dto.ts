@@ -1,6 +1,6 @@
 import type {
   Role,
-} from '@xsin/nextboard-common'
+} from '@xsin/xboard'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class RoleDto implements Role {

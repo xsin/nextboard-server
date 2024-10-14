@@ -1,4 +1,4 @@
-import type { VCode } from '@xsin/nextboard-common'
+import type { VCode } from '@xsin/xboard'
 import { Injectable } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateVCodeDto } from './dto/create.dto'

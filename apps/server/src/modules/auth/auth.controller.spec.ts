@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { EmailType, type ISendEmailResult, TAccountProvider, TUserGender } from '@xsin/nextboard-common'
+import { EmailType, type ISendEmailResult, TAccountProvider, TUserGender } from '@xsin/xboard'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreateUserDto } from '../user/dto/create.dto'
 import { UserDto, UserTokenDto } from '../user/dto/user.dto'

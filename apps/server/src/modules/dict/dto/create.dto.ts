@@ -1,6 +1,6 @@
 import type {
   Prisma,
-} from '@xsin/nextboard-common'
+} from '@xsin/xboard'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsJSON, IsOptional, IsString } from 'class-validator'
 

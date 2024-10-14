@@ -1,5 +1,5 @@
-import type { IListQueryDto, User } from '@xsin/nextboard-common'
-import { Prisma } from '@xsin/nextboard-common'
+import type { IListQueryDto, User } from '@xsin/xboard'
+import { Prisma } from '@xsin/xboard'
 import { describe, expect, it } from 'vitest'
 import { buildFindManyParams } from './prisma'
 

@@ -1,8 +1,9 @@
+import type { IUser, IUserFull, IUserToken, IUserTokenPayload } from '@xsin/xboard'
 import type { Request } from 'express'
 import { Cache, CACHE_MANAGER } from '@nestjs/cache-manager'
 import { Inject, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
-import { type IUser, IUserFull, type IUserToken, type IUserTokenPayload, NBError } from '@xsin/nextboard-common'
+import { XBError } from '@xsin/xboard'
 import { isEmpty, omit } from 'radash'
 import { AppConfigService } from '../config/config.service'
 import { UserService } from '../user/user.service'
@@ -35,7 +36,7 @@ export class TokenService {
 
     const userFromDb = await this.parseUserFrowJwt(token, isRefreshToken)
     if (!userFromDb) {
-      throw new NotFoundException(NBError.NOT_FOUND)
+      throw new NotFoundException(XBError.NOT_FOUND)
     }
     // Save the user object to the request object
     req.user = omit(userFromDb, ['password'])
@@ -75,7 +76,7 @@ export class TokenService {
 
     const user = await this.userService.findByEmail(payload.username)
     if (!user) {
-      throw new NotFoundException(NBError.NOT_FOUND)
+      throw new NotFoundException(XBError.NOT_FOUND)
     }
 
     return this.generateTokens(user)

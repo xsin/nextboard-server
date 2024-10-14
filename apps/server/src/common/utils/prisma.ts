@@ -1,4 +1,4 @@
-import type { IListQueryDto } from '@xsin/nextboard-common'
+import type { IListQueryDto } from '@xsin/xboard'
 import { isEmpty } from 'radash'
 
 /**

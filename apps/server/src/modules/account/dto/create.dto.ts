@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Prisma, TAccountProvider, TAccountType } from '@xsin/nextboard-common'
+import { Prisma, TAccountProvider, TAccountType } from '@xsin/xboard'
 import { Type } from 'class-transformer'
 import { IsDate, IsEnum, IsOptional, IsString } from 'class-validator'
 

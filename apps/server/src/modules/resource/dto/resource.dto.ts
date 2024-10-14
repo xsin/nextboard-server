@@ -1,4 +1,4 @@
-import type { Resource, TResourceOpenTarget } from '@xsin/nextboard-common'
+import type { Resource, TResourceOpenTarget } from '@xsin/xboard'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class ResourceDto implements Resource {

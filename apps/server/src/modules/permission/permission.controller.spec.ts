@@ -1,6 +1,6 @@
 import { ListQueryDto } from '@/common/dto'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Permission } from '@xsin/nextboard-common'
+import { Permission } from '@xsin/xboard'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreatePermissionDto } from './dto/create.dto'
 import { PermissionDto } from './dto/permission.dto'

@@ -1,7 +1,7 @@
 {
-  "name": "@xsin/nextboard-supabase",
+  "name": "@xsin/xboard-supabase",
   "version": "0.0.1",
-  "description": "Supabase data provider for NextBoard",
+  "description": "Supabase data provider for XBoard",
   "author": {
     "name": "XSIN STUDIO"
   },

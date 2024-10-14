@@ -13,7 +13,7 @@ datasource db {
   provider  = "postgresql"
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
-  schemas   = ["nextboard"]
+  schemas   = ["xboard"]
 }
 
   // Custom types
@@ -22,7 +22,7 @@ enum TUserGender {
   male
   female
 
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 enum TResourceOpenTarget {
@@ -31,14 +31,14 @@ enum TResourceOpenTarget {
   internalTab
   internalTabPinned
 
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 enum TAccountType {
   local
   oauth
 
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 enum TAccountProvider {
@@ -49,7 +49,7 @@ enum TAccountProvider {
   wechat
   qq
 
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
   // Tables
@@ -99,7 +99,7 @@ model User {
   createdRolePermissions     RolePermission[]     @relation("UserCreatedRolePermission")
 
   @@map("users")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 model Account {
@@ -124,7 +124,7 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
   // Verification code
@@ -137,7 +137,7 @@ model VCode {
 
   @@unique([owner, code])
   @@map("vcodes")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 model Role {
@@ -159,7 +159,7 @@ model Role {
   updater User? @relation("UserUpdatedRoles", fields: [updatedBy], references: [id])
 
   @@map("roles")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 model UserRole {
@@ -175,7 +175,7 @@ model UserRole {
 
   @@unique([userId, roleId])
   @@map("user_roles")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 model Permission {
@@ -195,7 +195,7 @@ model Permission {
   updater User? @relation("UserUpdatedPermissions", fields: [updatedBy], references: [id])
 
   @@map("permissions")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 model RolePermission {
@@ -211,7 +211,7 @@ model RolePermission {
 
   @@unique([roleId, permissionId])
   @@map("role_permissions")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 model Resource {
@@ -238,7 +238,7 @@ model Resource {
   permissions ResourcePermission[]
 
   @@map("resources")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 model ResourcePermission {
@@ -254,7 +254,7 @@ model ResourcePermission {
 
   @@unique([resourceId, permissionId])
   @@map("resource_permissions")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 model Log {
@@ -270,7 +270,7 @@ model Log {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("logs")
-  @@schema("nextboard")
+  @@schema("xboard")
 }
 
 model Dict {
@@ -290,5 +290,5 @@ model Dict {
   updater User? @relation("UserUpdatedDicts", fields: [updatedBy], references: [id])
 
   @@map("dicts")
-  @@schema("nextboard")
+  @@schema("xboard")
 }

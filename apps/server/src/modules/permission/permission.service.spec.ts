@@ -1,5 +1,5 @@
+import type { IListQueryDto, Permission } from '@xsin/xboard'
 import { Test, TestingModule } from '@nestjs/testing'
-import { IListQueryDto, Permission } from '@xsin/nextboard-common'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreatePermissionDto } from './dto/create.dto'

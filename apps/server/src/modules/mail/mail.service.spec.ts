@@ -1,6 +1,6 @@
 import { BadRequestException, InternalServerErrorException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import { EmailService, EmailType, NBError } from '@xsin/nextboard-common'
+import { EmailService, EmailType, XBError } from '@xsin/xboard'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'
@@ -292,7 +292,7 @@ describe('mailService', () => {
       })
 
       await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(InternalServerErrorException)
-      await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(NBError.EMAIL_SENT_FAILED)
+      await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(XBError.EMAIL_SENT_FAILED)
     })
 
     it('should throw a BadRequestException if a valid verification email already sent', async () => {
@@ -300,7 +300,7 @@ describe('mailService', () => {
       vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(true)
 
       await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(BadRequestException)
-      await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(NBError.EMAIL_ALREADY_SENT)
+      await expect(service.sendVerificationEmail(email, undefined, EmailService.RESEND)).rejects.toThrow(XBError.EMAIL_ALREADY_SENT)
     })
   })
 
@@ -439,7 +439,7 @@ describe('mailService', () => {
       vi.spyOn(vcodeService, 'hasCodeWithinResendInterval').mockResolvedValue(true)
 
       await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(BadRequestException)
-      await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(NBError.AUTH_OTP_EXISTS)
+      await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(XBError.AUTH_OTP_EXISTS)
     })
 
     it('should throw an InternalServerErrorException if Resend returns an error for OTP email', async () => {
@@ -457,7 +457,7 @@ describe('mailService', () => {
       })
 
       await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(InternalServerErrorException)
-      await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(NBError.EMAIL_SENT_FAILED)
+      await expect(service.sendOTP(email, EmailService.RESEND)).rejects.toThrow(XBError.EMAIL_SENT_FAILED)
     })
   })
 })

@@ -3,10 +3,10 @@ import type {
   IListQueryDto,
   IListQueryResult,
   TAccountProvider,
-} from '@xsin/nextboard-common'
+} from '@xsin/xboard'
 import { buildFindManyParams } from '@/common/utils'
 import { Injectable } from '@nestjs/common'
-import { Prisma } from '@xsin/nextboard-common'
+import { Prisma } from '@xsin/xboard'
 import { omit } from 'radash'
 import { PrismaService } from '../prisma/prisma.service'
 import { UpdateAccountDto } from './dto/update.dto'

@@ -1,4 +1,4 @@
-import type { EmailType, ISendEmailResult } from '@xsin/nextboard-common'
+import type { EmailType, ISendEmailResult } from '@xsin/xboard'
 import { ApiProperty } from '@nestjs/swagger'
 import { IsDate, IsEmail, IsNumber, IsString } from 'class-validator'
 

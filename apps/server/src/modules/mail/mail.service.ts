@@ -1,8 +1,8 @@
 import type { IEmailContext } from '@/types'
-import type { ISendEmailResult } from '@xsin/nextboard-common'
+import type { ISendEmailResult } from '@xsin/xboard'
 import { randomCode } from '@/common/utils'
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common'
-import { EmailService, EmailType, NBError } from '@xsin/nextboard-common'
+import { EmailService, EmailType, XBError } from '@xsin/xboard'
 import { template } from 'radash'
 import { AppConfigService } from '../config/config.service'
 import { VCodeService } from '../vcode/vcode.service'
@@ -42,7 +42,7 @@ export class MailService {
     // Check if the user has a valid code
     const hasValidCode = await this.vcodeService.hasCodeWithinResendInterval({ owner }, this.configService.NB_MAIL_RESEND_INTERVAL)
     if (hasValidCode) {
-      throw new BadRequestException(NBError.EMAIL_ALREADY_SENT)
+      throw new BadRequestException(XBError.EMAIL_ALREADY_SENT)
     }
 
     // Create token record in the database
@@ -86,7 +86,7 @@ export class MailService {
       : await this.resendService.sendEmail(mailOptions)
 
     if (result.error) {
-      throw new InternalServerErrorException(NBError.EMAIL_SENT_FAILED, result.error.message)
+      throw new InternalServerErrorException(XBError.EMAIL_SENT_FAILED, result.error.message)
     }
 
     return {
@@ -112,7 +112,7 @@ export class MailService {
     // Check if the user has a valid code
     const hasValidCode = await this.vcodeService.hasCodeWithinResendInterval({ owner: email }, this.configService.NB_MAIL_RESEND_INTERVAL)
     if (hasValidCode) {
-      throw new BadRequestException(NBError.AUTH_OTP_EXISTS)
+      throw new BadRequestException(XBError.AUTH_OTP_EXISTS)
     }
 
     // Create token record in the database
@@ -152,7 +152,7 @@ export class MailService {
       : await this.resendService.sendEmail(mailOptions)
 
     if (result.error) {
-      throw new InternalServerErrorException(NBError.EMAIL_SENT_FAILED, result.error.message)
+      throw new InternalServerErrorException(XBError.EMAIL_SENT_FAILED, result.error.message)
     }
 
     return {

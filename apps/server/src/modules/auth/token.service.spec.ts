@@ -1,6 +1,6 @@
 import type { Request } from 'express'
 import { CACHE_MANAGER } from '@nestjs/cache-manager'
-import { type IUser, type IUserFull, type IUserToken, type IUserTokenPayload, TAccountProvider } from '@xsin/nextboard-common'
+import { type IUser, type IUserFull, type IUserToken, type IUserTokenPayload, TAccountProvider } from '@xsin/xboard'
 /* eslint-disable dot-notation */
 import { NotFoundException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'

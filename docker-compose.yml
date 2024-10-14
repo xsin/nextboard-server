@@ -1,12 +1,12 @@
-name: nextboard-server
+name: xboard-server
 services:
   postgres:
     image: postgres
     restart: always
     environment:
-      POSTGRES_USER: nextboard
-      POSTGRES_PASSWORD: nextboard
-      POSTGRES_DB: nextboard
+      POSTGRES_USER: xboard
+      POSTGRES_PASSWORD: xboard
+      POSTGRES_DB: xboard
     volumes:
       - postgres:/var/lib/postgresql/data
     ports:

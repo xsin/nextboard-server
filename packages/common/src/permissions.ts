@@ -1,3 +1,5 @@
+import { Permission } from './prisma'
+
 /**
  * Permission names, in the convention of `{RESOURCE}.{OPERATION}`
  */
@@ -25,3 +27,5 @@ export enum TPermission {
   LOG_SELECT = 'log.select',
   LOG_DELETE = 'log.delete',
 }
+
+export interface IPermission extends Permission {}

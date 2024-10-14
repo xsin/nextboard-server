@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { IListQueryDto, IListQueryResult, Resource, TResourceOpenTarget } from '@xsin/nextboard-common'
+import { IListQueryDto, IListQueryResult, Resource, TResourceOpenTarget } from '@xsin/xboard'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PrismaService } from '../prisma/prisma.service'
 import { CreateResourceDto } from './dto/create.dto'

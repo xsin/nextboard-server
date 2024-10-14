@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Prisma } from '@prisma/client'
+import { Prisma } from '@xsin/xboard'
 import { IsBoolean, IsString } from 'class-validator'
 
 export class CreateRoleDto implements Prisma.RoleCreateInput {

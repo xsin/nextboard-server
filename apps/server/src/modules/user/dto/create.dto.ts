@@ -1,6 +1,6 @@
 import { Match } from '@/common/decorators/match.decorator'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Prisma, TUserGender } from '@xsin/nextboard-common'
+import { Prisma, TUserGender } from '@xsin/xboard'
 import { Type } from 'class-transformer'
 import { IsBoolean, IsDate, IsEmail, IsEnum, IsOptional, IsString, IsUrl, Length, Matches } from 'class-validator'
 

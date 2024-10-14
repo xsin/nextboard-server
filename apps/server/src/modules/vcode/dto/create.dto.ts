@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger'
-import { Prisma } from '@xsin/nextboard-common'
+import { Prisma } from '@xsin/xboard'
 import { IsDate, IsString } from 'class-validator'
 
 export class CreateVCodeDto implements Prisma.VCodeCreateInput {

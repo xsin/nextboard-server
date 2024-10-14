@@ -1,18 +1,20 @@
-import type { Account, Prisma, TAccountProvider } from '@prisma/client'
+import type {
+  Account,
+  IListQueryDto,
+  IListQueryResult,
+  IUser,
+  IUserFull,
+  IUserProfile,
+  Prisma,
+  Resource,
+  TAccountProvider,
+} from '@xsin/xboard'
 import type { CreateUserDto } from './dto/create.dto'
 import type { UpdateUserDto } from './dto/update.dto'
 import { buildFindManyParams } from '@/common/utils'
 import { saltAndHashPassword } from '@/common/utils/password'
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common'
-import {
-  type IListQueryDto,
-  type IListQueryResult,
-  type IUser,
-  type IUserFull,
-  type IUserProfile,
-  NBError,
-  type Resource,
-} from '@xsin/nextboard-common'
+import { XBError } from '@xsin/xboard'
 import { isEmpty, omit } from 'radash'
 import { AccountService } from '../account/account.service'
 import { CreateAccountDto } from '../account/dto/create.dto'
@@ -173,7 +175,7 @@ export class UserService {
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<IUser> {
     if (isEmpty(id)) {
-      throw new BadRequestException(NBError.INVALID_PARAMETERS)
+      throw new BadRequestException(XBError.INVALID_PARAMETERS)
     }
 
     // process password

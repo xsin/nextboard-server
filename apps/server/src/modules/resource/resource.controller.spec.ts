@@ -1,6 +1,6 @@
 import { ListQueryDto } from '@/common/dto'
 import { Test, TestingModule } from '@nestjs/testing'
-import { TResourceOpenTarget } from '@xsin/nextboard-common'
+import { TResourceOpenTarget } from '@xsin/xboard'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CreateResourceDto } from './dto/create.dto'
 import { ResourceDto } from './dto/resource.dto'

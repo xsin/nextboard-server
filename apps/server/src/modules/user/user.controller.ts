@@ -1,9 +1,9 @@
+import type { IUserProfile } from '@xsin/xboard'
 import { NBApiResponse, NBApiResponsePaginated } from '@/common/decorators/api.decorator'
 import { ListQueryDto, ListQueryResult } from '@/common/dto'
 import { BadRequestException, Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Query, Request as Req, Res } from '@nestjs/common'
 import { ApiBearerAuth, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger'
-import { TAccountProvider, TAccountType } from '@prisma/client'
-import { EmailType, IUserProfile, NBError, TPermission } from '@xsin/nextboard-common'
+import { EmailType, TAccountProvider, TAccountType, TPermission, XBError } from '@xsin/xboard'
 import { Request, Response } from 'express'
 import { CreateAccountDto } from '../account/dto/create.dto'
 import { Permissions } from '../auth/decorators/permissions.decorator'
@@ -125,7 +125,7 @@ export class UserController {
     @Query('redirect') redirect: string,
   ): Promise<void> {
     if (!email || !vcode) {
-      throw new BadRequestException(NBError.INVALID_PARAMETERS)
+      throw new BadRequestException(XBError.INVALID_PARAMETERS)
     }
 
     // Verify the vcode
@@ -137,9 +137,9 @@ export class UserController {
 
     if (!isValid) {
       if (redirect) {
-        return res.redirect(`${redirect}?error=${NBError.AUTH_INVALID_OTP}`)
+        return res.redirect(`${redirect}?error=${XBError.AUTH_INVALID_OTP}`)
       }
-      throw new BadRequestException(NBError.AUTH_INVALID_OTP)
+      throw new BadRequestException(XBError.AUTH_INVALID_OTP)
     }
 
     await this.userService.verifyEmail(email)

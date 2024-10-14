@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { Dict, IListQueryDto, IListQueryResult } from '@xsin/nextboard-common'
+import { Dict, IListQueryDto, IListQueryResult } from '@xsin/xboard'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PrismaService } from '../prisma/prisma.service'
 import { DictService } from './dict.service'

@@ -1,4 +1,4 @@
-import type { VCode } from '@xsin/nextboard-common'
+import type { VCode } from '@xsin/xboard'
 import { Test, TestingModule } from '@nestjs/testing'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { PrismaService } from '../prisma/prisma.service'

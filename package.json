@@ -1,37 +1,40 @@
 {
-  "name": "@xsin/nextboard-server-repo",
+  "name": "@xsin/xboard-monorepo",
   "type": "module",
   "version": "0.0.1",
   "packageManager": "pnpm@9.12.1",
-  "description": "Server for the NextBoard Framework",
+  "description": "The X Dashboard Framework",
   "author": {
     "name": "XSIN STUDIO"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/xsin/nextboard-server"
+    "url": "https://github.com/xsin/xboard"
   },
   "keywords": [
-    "NextBoard"
+    "Dashboard",
+    "XBoard",
+    "Admin UI",
+    "Dashboard Framework"
   ],
   "scripts": {
     "taze": "taze minor -wIr",
     "dev": "concurrently \"pnpm run pkg:dev\" \"pnpm run server:dev\"",
     "test": "concurrently \"pnpm run pkg:test\" \"pnpm run server:test\"",
     "test:cov": "concurrently \"pnpm run pkg:test:cov\" \"pnpm run server:test:cov\"",
-    "server:build": "pnpm -F @xsin/nextboard-server run build",
-    "server:start": "pnpm -F @xsin/nextboard-server run start",
-    "server:dev": "pnpm -F @xsin/nextboard-server run start:dev",
-    "server:debug": "pnpm -F @xsin/nextboard-server run start:debug",
-    "server:prod": "pnpm -F @xsin/nextboard-server run prod",
-    "server:test": "pnpm -F @xsin/nextboard-server run test",
-    "server:test:cov": "pnpm -F @xsin/nextboard-server run test:cov",
+    "server:build": "pnpm -F @xsin/xboard-server run build",
+    "server:start": "pnpm -F @xsin/xboard-server run start",
+    "server:dev": "pnpm -F @xsin/xboard-server run start:dev",
+    "server:debug": "pnpm -F @xsin/xboard-server run start:debug",
+    "server:prod": "pnpm -F @xsin/xboard-server run prod",
+    "server:test": "pnpm -F @xsin/xboard-server run test",
+    "server:test:cov": "pnpm -F @xsin/xboard-server run test:cov",
     "pkg:dev": "pnpm -r --filter=./packages/* --parallel run watch",
     "pkg:build": "rimraf packages/*/dist --glob && esno scripts/copyfiles.ts && pnpm -r --filter=./packages/* run build && pnpm -r run build-post && esno scripts/postbuild.ts",
     "pkg:stub": "pnpm -r --filter=./packages/* --parallel run stub",
     "pkg:test": "pnpm -r --filter=./packages/* --parallel run test",
     "pkg:test:cov": "pnpm -r --filter=./packages/* --parallel run test:cov",
-    "prisma:gen": "pnpm -F @xsin/nextboard-server run prisma:gen",
+    "db:gen": "pnpm -F @xsin/xboard run db:gen",
     "release": "bumpp -r",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -50,7 +53,7 @@
     "@nestjs/websockets": "^10.4.4",
     "@prisma/client": "^5.20.0",
     "@supabase/supabase-js": "^2.45.4",
-    "@xsin/nextboard-common": "workspace:*",
+    "@xsin/xboard": "workspace:*",
     "bcrypt": "^5.1.1",
     "cache-manager": "^5.7.6",
     "cache-manager-redis-yet": "^5.1.5",

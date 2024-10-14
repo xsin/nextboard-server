@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { Prisma, TResourceOpenTarget } from '@prisma/client'
+import { Prisma, TResourceOpenTarget } from '@xsin/xboard'
 import { IsBoolean, IsOptional, IsString } from 'class-validator'
 
 export class CreateResourceDto implements Prisma.ResourceCreateInput {

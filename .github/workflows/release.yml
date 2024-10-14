@@ -35,11 +35,10 @@ jobs:
 
       - name: PNPM build
         run: |
-          pnpm run prisma:gen
           pnpm run pkg:build
 
       - name: Publish to NPM
-        run: pnpm -r publish --filter "@xsin/nextboard-common" --access public --no-git-checks --registry https://registry.npmjs.org
+        run: pnpm -r publish --filter "@xsin/xboard" --access public --no-git-checks --registry https://registry.npmjs.org
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
           NPM_CONFIG_PROVENANCE: true

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Log } from '@prisma/client'
+import { Log } from '@xsin/xboard'
 import { LogService } from './log.service'
 import { CreateLogDto } from './dto/create.dto'
 import { PrismaService } from '@/modules/prisma/prisma.service'

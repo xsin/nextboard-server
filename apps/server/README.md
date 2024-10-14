@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://nextboard.xsin.work/" target="blank">
+  <a href="https://xboard.xsin.work/" target="blank">
   <svg width="501" height="501" viewBox="0 0 501 501" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clip-path="url(#clip0_3_2)">
     <path fill-rule="evenodd" clip-rule="evenodd" d="M187.954 460H202.272V369.123L176.006 431.973L187.954 460ZM211.506 347.031L221.363 342.164L221.363 460H240.454L240.454 277.769L211.506 347.031ZM240.454 236.706L167.338 411.645L149.773 370.444L207.045 191.333H240.454V236.706ZM259.546 277.084V460H278.637V342.164L286.583 346.088L259.546 277.084ZM297.727 374.529V460H312.045L322.035 436.568L297.727 374.529ZM330.899 415.778L259.546 233.672V191.333H288.182L350.227 370.444L330.899 415.778Z" fill="#10B981"/>
@@ -19,9 +19,9 @@
   </a>
 </p>
 
-## NextBoard Server
+## XBoard
 
-[NextBoard](https://github.com/xsin/nextboard-server) framework server repository.
+[NextBoard](https://github.com/xsin/xboard) framework repository.
 
 ## Installation
 
@@ -56,7 +56,7 @@ NextBoard is an open source project. We are looking for sponsors. With your stro
 ## Stay in touch
 
 - Author - [XSIN STUDIO](https://github.com/xsin)
-- Website - [https://nextboard.xsin.work](https://nextboard.xsin.work/)
+- Website - [https://xboard.xsin.work](https://xboard.xsin.work/)
 
 ## License
 

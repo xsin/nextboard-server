@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Role } from '@prisma/client'
+import { Role } from '@xsin/xboard'
 import { PrismaService } from '../prisma/prisma.service'
 import { RoleService } from './role.service'
 

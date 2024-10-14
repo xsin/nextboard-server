@@ -1,7 +1,7 @@
 import type {
   Dict,
   Prisma,
-} from '@xsin/nextboard-common'
+} from '@xsin/xboard'
 import { ApiProperty } from '@nestjs/swagger'
 
 export class DictDto implements Dict {

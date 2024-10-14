@@ -1,8 +1,8 @@
 import type {
   Account,
-} from '@xsin/nextboard-common'
+} from '@xsin/xboard'
 import { ApiProperty } from '@nestjs/swagger'
-import { TAccountProvider, TAccountType } from '@xsin/nextboard-common'
+import { TAccountProvider, TAccountType } from '@xsin/xboard'
 
 export class AccountDto implements Account {
   @ApiProperty({

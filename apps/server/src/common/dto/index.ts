@@ -1,4 +1,4 @@
-import type { IApiResponse, IListQueryDto, IListQueryResult } from '@xsin/nextboard-common'
+import type { IApiResponse, IListQueryDto, IListQueryResult } from '@xsin/xboard'
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
 import { IsInt, IsOptional, IsString, Min } from 'class-validator'
 

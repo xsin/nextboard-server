@@ -2,7 +2,7 @@
  * Error enum, used to standardize error codes across the application.
  * Friendly to i18n in the client.
  */
-export enum NBError {
+export enum XBError {
   // Common
   UNKNOWN = 'error.unknown',
   UNAUTHORIZED = 'error.unauthorized',

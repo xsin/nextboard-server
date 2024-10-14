@@ -5,10 +5,10 @@ import {
   type ISendEmailResult,
   type IUser,
   IUserToken,
-  NBError,
+  XBError,
   TAccountProvider,
   TAccountType,
-} from '@xsin/nextboard-common'
+} from '@xsin/xboard'
 import { pick } from 'radash'
 import { CreateAccountDto } from '../account/dto/create.dto'
 import { MailService } from '../mail/mail.service'
@@ -75,17 +75,17 @@ export class AuthService {
   private async validateUser(dto: LoginRequestDto): Promise<IUser> {
     const user = await this.userService.findByEmailX(dto.username)
     if (!user) {
-      throw new NotFoundException(NBError.NOT_FOUND)
+      throw new NotFoundException(XBError.NOT_FOUND)
     }
 
     // Check email's verification status
     if (!user.emailVerifiedAt) {
-      throw new UnauthorizedException(NBError.AUTH_UNVERIFIED_EMAIL)
+      throw new UnauthorizedException(XBError.AUTH_UNVERIFIED_EMAIL)
     }
 
     const isValid = await comparePasswords(dto.password, user.password)
     if (!isValid) {
-      throw new UnauthorizedException(NBError.AUTH_INVALID_PWD)
+      throw new UnauthorizedException(XBError.AUTH_INVALID_PWD)
     }
 
     return user
@@ -130,7 +130,7 @@ export class AuthService {
       code,
     })
     if (!isCodeValid) {
-      throw new UnauthorizedException(NBError.AUTH_INVALID_OTP)
+      throw new UnauthorizedException(XBError.AUTH_INVALID_OTP)
     }
 
     let user = await this.userService.findByEmailX(email)

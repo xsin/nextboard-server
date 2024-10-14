@@ -1,4 +1,4 @@
-import type { IUser } from '@xsin/nextboard-common'
+import type { IUser } from '@xsin/xboard'
 import { ExecutionContext, UnauthorizedException } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
